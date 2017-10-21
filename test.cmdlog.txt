@@ -1,0 +1,9 @@
+
+;-------------
+; File: K:\RepeaterControlerDownloaderP34\test.cmdlog.txt, Created on: 20171017, 21:39:07 UTC
+;-----------------
+009 ;no filter
+010 ;no display but log
+013 ;no display but log selected
+014 ;display but log deselected
+015 ;display log, format

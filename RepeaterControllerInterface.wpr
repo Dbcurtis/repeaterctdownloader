@@ -1,0 +1,49 @@
+#!wing
+#!version=6.0
+##################################################################
+# Wing IDE project file                                          #
+##################################################################
+[project attributes]
+debug.launch-configs = (2,
+                        {'launch-4JW1fTGQSb4P5YcS': ({'shared': False},
+        {'buildcmd': ('project',
+                      None),
+         'env': ('project',
+                 [u'']),
+         'name': '3.4',
+         'pyexec': ('custom',
+                    u'C:\\Users\\Dan\\Envs\\p34\\Scripts\\python.exe'),
+         'pypath': ('project',
+                    []),
+         'pyrunargs': ('project',
+                       '-u'),
+         'runargs': u'',
+         'rundir': ('project',
+                    u'')}),
+                         'launch-KHx9yFpayBYheMou': ({'shared': True},
+        {'buildcmd': ('project',
+                      None),
+         'env': ('project',
+                 [u'']),
+         'name': '3.6',
+         'pyexec': ('custom',
+                    u'C:\\Users\\Dan\\Envs\\repctrlP3_6\\Scripts\\python.exe'),
+         'pypath': ('project',
+                    []),
+         'pyrunargs': ('project',
+                       '-u'),
+         'runargs': u'',
+         'rundir': ('project',
+                    u'')})})
+proj.directory-list = [{'dirloc': loc('.'),
+                        'excludes': (),
+                        'filter': u'*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True}]
+proj.file-type = 'shared'
+proj.launch-config = {loc('getports.py'): ('custom',
+        (u'',
+         'launch-4JW1fTGQSb4P5YcS'))}
+testing.auto-test-file-specs = (('glob',
+                                 'test_*.py'),)

@@ -1,0 +1,7 @@
+;cmdreadertest.txt
+;data for the commandreader to read during test
+line 3
+line 4
+blank line next
+
+the last line no trailing cr
