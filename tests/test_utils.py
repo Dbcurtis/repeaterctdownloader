@@ -22,9 +22,11 @@ class Testutils(unittest.TestCase):
     gsp = serial.Serial()
     
     def setUp(self):
+        myserial.MySerial._dbidx=0 
         pass 
             
     def tearDown(self):
+        myserial.MySerial._dbidx=0 
         pass           
     
     @classmethod
@@ -81,7 +83,14 @@ class Testutils(unittest.TestCase):
     
     def testrecallMacroNames(self): pass
     def testrecallAllNames(self): pass
-    def testresetCmdNames(self): pass
+    def testresetCmdNames(self):
+        ui = userinput.UserInput()
+        ui.commPort = Testutils.sdevice
+        utili = utils.Utils(ui, testing= True, showhelp = False)        
+        myserial.MySerial._dbidx= -1
+        utili.resetCmdNames()
+        pass
+    
     def testrecallMacroDeffinitions(self): pass
     
     def teststr(self):
