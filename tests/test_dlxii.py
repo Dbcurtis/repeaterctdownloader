@@ -42,9 +42,9 @@ class TestControllerspecific(unittest.TestCase):
         self.assertEqual(css, str(cs))
         pass
 
-    def testfmtN054(self):
+    def testfmtRMC(self):
         cs = dlxii.DlxII()
-        r = cs.fmtN054("junk test")
+        r = cs.fmtRMC("junk test")
         self.assertEqual("junk test", r[0])
         self.assertEqual({}, r[1])
         mdf = """DTMF>N054 501N054501
@@ -55,9 +55,35 @@ This macro is 9 percent full
 OK
 OK
 DTMF>"""
-        r = cs.fmtN054(mdf)
-        ii = 2
+        r = cs.fmtRMC(mdf)
+        self.assertEqual('Macro 501 contains 2 commands\n'\
+                         '#00  Command #038 with 00 digits of data:\n'\
+                         '#01  Command #000 with 02 digits of data: 13\n'\
+                         'This macro is 9 percent full',
+                         r[0])
+        self.assertEqual(4, len(r[1]))
+        self.assertEqual(2, len(r[1].get("cmds")))
+        
+
+    def testfmtRCM(self):
+        cs = dlxii.DlxII()
+        r = cs.fmtRMC("junk test")
+        self.assertEqual("junk test", r[0])
+        self.assertEqual({}, r[1])
+        mdf = """OK
+DTMF>N011 521N011521
+Command number 521 is named C47571.  It takes 0 digits of data.
+OK
+OK
+DTMF>"""
+        r = cs.fmtRCM(mdf)
+        self.assertEqual('Command number 521 is named C47571.  It takes 0 digits of data.',
+                         r[0])
+        self.assertEqual(3, len(r[1]))
         pass
+
+        
+
 
 if __name__ == '__main__':
     unittest.main()    
