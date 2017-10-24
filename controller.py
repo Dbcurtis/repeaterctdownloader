@@ -6,6 +6,7 @@ import serial
 import myserial
 import re
 import userinput
+import getports
 from datetime import datetime
 from os import path
 from time import time
@@ -129,7 +130,7 @@ class Controller:
         logIt = True,
         echoit = False, 
         selectIt = lambda a: True, 
-        formatIt = lambda a: a):        
+        formatIt = lambda a: (a, {})):        
         """sendcmd(cmd, display=TF, logIt=TF
 
         Logs the command as provided in the execution log with the results
@@ -218,7 +219,7 @@ class Controller:
                 print(response)
             if logIt and selectIt(response):
                 self.lastLogged = response
-                self.cEFile.write(formatIt(response))
+                self.cEFile.write(formatIt(response)[0])
         return result
 
     def close(self):
@@ -239,4 +240,37 @@ class Controller:
             self.isFilesOpen = False
 
 if __name__ == '__main__':
-    pass
+    ui = userinput.UserInput()
+    try:    
+        def _cmdloop(c):
+            print("Quit or Exit to exit command mode")
+            while True:        
+                cmd = input("input>")
+                cmd = cmd.strip().upper()
+                if cmd.startswith('Q') or cmd.startswith('E'):
+                    print("Exiting command input mode...")
+                    break
+                c.sendcmd(cmd)
+        
+        def sendUsersCmds():
+            global ui
+            ui.open()
+            c = Controller(ui)
+            c.open()
+            try:
+                _cmdloop(c)
+                c.close()        
+            finally:
+                if ui.serial_port.isOpen():ui.serial_port.close()
+                c.close()
+        
+        print('Available comport(s) are: %s' % getports.GetPorts().get())       
+
+        ui.request()
+        sendUsersCmds()
+        ui.close()
+       
+    except(Exception, KeyboardInterrupt) as exc:
+        ui.close()
+        sys.exit(exc)
+        
