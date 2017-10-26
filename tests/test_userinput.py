@@ -76,8 +76,8 @@ class Testuserinput(unittest.TestCase):
         self.assertTrue(myserial.MySerial._debugging)
         ui = userinput.UserInput()
         ui.inputfn = "cmdreadertest.txt"
-        ui.commPort = Testuserinput.sdevice
-        self.assertTrue (ui.open(detectBR= False))
+        ui.comm_port = Testuserinput.sdevice
+        self.assertTrue (ui.open(detect_br=False))
         sp = ui.serial_port
         self.assertTrue(sp.isOpen())
         self.assertEqual(Testuserinput.sdevice, sp.port)
@@ -106,7 +106,7 @@ class Testuserinput(unittest.TestCase):
             b'preread ignored',b'19200 succeed try 2 DTMF>']
         myserial.MySerial._dbidx=0
         
-        ui.open(detectBR=False)
+        ui.open(detect_br=False)
         self.assertEquals(9600, sp.baudrate)  #9600 is the default
         ui.close()
           

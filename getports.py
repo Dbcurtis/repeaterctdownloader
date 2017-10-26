@@ -44,5 +44,10 @@ class GetPorts:
         return self.devs
     
 if __name__ == '__main__':
-    print(GetPorts().get())
+    ports =  GetPorts().get()
+    if ports:
+        print(ports)
+    else:
+        print("No ports found or all found ports busy")
+
     

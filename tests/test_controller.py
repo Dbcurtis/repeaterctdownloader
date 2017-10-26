@@ -60,21 +60,21 @@ class TestController(unittest.TestCase):
         if sp.isOpen():sp.close() 
         assert(openresult)
         ui =  TestController.ui
-        ui.commPort = sp.port
+        ui.comm_port = sp.port
         ui.inputfn = 'testcontroller.txt'
         
         ui1 =  TestController.ui1
-        ui1.commPort = sp.port
+        ui1.comm_port = sp.port
         ui1.inputfn = ''
         
         mySPortclass._debugging = True
         mySPortclass._debugreturns =  [b'ok\nDTMF>']
         mySPortclass._dbidx=0 
-        ui.open(detectBR=False)
+        ui.open(detect_br=False)
         ui.close()
         
         mySPortclass._dbidx=0
-        ui1.open(detectBR=False)
+        ui1.open(detect_br=False)
         ui1.close()
 
     @classmethod
@@ -180,8 +180,8 @@ class TestController(unittest.TestCase):
         time.sleep(3)
         #  
         lui = userinput.UserInput()
-        lui.commPort = TestController.ui.commPort
-        lui.open(detectBR=False)
+        lui.comm_port = TestController.ui.comm_port
+        lui.open(detect_br=False)
         c = controller.Controller(lui)
         mySPortclass._debugreturns =  [ b'ok\nDTMF>' for i in range(40)]
         mySPortclass._dbidx=0      

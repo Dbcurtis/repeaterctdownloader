@@ -66,7 +66,7 @@ class Testutils(unittest.TestCase):
 
     def testcreation(self):
         ui = userinput.UserInput()
-        ui.commPort = Testutils.sdevice
+        ui.comm_port = Testutils.sdevice
         utili = utils.Utils(ui, testing= False, showhelp = False)
         self.assertFalse(utili.testing)
         utili = utils.Utils(ui, testing= True, showhelp = False)
@@ -75,7 +75,7 @@ class Testutils(unittest.TestCase):
 
     def testprocessLoop(self):
         ui = userinput.UserInput()
-        ui.commPort = Testutils.sdevice
+        ui.comm_port = Testutils.sdevice
         utili = utils.Utils(ui, testing= True, showhelp = False)
         utili.processLoop()
         jjj = 'tjej'
@@ -85,7 +85,7 @@ class Testutils(unittest.TestCase):
     def testrecallAllNames(self): pass
     def testresetCmdNames(self):
         ui = userinput.UserInput()
-        ui.commPort = Testutils.sdevice
+        ui.comm_port = Testutils.sdevice
         utili = utils.Utils(ui, testing= True, showhelp = False)        
         myserial.MySerial._dbidx= -1
         utili.resetCmdNames()
@@ -95,7 +95,7 @@ class Testutils(unittest.TestCase):
     
     def teststr(self):
         ui = userinput.UserInput()
-        ui.commPort = Testutils.sdevice
+        ui.comm_port = Testutils.sdevice
         utili = utils.Utils(ui, testing= False, showhelp = False)                
         self.assertEqual('testing:False, cmds: -rmn, -ran, -rmd, -cacn, -q', str(utili))        
         utili = utils.Utils(ui, testing= True, showhelp = False)  

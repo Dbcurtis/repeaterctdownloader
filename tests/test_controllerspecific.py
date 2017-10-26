@@ -9,10 +9,6 @@ import controllerspecific
 import unittest
 
 
-
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
 class TestControllerspecific(unittest.TestCase):
      
     def setUp(self):
@@ -30,31 +26,27 @@ class TestControllerspecific(unittest.TestCase):
         pass
     
     def testcreation(self):
-        cs = controllerspecific(9600, .25)
-        self.assertEqual(9600, cs.bps)
-        self.assertEqual(0.25, cs.cpsDelay)
-        ss = str(cs)
-        self.assertEquals(ss, str(cs))
+        cs = controllerspecific.ControllerSpecific()
+        self.assertEqual('Abstract Controller', cs.get_Ctr_type())
+        cpsData = cs.cpsData
+        cps0 = cpsData[0]
+        self.assertEqual('[CPS: 960, 0.215]', str(cps0))
+        self.assertEqual(9600, cps0.bps)
+        self.assertTrue(0.21 < cps0.cpsDelay < 0.22)
+        ss = '[CPS: 960, 0.215]'
+        self.assertEqual(ss, str(cps0))
         rates = [d.bps for d in cs.cpsData]
-        self.assertEqual([9600, 19200, 4800, 2300, 1200, 600, 300] , rates)
-        cpsd = cs.cpsData
-        l0 = cpsd[0]
-        sss = str(l0)
-        self.assertEquals("", str(l0))     
+        self.assertEqual([9600, 19200, 4800, 2400, 1200, 600, 300] , rates)
+        css = '[ControllerSpecific: rename:.*, macrodef:.*]'
+        self.assertEqual(css, str(cs))
         pass
 
-    def testfmt054(self):
-        cs = controllerspecific(9600, .25)
-        r = cs.fmt054("junk test")
+    def testfmtN054(self):
+        cs = controllerspecific.ControllerSpecific()
+        r = cs.fmtRMC("junk test")
         self.assertEqual("junk test", r[0])
         self.assertEqual({}, r[1])  
         pass
     
-
-    
-    def teststr(self):
-
-        pass
-
 if __name__ == '__main__':
     unittest.main()    

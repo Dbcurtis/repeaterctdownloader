@@ -5,7 +5,7 @@
 ##################################################################
 [project attributes]
 debug.launch-configs = (2,
-                        {'launch-4JW1fTGQSb4P5YcS': ({'shared': False},
+                        {'launch-4JW1fTGQSb4P5YcS': ({'shared': True},
         {'buildcmd': ('project',
                       None),
          'env': ('project',
@@ -20,7 +20,7 @@ debug.launch-configs = (2,
          'runargs': u'',
          'rundir': ('project',
                     u'')}),
-                         'launch-KHx9yFpayBYheMou': ({'shared': True},
+                         'launch-KHx9yFpayBYheMou': ({'shared': False},
         {'buildcmd': ('project',
                       None),
          'env': ('project',

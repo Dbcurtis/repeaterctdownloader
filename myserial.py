@@ -34,7 +34,9 @@ class MySerial(serial.Serial):
     def dread(self,numchar):
         global __debugging
         if not MySerial._debugging:return self.read(numchar)
-        else: 
+        else:
+            if MySerial._dbidx < 0:
+                return  [b'ok\nDTMF>']
             result =  MySerial._debugreturns[MySerial._dbidx]
             MySerial._dbidx+=1
             return result

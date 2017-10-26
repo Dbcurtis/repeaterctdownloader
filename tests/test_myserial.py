@@ -86,6 +86,7 @@ class TestMySerial(unittest.TestCase):
         3) test that a closed first attempt  for 9600 is ok
         4) test that a open second attemtp for 9600 is ok
         5) test that a first attempt at 19200 is ok
+        6) test special case of msclass._dbidx= -1 is ok
         
         """
                
@@ -94,7 +95,7 @@ class TestMySerial(unittest.TestCase):
         msclass = myserial.MySerial
         TestMySerial.gsp=sp
         msclass._debugging=True
-        
+             
         #test 1) findBaudRate open, 9600
         msclass._dbidx=0
         msclass._debugreturns=[b'preread ignored',b'9600 open default succeed DTMF>'] 
@@ -136,6 +137,7 @@ class TestMySerial(unittest.TestCase):
         self.assertEqual(9600, sp.baudrate)
         self.assertTrue(sp.isOpen())         
         
+        #test 5) test that a first attempt at 19200 is ok
         msclass._dbidx=0
         msclass._debugreturns=[
             b'preread ignored',b'9600 fail try 1 MF>',
@@ -144,7 +146,14 @@ class TestMySerial(unittest.TestCase):
             b'preread ignored',b'19200 succeed try 2 DTMF>']   
         self.assertTrue(sp.findBaudRate())
         self.assertEqual(19200, sp.baudrate)
-        self.assertTrue(sp.isOpen())                        
+        self.assertTrue(sp.isOpen())
+        
+        #test 6) check that dbidx = -1 does as expected
+        msclass._dbidx= -1
+        a = sp.dread(99)[0]
+        self.assertEqual(b'ok\nDTMF>', a)
+              
+        msclass._dbidx= 0
         sp.close()
 
         

@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
+""" TO BE SUPPLIED
+"""
 
-import os
 import sys
-import serial
-import myserial
 import re
-import userinput
-import getports
 from datetime import datetime
 from os import path
 from time import time
+import userinput
+import getports
 
-
-from pathlib import Path
 
 class Controller:
     """Controller Class supports communication of commands to the controller
@@ -39,53 +36,58 @@ class Controller:
     c.sendcmd("009 ;get the matrix")
     c.close()
     """
+
     _errPat = re.compile(".*error:.*", re.I | re.DOTALL)
     _fnPat = re.compile('(.+)\.txt$', re.I)
     String_2_Byte = lambda a: bytearray([ord(s) for s in a])
     Byte_2_String = lambda a: "".join([chr(i) for i in a if i != 13])
-    Is_Result_Error = lambda a: Controller._errPat.search(a)
+    #Is_Result_Error = lambda a: Controller._errPat.search(a)
     
-    _introMsg ="""
+    _introMsg = """
 ;-------------
 ; File: %s, Created on: %s UTC
 ;-----------------
 """
-    _timeFmt =  '%Y%m%d, %H:%M:%S'
+    _timeFmt = '%Y%m%d, %H:%M:%S'
 
     
+    def __init__(self, uiIn):  # get the port id and the logging file ids
+        """__init__(uiIn)
 
-    def __init__(self, ui):  # get the port id and the logging file ids
-        """__init__(ui)
-
-        ui is a UserInput object that has defined a file name as input and a
+        uiIn is a UserInput object that has defined a file name as input and a
         serial port to be opened to the controller
         
-        If the ui.inputfn is blank, then the defualt file name of test.txt will be used
+        If the uiIn.inputfn is blank, then the defualt file name of 'test.txt' will be used
         """
-        ifn = ui.inputfn.strip()
-        if not ifn: ifn = 'test.txt'
-         
-        m = Controller._fnPat.search(ifn)
+        inputFileName = uiIn.inputfn.strip()
+        if not inputFileName:
+            inputFileName = 'test.txt'
+
+        m = Controller._fnPat.search(inputFileName)
         filename = m.group(1)
         self.cLfn = filename + '.cmdlog.txt'
         self.cEfn = filename + '.exelog.txt'        
-        self.sp = ui.serial_port
+        self.sp = uiIn.serial_port
         self.isFilesOpen = False
         self.isOpen = False
-        self.ui = ui
+        self.ui = uiIn
         self.cmd = ""
         self.lastResponse = ""
         self.lastCmd = ""
         self.lastDisplayed = ""
         self.lastLogged = ""
+        self.cLFile = None
+        self.cEFile = None
+        self.whenOpened = None
+        self.openTime = None
 
     def __str__(self):
-        return '[Controller: %s]' % (str(self.isFilesOpen) + ", " +
+        return '[Controller: %s]' % (str(self.isFilesOpen) + ", " + \
         str(self.isOpen) + ', ' + str(self.ui))
 
     def __repr__(self):
-        return '[Controller: %s]' % (str(self.sp.isOpen()) + ', ' +
-        str(self.isFilesOpen) +
+        return '[Controller: %s]' % (str(self.sp.isOpen()) + ', ' + \
+        str(self.isFilesOpen) + \
         ", " + str(self.isOpen) + ', ' + str(self.ui))
 
 
@@ -99,6 +101,7 @@ class Controller:
         returns True if the controller opened (both the files and the serial port), false
         otherwise
         """
+        
         if self.sp.isOpen():
             self.sp.close()
         self.isFilesOpen = False
@@ -110,8 +113,8 @@ class Controller:
             self.cEFile = open(self.cEfn, 'w', encoding='utf-8')
             self.whenOpened = datetime.now().strftime(Controller._timeFmt)
             self.openTime = time()
-            self.cLFile.write(Controller._introMsg % (cLPathS, self.whenOpened ))
-            self.cEFile.write(Controller._introMsg % (cEPathS, self.whenOpened ))
+            self.cLFile.write(Controller._introMsg % (cLPathS, self.whenOpened))
+            self.cEFile.write(Controller._introMsg % (cEPathS, self.whenOpened))
             self.isFilesOpen = True
             self.sp.open()
             self.isOpen = True  
@@ -125,12 +128,12 @@ class Controller:
         return result
 
 
-    def sendcmd(self, cmdin,
-        display = True,
-        logIt = True,
-        echoit = False, 
-        selectIt = lambda a: True, 
-        formatIt = lambda a: (a, {})):        
+    def sendcmd(self, cmdin, \
+        display=True, \
+        logIt=True, \
+        echoit=False, \
+        selectIt=lambda a: True, \
+        formatIt=lambda a: (a, {})):        
         """sendcmd(cmd, display=TF, logIt=TF
 
         Logs the command as provided in the execution log with the results
@@ -150,17 +153,15 @@ class Controller:
          
            A typlical use of selectIt is: 1) TBD
          
-        formatIt is a lambda that formats the response before logging it
-
-      
+        formatIt is a lambda that formats the response before logging it   
 
         returns a True if command executed ok, false otherwise
         """
-       
+    
         result = True  
         cmd = ""
-        if type(cmdin) is bytes:
-            cmd = Byte_2_String(cmdin)
+        if type(cmdin) is bytes:  #isinstance was type
+            cmd = Controller.Byte_2_String(cmdin)
         else:
             cmd = cmdin
 
@@ -178,8 +179,8 @@ class Controller:
             return result
 
         else:
-            String_2_Byte =  Controller.String_2_Byte
-            Byte_2_String =  Controller.Byte_2_String
+            String_2_Byte = Controller.String_2_Byte
+            Byte_2_String = Controller.Byte_2_String
             #print(''.join(necmd)+"\n")
             necmd.append('\r')  # add a new line
             newcmd = ''.join(necmd)
@@ -201,12 +202,13 @@ class Controller:
                     cnt = cnt - 1
                     if ''.join(inList).endswith('DTMF>'):
                         break
-    
+
                 # rnok = self.__resultNotOk__(''.join(inList))
                 self.sp.timeout = sto
-                rnok = Controller.Is_Result_Error(''.join(inList))
+                #rnok = Controller.Is_Result_Error(''.join(inList))
+                rnok = Controller._errPat.search(''.join(inList))
                 if rnok:
-                    inList.append("******************E R R O R" +
+                    inList.append("******************E R R O R" + \
                     "****************\nDTMF>")
                     result = False
                 response = ''.join(inList)
@@ -233,16 +235,18 @@ class Controller:
         if self.isFilesOpen:
             try:
                 self.cLFile.close()
-            except: pass
+            except:
+                pass
             try:
                 self.cEFile.close()
-            except: pass            
+            except:
+                pass            
             self.isFilesOpen = False
 
 if __name__ == '__main__':
-    ui = userinput.UserInput()
+    UII = userinput.UserInput()
     try:    
-        def _cmdloop(c):
+        def _cmdloop(_c):
             print("Quit or Exit to exit command mode")
             while True:        
                 cmd = input("input>")
@@ -250,27 +254,27 @@ if __name__ == '__main__':
                 if cmd.startswith('Q') or cmd.startswith('E'):
                     print("Exiting command input mode...")
                     break
-                c.sendcmd(cmd)
-        
-        def sendUsersCmds():
-            global ui
-            ui.open()
-            c = Controller(ui)
-            c.open()
-            try:
-                _cmdloop(c)
-                c.close()        
-            finally:
-                if ui.serial_port.isOpen():ui.serial_port.close()
-                c.close()
-        
-        print('Available comport(s) are: %s' % getports.GetPorts().get())       
+                _c.sendcmd(cmd)
 
-        ui.request()
-        sendUsersCmds()
-        ui.close()
+        def sendUsersCmds(_ui):
+            """ test """
+            _ui.open()
+            _c = Controller(_ui)
+            _c.open()
+            try:
+                _cmdloop(_c)
+                _c.close()
+            finally:
+                if _ui.serial_port.isOpen():
+                    _ui.serial_port.close()
+                _c.close()
+
+        print('Available comport(s) are: %s' % getports.GetPorts().get())
+
+        UII.request()
+        sendUsersCmds(UII)
+        UII.close()
        
-    except(Exception, KeyboardInterrupt) as exc:
-        ui.close()
-        sys.exit(exc)
-        
+    except(Exception, KeyboardInterrupt) as exc:       
+        UII.close() 
+        sys.exit(exc) 

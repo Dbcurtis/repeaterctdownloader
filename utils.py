@@ -75,12 +75,12 @@ class Utils:
                 if self.args.recall_all_names:self.recallAllNames()                
                 if self.args.recall_macro_def:self.recallMacroDeffinitions()               
                 if self.args.recall_macro_names:self.recallMacroNames()               
-                if self.args.reset_all_comd_names:self.recallAllNames()                        
+                if self.args.reset_all_comd_names:self.resetCmdNames()                        
                 if self.args.quit: break           
         pass
     
         
-    def _getCmdNames(self,rng):
+    def _getCmdNames(self, rng):
         """_getCmdNames(rng)
     
         rng is the range of the commands to be scanned.
@@ -112,11 +112,11 @@ class Utils:
         for i in rng:
             cmd = '{num:03d}'. format(num=i)
             if self.testing:
-                print('sending N011%s' % cmd )
+                print('sending %s%s' % (self.contInfo.cmdDict.get('rcn'), cmd ))
                 continue
                 
             if c.sendcmd(
-                'N011 ' + cmd,
+                self.contInfo.cmdDict.get('rcn') + cmd,
                 display=False,
                 logIt=True,
                 selectIt=lambda a: not __sIt(a)): print('.', end='')
@@ -144,13 +144,15 @@ class Utils:
         """ resetCmdNames()
         
         Sends a n010 cmdid cmdid to the repeater to reset the command names for each cmdid
+        but not for the system macros.
         """
-        for i in self.contInfo.commands:
+         
+        for i in self.contInfo.safe2resetName:
             cmd = '{num:03d}'.format(num=i)
             if self.testing:
-                print('sending N010%s%s' % (cmd, cmd) )
+                print('sending %s%s%s' % (self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd) )
                 continue           
-            if c.sendcmd('N010 ' + cmd + cmd, False):
+            if c.sendcmd(self.contInfo.cmdDict.get('rpcmdn') + cmd + cmd, display = False):
                 print('.', end='')
 
     def recallMacroDeffinitions(self):
@@ -180,12 +182,13 @@ class Utils:
         for i in self.contInfo.userMacrosR:
             cmd = '{num:03d}'.format(num=i)
             if self.testing:
-                print('sending N054%s' % cmd )
+                print('sending %s%s' % (self.contInfo.cmdDict.get('rmc'), cmd ))
                 continue
-            if c.sendcmd('N054 ' + cmd,
+            if c.sendcmd(self.contInfo.cmdDict.get('rmc') + cmd,
                          display=False,
                          logIt=True,
-            selectIt=lambda a: __sIt(a)):
+            selectIt=lambda a: __sIt(a),
+            formatIt = lambda a: self.contInfo.fmtRCM(a)):
                 print('.', end='')
                 
                 
