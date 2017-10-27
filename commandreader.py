@@ -44,6 +44,7 @@ class CommandReader:
             self.isClosed = False
             self.lasterror=None
             result=True
+            self.loc = -1
         except FileNotFoundError as e:
             print(e)
             self.lasterror=e
@@ -83,6 +84,7 @@ class CommandReader:
             self.isClosed = True
             try:
                 self.f.close()
+                self.loc = -1
             except:
                 pass
             
