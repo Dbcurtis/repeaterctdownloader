@@ -77,7 +77,7 @@ class Testutils(unittest.TestCase):
         ui = userinput.UserInput()
         ui.comm_port = Testutils.sdevice
         utili = utils.Utils(ui, testing= True, showhelp = False)
-        utili.processLoop()
+        utili.process_loop()
         jjj = 'tjej'
         pass
     

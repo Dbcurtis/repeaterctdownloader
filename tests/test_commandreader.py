@@ -39,11 +39,11 @@ class TestCommandreader(unittest.TestCase):
         try:              
            
             aa = cr.get()
-            self.assertTrue(cr.isClosed)
+            self.assertTrue(cr.is_closed)
             self.assertEqual("",aa)
             cr.close()
             self.assertTrue(cr.open())
-            self.assertFalse(cr.isClosed)
+            self.assertFalse(cr.is_closed)
             try:
                 cr.open()
                 self.assertTrue(False,"did not detect multiple attempts to open")
@@ -51,13 +51,13 @@ class TestCommandreader(unittest.TestCase):
                 pass
             
             cr.close()
-            self.assertTrue(cr.isClosed)        
+            self.assertTrue(cr.is_closed)        
             fakeui = userinput.UserInput()
             fakeui.inputfn='totaljunk.txt'
             fcr = commandreader.CommandReader(fakeui)
             self.assertFalse(fcr.open())
             self.assertEqual("[Errno 2] No such file or directory: 'totaljunk.txt'",str( fcr.lasterror))
-            self.assertTrue(fcr.isClosed)
+            self.assertTrue(fcr.is_closed)
         finally:           
             fcr.close()
             cr.close()

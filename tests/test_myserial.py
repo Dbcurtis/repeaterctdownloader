@@ -3,7 +3,7 @@
 Test file for MySerial
 """
 from __future__ import print_function
-import os
+
 import sys
 import dlxii
 import getports
@@ -73,8 +73,8 @@ class TestMySerial(unittest.TestCase):
         msclass = myserial.MySerial
         msclass._dbidx=0
         msclass._debugreturns=[b'preread ignored',b'kjljjglkjerrl',b'preread ignored',b'9600 succeed DTMF>']
-        self.assertFalse(sp.spOK())
-        self.assertTrue(sp.spOK())
+        self.assertFalse(sp.sp_ok())
+        self.assertTrue(sp.sp_ok())
         sp.close()
               
         
@@ -104,7 +104,7 @@ class TestMySerial(unittest.TestCase):
         sp.baudrate=9600
         sp.timeout=1.5
         sp.open()
-        self.assertTrue(sp.findBaudRate())
+        self.assertTrue(sp.find_baud_rate())
         self.assertEqual(9600, sp.baudrate)
         self.assertTrue(sp.isOpen())
 
@@ -112,7 +112,7 @@ class TestMySerial(unittest.TestCase):
         sp.close()
         msclass._dbidx=0
         msclass._debugreturns=[b'preread ignored',b'9600 close default succeed DTMF>'] 
-        self.assertTrue(sp.findBaudRate())
+        self.assertTrue(sp.find_baud_rate())
         self.assertEqual(9600, sp.baudrate)
         self.assertFalse(sp.isOpen())      
        
@@ -122,7 +122,7 @@ class TestMySerial(unittest.TestCase):
             b'preread ignored',b'any fail DMF>',       
             b'preread ignored',b'9600 close first scan succeed DTMF>'] 
         
-        self.assertTrue(sp.findBaudRate())
+        self.assertTrue(sp.find_baud_rate())
         self.assertEqual(9600, sp.baudrate)
         self.assertFalse(sp.isOpen()) 
         
@@ -133,7 +133,7 @@ class TestMySerial(unittest.TestCase):
             b'preread ignored',b'kjljjglkjerrl',
             b'preread ignored',b'9600 open second scan succeed DTMF>']   
         sp.open()
-        self.assertTrue(sp.findBaudRate())
+        self.assertTrue(sp.find_baud_rate())
         self.assertEqual(9600, sp.baudrate)
         self.assertTrue(sp.isOpen())         
         
@@ -144,7 +144,7 @@ class TestMySerial(unittest.TestCase):
             b'preread ignored',b'9600 fail try 2 MF>',
             b'preread ignored',b'19200 fail try 1 TMF>',
             b'preread ignored',b'19200 succeed try 2 DTMF>']   
-        self.assertTrue(sp.findBaudRate())
+        self.assertTrue(sp.find_baud_rate())
         self.assertEqual(19200, sp.baudrate)
         self.assertTrue(sp.isOpen())
         
