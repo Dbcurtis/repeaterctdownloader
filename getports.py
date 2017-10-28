@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-
-import os
-import sys
+""" TO BE DONE """
 import serial
-from serial.tools import list_ports
+import serial.tools.list_ports
 
 class GetPorts:
     """GetPorts Class determines what communication ports exist on the executing computer
-    
+
     The version of serial is used to determine how list port works.
 
     Usage:
     devs = getports.GetPorts().get()
-    
-    every call to get() refreshes the port list. Thus, you can take out and insert ports at any time.
+
+    every call to get() refreshes the port tuple.
+    Thus, you can take out and insert ports at any time.
     """
 
     oldSerial = False
@@ -21,33 +20,38 @@ class GetPorts:
         j = serial.__version__
     except:
         oldSerial = True
-        
+
     def __init__(self):
         self.devs = []
-        
-        
+
+
     def get(self):
+        """get()
+        TBD
+        """
         ports = serial.tools.list_ports.comports()
-        devs = []        
+        devs = ()
         if GetPorts.oldSerial:
-            devs = [port[0] for port in ports]
-            for p in ports:
-                devs.append(p[0])            
-            
+            devl = [port[0] for port in ports]
+            for _p in ports:
+                devl.append(_p[0])
+            devs = (p for p in devl)
+
         else:
-            devs =[port.device for port in ports]
-            
+            devs = (port.device for port in ports)
+
         self.devs = devs
         return self.devs
-    
-    def getLast():
+
+    def get_last(self):
+        """get_last()
+        TBD
+        """
         return self.devs
-    
+
 if __name__ == '__main__':
-    ports =  GetPorts().get()
-    if ports:
-        print(ports)
+    PORTS = GetPorts().get()
+    if PORTS:
+        print(PORTS)
     else:
         print("No ports found or all found ports busy")
-
-    

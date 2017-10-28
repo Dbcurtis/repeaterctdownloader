@@ -37,12 +37,12 @@ class Controller:
     c.close()
     """
 
-    _errPat = re.compile(".*error:.*", re.I | re.DOTALL)
-    _fnPat = re.compile('(.+)\.txt$', re.I)
+    _errPat = re.compile(r".*error:.*", re.I | re.DOTALL)
+    _fnPat = re.compile(r'(.+)\.txt$', re.I)
     String_2_Byte = lambda a: bytearray([ord(s) for s in a])
     Byte_2_String = lambda a: "".join([chr(i) for i in a if i != 13])
     #Is_Result_Error = lambda a: Controller._errPat.search(a)
-    
+
     _introMsg = """
 ;-------------
 ; File: %s, Created on: %s UTC
@@ -50,13 +50,13 @@ class Controller:
 """
     _timeFmt = '%Y%m%d, %H:%M:%S'
 
-    
+
     def __init__(self, uiIn):  # get the port id and the logging file ids
         """__init__(uiIn)
 
         uiIn is a UserInput object that has defined a file name as input and a
         serial port to be opened to the controller
-        
+
         If the uiIn.inputfn is blank, then the defualt file name of 'test.txt' will be used
         """
         inputFileName = uiIn.inputfn.strip()
@@ -66,7 +66,7 @@ class Controller:
         m = Controller._fnPat.search(inputFileName)
         filename = m.group(1)
         self.cLfn = filename + '.cmdlog.txt'
-        self.cEfn = filename + '.exelog.txt'        
+        self.cEfn = filename + '.exelog.txt'
         self.sp = uiIn.serial_port
         self.isFilesOpen = False
         self.isOpen = False
@@ -97,11 +97,11 @@ class Controller:
         opens the controller, the serial port and the logging files
         sets isFilesOpen if logging files opened correctly
         sets isOpen if the Controller opened correctly
-        
+
         returns True if the controller opened (both the files and the serial port), false
         otherwise
         """
-        
+
         if self.sp.isOpen():
             self.sp.close()
         self.isFilesOpen = False
@@ -117,14 +117,14 @@ class Controller:
             self.cEFile.write(Controller._introMsg % (cEPathS, self.whenOpened))
             self.isFilesOpen = True
             self.sp.open()
-            self.isOpen = True  
+            self.isOpen = True
             result = True
         except:
             e = sys.exc_info()[0]
             result = False
             self.isOpen = False
-            print("controller did not open! %s\n" % e)            
-        
+            print("controller did not open! %s\n" % e)
+
         return result
 
 
@@ -133,7 +133,7 @@ class Controller:
         logIt=True, \
         echoit=False, \
         selectIt=lambda a: True, \
-        formatIt=lambda a: (a, {})):        
+        formatIt=lambda a: (a, {})):
         """sendcmd(cmd, display=TF, logIt=TF
 
         Logs the command as provided in the execution log with the results
@@ -150,15 +150,15 @@ class Controller:
         (subject to selectIt)
         selectIt is a lambda that if it returns true, will cause the
          response to be logged.
-         
+
            A typlical use of selectIt is: 1) TBD
-         
-        formatIt is a lambda that formats the response before logging it   
+
+        formatIt is a lambda that formats the response before logging it
 
         returns a True if command executed ok, false otherwise
         """
-    
-        result = True  
+
+        result = True
         cmd = ""
         if type(cmdin) is bytes:  #isinstance was type
             cmd = Controller.Byte_2_String(cmdin)
@@ -185,7 +185,7 @@ class Controller:
             necmd.append('\r')  # add a new line
             newcmd = ''.join(necmd)
             self.lastCmd = newcmd
-            if not echoit:               
+            if not echoit:
                 self.sp.flushInput()  # deprecated, use reset_input_buffer()
                 #print(newcmd)
                 sto = self.sp.timeout  # speed up the reads
@@ -214,7 +214,7 @@ class Controller:
                 response = ''.join(inList)
             else:
                 response = newcmd
-                
+
             self.lastResponse = response
             if display:
                 self.lastDisplayed = response
@@ -228,7 +228,7 @@ class Controller:
         """close()
 
         Closes the controller, the logging files, and the serial port
-        """       
+        """
         if self.sp.isOpen():
             self.sp.close()
         self.isOpen = False
@@ -240,15 +240,15 @@ class Controller:
             try:
                 self.cEFile.close()
             except:
-                pass            
+                pass
             self.isFilesOpen = False
 
 if __name__ == '__main__':
     UII = userinput.UserInput()
-    try:    
+    try:
         def _cmdloop(_c):
             print("Quit or Exit to exit command mode")
-            while True:        
+            while True:
                 cmd = input("input>")
                 cmd = cmd.strip().upper()
                 if cmd.startswith('Q') or cmd.startswith('E'):
@@ -274,7 +274,7 @@ if __name__ == '__main__':
         UII.request()
         sendUsersCmds(UII)
         UII.close()
-       
-    except(Exception, KeyboardInterrupt) as exc:       
-        UII.close() 
-        sys.exit(exc) 
+
+    except(Exception, KeyboardInterrupt) as exc:
+        UII.close()
+        sys.exit(exc)

@@ -49,8 +49,8 @@ setup(
         # Indicate who your project is intended for
         'Intended Audience :: Other Audience',
         'Topic :: Communications :: Ham Radio',
-        
-        'Natural Language :: English', 
+
+        'Natural Language :: English',
 
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: MIT License',

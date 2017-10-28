@@ -83,7 +83,7 @@ class UserInput:
             return False
 
         if detect_br:
-            if not sport.findBaudRate():
+            if not sport.find_baud_rate():
                 raise OSError('Unable to match controller baud rate')
         return True
 

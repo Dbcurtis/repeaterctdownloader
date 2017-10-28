@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-import sys
-import os
+""" TBD """
 import argparse
-import re
 
 class Utils:
     """Utils Class supports routines to operate on multiple commands.
-    
+
     These routines include:
     1) recall all command names
     2) recall all redeffinitions
@@ -14,39 +12,45 @@ class Utils:
     4) reset all command names
     5) Process loop to select the above
 
-    """    
+    """
     _parser = argparse.ArgumentParser()
-    _parser.add_argument('-rmn','--recall_macro_names', help = 'return all macro names', action = "store_true")
-    _parser.add_argument('-ran','--recall_all_names', help = 'return all renamed commands', action = "store_true")
-    _parser.add_argument('-rmd','--recall_macro_def', help = 'return all macro deffinitions', action = "store_true")
-    _parser.add_argument('-cacn','--reset_all_comd_names', help = 'reset all command names', action = "store_true")
-    _parser.add_argument('-q','--quit', help = 'quit the util', action = "store_true")
-   
-    
-    def __init__(self, ui, testing = False, showhelp = True):
+    _parser.add_argument('-rmn', '--recall_macro_names',
+                         help = 'return all macro names',action ="store_true")
+    _parser.add_argument('-ran', '--recall_all_names',
+                         help = 'return all renamed commands', action="store_true")
+    _parser.add_argument('-rmd', '--recall_macro_def',
+                         help = 'return all macro deffinitions', action="store_true")
+    _parser.add_argument('-cacn', '--reset_all_comd_names',
+                         help = 'reset all command names', action="store_true")
+    _parser.add_argument('-q', '--quit',
+                         help = 'quit the util', action="store_true")
+
+
+    def __init__(self, ui, testing=False, showhelp=True):
         """__init__(ui,testing=False, showhelp=True)
-        
+
         ui is the current UserInput
-        testing True -> stops commands from being sent to the controller, and instead just prints them.
-        showhelp True -> prints the help message 
+        testing True -> stops commands from being sent to the controller,
+        and instead just prints them.
+        showhelp True -> prints the help message
         """
-        self.ui=ui
-        self.sp=ui.serial_port
-        self.contInfo = self.sp.controllerInfo
+        self.ui = ui
+        self.sp = ui.serial_port
+        self.contInfo = self.sp.controller_info
         self.testing = testing
-        if showhelp:               
+        if showhelp:
             try:
-                self.args = Utils._parser.parse_args(['-h'])   
+                self.args = Utils._parser.parse_args(['-h'])
             except SystemExit: pass
-        
-        
+
+
     def __str__(self):
         aa = "cmds: -rmn, -ran, -rmd, -cacn, -q"
-        return "testing:" + str(self.testing) + ", " + aa    
+        return "testing:" + str(self.testing) + ", " + aa
 
-    def processLoop(self):
+    def process_loop(self):
         """ProcessLoop()
-        
+
         Select and execut which UTIL program to run.
         You commands are run in the following order (assuming all are selected):
         1)-ran
@@ -54,7 +58,7 @@ class Utils:
         3)-rmn
         4)-cacn
         5)-quit
-        
+
         This is the primary user access to the utilities
         """
         print('commands- one of: (-h|-rmn|-ran|-rmd|-cacn|-q)')
@@ -64,47 +68,52 @@ class Utils:
             if self.testing:
                 instr = "   -q -rmn -ran -rmd -cacn"
             else: instr = input('select command>')
-            
-            options= instr.split()      
+
+            options= instr.split()
 
             try:
                 self.args = Utils._parser.parse_args(options)
                 print(self.args)
-            except SystemExit: pass
+            except SystemExit:
+                pass
             else:
-                if self.args.recall_all_names:self.recallAllNames()                
-                if self.args.recall_macro_def:self.recallMacroDeffinitions()               
-                if self.args.recall_macro_names:self.recallMacroNames()               
-                if self.args.reset_all_comd_names:self.resetCmdNames()                        
-                if self.args.quit: break           
-        pass
-    
-        
+                if self.args.recall_all_names:
+                    self.recallAllNames()
+                if self.args.recall_macro_def:
+                    self.recallMacroDeffinitions()
+                if self.args.recall_macro_names:
+                    self.recallMacroNames()
+                if self.args.reset_all_comd_names:
+                    self.resetCmdNames()
+                if self.args.quit:
+                    break
+
+
     def _getCmdNames(self, rng):
         """_getCmdNames(rng)
-    
+
         rng is the range of the commands to be scanned.
-        
+
         sends a N011 cmdid for each cmdid in rng.
         If the cmdid has been renamed, logs the rename and the cmdid
-    
-        """        
+
+        """
         def __sIt(a):
             """__sIt(a)
-            
+
             checks if the response to the command indicates a rename
-            
+
             """
             #pat = re.compile(
                 #"Command number\s+(\d\d\d)\s+is\s+named\s+([0-9a-z]+)\..*",
                 #re.IGNORECASE | re.MULTILINE | re.DOTALL)
             #px = Utils._rename_pat.search(a)
-            px = self.ui.controller_type.rename_pat.search(a)
+            _px = self.ui.controller_type.rename_pat.search(a)
             result = False
             if px:
-                g1 = px.group(1)
-                g2 = px.group(2)
-                result = g1 == g2
+                _g1 = px.group(1)
+                _g2 = px.group(2)
+                result = _g1 == _g2
             else:
                 result = False
             return result
@@ -112,46 +121,46 @@ class Utils:
         for i in rng:
             cmd = '{num:03d}'. format(num=i)
             if self.testing:
-                print('sending %s%s' % (self.contInfo.cmdDict.get('rcn'), cmd ))
+                print('sending %s%s' %(self.contInfo.cmdDict.get('rcn'), cmd ))
                 continue
-                
+
             if c.sendcmd(
                 self.contInfo.cmdDict.get('rcn') + cmd,
                 display=False,
                 logIt=True,
                 selectIt=lambda a: not __sIt(a)): print('.', end='')
-            else: print('-', end='')        
+            else: print('-', end='')
 
-            
+
     def recallMacroNames(self):
         """recallMacroNames()
-    
-        Scans the user macros to get the macro names.  
 
-       """        
+        Scans the user macros to get the macro names.
+
+       """
         self._getCmdNames(self.contInfo.userMacrosR)
 
     def recallAllNames(self):
         """recallAllNames()
-    
+
         scans all cmdids, if the cmdid has been renamed, the rename and cmdid are logged
-    
+
         """
         self._getCmdNames(self.contInfo.commandsR)
 
 
     def resetCmdNames(self):
         """ resetCmdNames()
-        
+
         Sends a n010 cmdid cmdid to the repeater to reset the command names for each cmdid
         but not for the system macros.
         """
-         
+
         for i in self.contInfo.safe2resetName:
             cmd = '{num:03d}'.format(num=i)
             if self.testing:
-                print('sending %s%s%s' % (self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd) )
-                continue           
+                print('sending %s%s%s' %(self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd) )
+                continue
             if c.sendcmd(self.contInfo.cmdDict.get('rpcmdn') + cmd + cmd, display = False):
                 print('.', end='')
 
@@ -165,32 +174,32 @@ class Utils:
         the execution log.
 
         """
-        def __sIt(a):
+        def __sIt(_a):
             """__sIt(a)
-             
+
             tests if the response is a macro deffinition
             """
             #pat = re.compile(
                 #".*contains\s+[1-9]([0-9]+)?\s+commands.*",
                 #re.MULTILINE | re.IGNORECASE | re.DOTALL)
             #if None == Utils._macro_def_pat.match(text):
-            if None == Utils.ui.controller_type.macro_def_pat.match(text):
+            if Utils.ui.controller_type.macro_def_pat.match(_a) is None:
                 return False
-            else:
-                return True
+
+            return True
 
         for i in self.contInfo.userMacrosR:
             cmd = '{num:03d}'.format(num=i)
             if self.testing:
-                print('sending %s%s' % (self.contInfo.cmdDict.get('rmc'), cmd ))
+                print('sending %s%s' %(self.contInfo.cmdDict.get('rmc'), cmd ))
                 continue
             if c.sendcmd(self.contInfo.cmdDict.get('rmc') + cmd,
                          display=False,
                          logIt=True,
-            selectIt=lambda a: __sIt(a),
-            formatIt = lambda a: self.contInfo.fmtRCM(a)):
+                         selectIt = lambda a: __sIt(_a),
+                         formatIt = lambda a: self.contInfo.fmtRCM(_a)):
                 print('.', end='')
-                
-                
+
+
 if __name__ == '__main__':
     pass

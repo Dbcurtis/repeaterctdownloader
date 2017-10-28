@@ -1,79 +1,85 @@
 #!/usr/bin/env python3
-import os
-import sys
+""" To Be Done """
 import serial
 
-class MySerial(serial.Serial): 
-    
+class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
+    """MySerial
+
+    To Be Done
+    """
     _debugging = False
-    
-    _debugreturns =  [b'ok\nDTMF>']
-    _dbidx=0
-     
-    
-    Byte_2_String = lambda bs:"".join([chr(int(b)) for b in bs if int(b)!=13])    
+
+    _debugreturns = [b'ok\nDTMF>']
+    _dbidx = 0
+    _NO = -1
+
+
+    Byte_2_String = lambda bs: "".join([chr(int(b)) for b in bs if int(b) != 13])
     """Byte_2_String(bs)
-    
+
     Takes a byte array (bs) and returns the corrosponding string
     """
-    
+
     String_2_Byte = lambda st: bytes([ord(s) for s in st])
     """String_2_Byte(st)
-    
+
     Takes a string (st) and returns a corrosponding byte array
-    """    
-    def __init__(self, controllerInfo):
-        super(serial.Serial,self).__init__()
-        self.controllerInfo=controllerInfo
-        
+    """
+    def __init__(self, controller_info):
+        super(MySerial, self).__init__()
+        self.controller_info = controller_info
+
     def __str__(self):
-        aa =  super(serial.Serial,self).__str__()
-        return "testing:" + str(MySerial._debugging) + ", " + aa
-          
-    
-    def dread(self,numchar):
-        global __debugging
-        if not MySerial._debugging:return self.read(numchar)
+        #_aa = super(MySerial, self).__str__()
+        return "testing:" + str(MySerial._debugging) + ", " + super(MySerial, self).__str__()
+
+
+    def dread(self, numchar):
+        """dread(numchar)
+
+
+        """
+        if not MySerial._debugging:
+            return self.read(numchar)
         else:
             if MySerial._dbidx < 0:
                 return  [b'ok\nDTMF>']
-            result =  MySerial._debugreturns[MySerial._dbidx]
-            MySerial._dbidx+=1
+            result = MySerial._debugreturns[MySerial._dbidx]
+            MySerial._dbidx += 1
             return result
-        
-    def spOK(self):  # assume the sp is open
+
+    def sp_ok(self):  # assume the sp is open
         """spOK()
-    
+
         Checks to see if an open serial port is communicating with the controller
-    
+
         Writes a \r to the serial port and reads the result
         If the result ends with DTMF> the port and repeater are communicating
-        
+
         Returns True if communicating, False if not
         """
-        sp=self
-        sp.flushInput()
-        sp.close()
-        to=sp.timeout
-        sp.timeout= 0.25 + (110.0/sp.baudrate)
-        sp.open()
-        sp.dread(9999)
-        sp.write(MySerial.String_2_Byte('\r'))
-        """ will generate some response
-        ending in DTMF> if the cps rate is correct
-        """
-        ctrlresult = MySerial.Byte_2_String(sp.dread(9999))
+        _sp = self
+        _sp.flushInput()
+        _sp.close()
+        _to = _sp.timeout
+        _sp.timeout = 0.25 + (110.0/_sp.baudrate)
+        _sp.open()
+        _sp.dread(9999)
+        _sp.write(MySerial.String_2_Byte('\r'))
+        #will generate some response
+        #ending in DTMF> if the cps rate is correct
+
+        ctrlresult = MySerial.Byte_2_String(_sp.dread(9999))
         #print(ctrlresult)
         #sp.timeout = to
-        sp.close()
-        sp.timeout=to
-        sp.open()
-        return ctrlresult.endswith("DTMF>")        
-        
-    def findBaudRate(self):
-        """findBaudRate()
-    
-        ui is a UserInput object
+        _sp.close()
+        _sp.timeout = _to
+        _sp.open()
+        return ctrlresult.endswith("DTMF>")
+
+    def find_baud_rate(self):
+        """find_baud_rate()
+
         Attempts to communicate to the repeater controller using speeds
         9600,19200,4800,1200,600,300.
         The first attempt that works (see spOK) will be selected to be the
@@ -82,78 +88,78 @@ class MySerial(serial.Serial):
         responsive to the baud rate.
         My current belief is that the wait is not that importaint, but have
         not yet tried anything other than 9600
-    
+
         If the baud rate cannot be determined, the sp is returned to
         the state it was on entry.
-    
+
         side-effects
         If the serial port is open on entry, it will be open on exit,
         otherwise it is closed.
-    
+
         returns True if a matching baud rate is found, otherwise returns False
         """
-        sp=self
-        ci=self.controllerInfo
-        No = -1      
-        spOpen = sp.isOpen()
-        if not spOpen: sp.open()
-            
+        _sp = self
+        _ci = self.controller_info
+
+        is_open = _sp.isOpen()
+        if not is_open:
+            _sp.open()
+
       #  if spOpen:  # if open port, and it is communicating just return the baudrate
-        if self.spOK():
-            if not spOpen:sp.close()
+        if self.sp_ok():
+            if not is_open:
+                _sp.close()
             return True
-        sp.flushInput()
-        sp.close()  # if open and not communicating the port is closed
-    
-        savedbr = sp.baudrate
-        savedto = sp.timeout
-    
-        scps = No  # setup for storing the selected baud rate and timeout
+        _sp.flushInput()
+        _sp.close()  # if open and not communicating the port is closed
+
+        savedbr = _sp.baudrate
+        savedto = _sp.timeout
+
+        scps = MySerial._NO  # setup for storing the selected baud rate and timeout
         sto = 0.0
         # at this point the serial port is always closed
-        for cpsd in ci.cpsData:
-            sp.baudrate = cpsd.bps
-            sp.timeout = cpsd.cpsDelay
+        for cpsd in _ci.cpsData:
+            _sp.baudrate = cpsd.bps
+            _sp.timeout = cpsd.cpsDelay
             cnt = 2
             print("trying " + str(cpsd.bps) + " baud")
             while cnt > 0:
               #  print("acnt: "+str(cnt)+", "+str(sp))
-                sp.open()  # try these settings
-                if not self.spOK():
+                _sp.open()  # try these settings
+                if not self.sp_ok():
                     cnt = cnt - 1
-                    sp.close()
+                    _sp.close()
                 else:
                     scps = cpsd.bps  # setting worked, so save and break the loop
                     sto = cpsd.cpsDelay
                     #print("found one");
-                    #print(str(sp))                    
-                    sp.close()
+                    #print(str(sp))
+                    _sp.close()
                     cnt = -10
                     break
-              
+
             if cnt < -9:
                 break
-    
+
         #print("scps: "+str(scps));
-        if sp.isOpen():
-            sp.close()  # close the serial port if still open
-        
-        result = False    
-        if scps == No:
-            sp.baudrate = savedbr  # no match found, just restore port
-            sp.timeout = savedto
+        if _sp.isOpen():
+            _sp.close()  # close the serial port if still open
+
+        result = False
+        if scps == MySerial._NO:
+            _sp.baudrate = savedbr  # no match found, just restore port
+            _sp.timeout = savedto
             result = False  # show fail
         else:
-            sp.baudrate = scps  # match found, set the baud rate and timeout
-            sp.timeout = sto
+            _sp.baudrate = scps  # match found, set the baud rate and timeout
+            _sp.timeout = sto
             result = True  # show ok
-            
-        if spOpen:  # restore the open closed state; port is currently closed
-            sp.open()
-            sp.flushInput() 
+
+        if is_open:  # restore the open closed state; port is currently closed
+            _sp.open()
+            _sp.flushInput()
         return result
-    
-    
+
 if __name__ == '__main__':
     pass
-   

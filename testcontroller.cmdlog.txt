@@ -1,4 +1,4 @@
 
 ;-------------
-; File: K:\RepeaterControlerDownloaderP34\testcontroller.cmdlog.txt, Created on: 20171026, 00:06:34 UTC
+; File: K:\RepeaterControlerDownloaderP34\testcontroller.cmdlog.txt, Created on: 20171027, 20:29:31 UTC
 ;-----------------
