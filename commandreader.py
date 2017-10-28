@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import os
-import sys
+"""Module DocString TBD"""
+
 import userinput
 
 class CommandReader:
@@ -16,39 +16,41 @@ class CommandReader:
     def __init__(self, ui):
         self.ui = ui
         self.line = ""
-        self.isClosed = True
+        self.is_closed = True
         self.loc = -1  # loc is used to keep track of when the read is done
-        self.fn = ui.inputfn
+        self.file_name = ui.inputfn
         self.lasterror = None
-        
+        self.file_in = None
+
     def __str__(self):
-        return '[CommandReader %s]' % ('closed: '+str(self.isClosed) +  ", "+str(self.ui))
+        return '[CommandReader %s]' % ('closed: '+str(self.is_closed) +  ", "+str(self.ui))
 
     def __repr__(self):
-        return '[CommandReader %s]' % ('closed: '+str(self.isClosed) +  ", "+str(self.ui))      
+        return '[CommandReader %s]' % ('closed: '+str(self.is_closed) +  ", "+str(self.ui))
 
     def open(self):
         """open()
 
         Opens the input file from the UserInput
         returns true if the file is opened, false otherwise
-        
+
         If the reader is already open when called, will throw an assertion error
         """
-        
+
         result = False
-        if not self.isClosed:raise AssertionError('Commandreader already open, aborting...')
+        if not self.is_closed:
+            raise AssertionError('Commandreader already open, aborting...')
         #assert(self.closed,'Commandreader already open, aborting...')
         try:
-            self.f = open(self.fn, "r")  # assuming file exists and is readable
-            self.isClosed = False
-            self.lasterror=None
-            result=True
+            self.file_in = open(self.file_name, "r")  # assuming file exists and is readable
+            self.is_closed = False
+            self.lasterror = None
+            result = True
             self.loc = -1
-        except FileNotFoundError as e:
-            print(e)
-            self.lasterror=e
-            self.isClosed = True
+        except FileNotFoundError as _e:
+            print(_e)
+            self.lasterror = _e
+            self.is_closed = True
         return result
 
     def get(self):  # line returns line or "" if EOF
@@ -57,58 +59,59 @@ class CommandReader:
         Gets the next line from the input file
         if the file is closed, the returned line is ""
         """
-        
-        if self.isClosed:
+
+        if self.is_closed:
             return ""
-       
+
         try:
-            self.line = self.f.readline()
-            idx = self.f.tell()
+            self.line = self.file_in.readline()
+            idx = self.file_in.tell()
             if idx == self.loc:
-                self.isClosed = True
+                self.is_closed = True
                 return ""
             self.loc = idx
             return self.line
-        
-        except EOFerror:
-            self.isClosed = True
-           
+
+        except EOFError:
+            self.is_closed = True
+
     def close(self):
         """close()
 
         Closes the input file and the reader
         Can be called multiple times.
         """
-        
-        if not self.isClosed:          
-            self.isClosed = True
+
+        if not self.is_closed:
+            self.is_closed = True
             try:
-                self.f.close()
+                self.file_in.close()
                 self.loc = -1
             except:
                 pass
-            
-            
+
+
+def __main():
+    _ui = userinput.UserInput()
+    _ui.request()
+    _ui.open(detect_br=False)
+    _cr = CommandReader(_ui)
+    try:
+        _cr.open()
+        while True:
+            line = _cr.get()
+            if not line:
+                break
+            _jj = line.split('\n')
+            print(_jj[0])
+    finally:
+        _cr.close()
+        _ui.close()
+
 if __name__ == '__main__':
     """Main
-    
+
     opens a UI, opens a CommandReader
     Reads the imput file and dumps to the terminal
     """
-    ui = userinput.UserInput()
-    ui.request()
-    ui.open(detectBR= False)
-    cr = CommandReader(ui)
-    try:       
-        cr.open()
-        while True:
-            line = cr.get()
-            if not line:
-                break
-            jj = line.split('\n')
-            print(jj[0])
-    finally:
-        cr.close()
-        ui.close()
-        
-    
+    __main()
