@@ -10,21 +10,21 @@ import unittest
 
 
 class TestControllerspecific(unittest.TestCase):
-     
+
     def setUp(self):
-        pass 
-            
+        pass
+
     def tearDown(self):
-        pass           
-    
+        pass
+
     @classmethod
     def setUpClass(cls):
         pass
-   
+
     @classmethod
     def tearDownClass(cls):
         pass
-    
+
     def testcreation(self):
         cs = controllerspecific.ControllerSpecific()
         self.assertEqual('Abstract Controller', cs.get_Ctr_type())
@@ -45,8 +45,8 @@ class TestControllerspecific(unittest.TestCase):
         cs = controllerspecific.ControllerSpecific()
         r = cs.fmtRMC("junk test")
         self.assertEqual("junk test", r[0])
-        self.assertEqual({}, r[1])  
+        self.assertEqual({}, r[1])
         pass
-    
+
 if __name__ == '__main__':
-    unittest.main()    
+    unittest.main()

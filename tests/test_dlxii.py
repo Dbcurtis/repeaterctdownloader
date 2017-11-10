@@ -3,19 +3,16 @@
 Test file for dlxii
 """
 from __future__ import print_function
-import os
-import sys
-import dlxii
 import unittest
-
+import dlxii
 
 class TestControllerspecific(unittest.TestCase):
 
     def setUp(self):
-        pass 
+        pass
 
     def tearDown(self):
-        pass           
+        pass
 
     @classmethod
     def setUpClass(cls):
@@ -36,11 +33,11 @@ class TestControllerspecific(unittest.TestCase):
         ss = '[CPS: 960, 0.215]'
         self.assertEqual(ss, str(cps0))
         rates = [d.bps for d in cs.cpsData]
-        self.assertEqual([9600, 19200, 4800, 2400, 1200, 600, 300] , rates)
+        self.assertEqual([9600, 19200, 4800, 2400, 1200, 600, 300], rates)
         css = '[Dlxii: rename:Command number\\s+(\\d\\d\\d)\\s+is\\s+named' \
             '\\s+([0-9a-z]+)\\..*, macrodef:.*contains\\s+[1-9]([0-9]+)?\\s+commands.*]'
         self.assertEqual(css, str(cs))
-        pass
+
 
     def testfmtRMC(self):
         cs = dlxii.DlxII()
@@ -48,8 +45,8 @@ class TestControllerspecific(unittest.TestCase):
         self.assertEqual("junk test", r[0])
         self.assertEqual({}, r[1])
         mdf = """DTMF>N054 501N054501
-Macro 501 contains 2 commands: 
-  #00  Command #038 with 00 digits of data: 
+Macro 501 contains 2 commands:
+  #00  Command #038 with 00 digits of data:
   #01  Command #000 with 02 digits of data: 13
 This macro is 9 percent full
 OK
@@ -63,7 +60,7 @@ DTMF>"""
                          r[0])
         self.assertEqual(4, len(r[1]))
         self.assertEqual(2, len(r[1].get("cmds")))
-        
+
 
     def testfmtRCM(self):
         cs = dlxii.DlxII()
@@ -80,10 +77,6 @@ DTMF>"""
         self.assertEqual('Command number 521 is named C47571.  It takes 0 digits of data.',
                          r[0])
         self.assertEqual(3, len(r[1]))
-        pass
-
-        
-
 
 if __name__ == '__main__':
-    unittest.main()    
+    unittest.main()

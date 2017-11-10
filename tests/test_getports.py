@@ -3,18 +3,16 @@
 Test file for getports
 """
 from __future__ import print_function
-import os
-import sys
 import unittest
 import getports
 
 class TestGetPorts(unittest.TestCase):
-        
+
     def setUp(self):
         pass
 
     def tearDown(self):
-        pass     
+        pass
 
     @classmethod
     def setUpClass(cls):
@@ -23,8 +21,8 @@ class TestGetPorts(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
- 
-        
+
+
     def testall(self):
         print(getports.GetPorts().get())
 
