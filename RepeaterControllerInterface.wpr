@@ -5,7 +5,7 @@
 ##################################################################
 [project attributes]
 debug.launch-configs = (2,
-                        {'launch-4JW1fTGQSb4P5YcS': ({'shared': True},
+                        {'launch-4JW1fTGQSb4P5YcS': ({'shared': False},
         {'buildcmd': ('project',
                       None),
          'env': ('project',
@@ -20,7 +20,7 @@ debug.launch-configs = (2,
          'runargs': u'',
          'rundir': ('project',
                     u'')}),
-                         'launch-KHx9yFpayBYheMou': ({'shared': False},
+                         'launch-KHx9yFpayBYheMou': ({'shared': True},
         {'buildcmd': ('project',
                       None),
          'env': ('project',
@@ -42,7 +42,11 @@ proj.directory-list = [{'dirloc': loc('.'),
                         'recursive': True,
                         'watch_for_changes': True}]
 proj.file-type = 'shared'
-proj.launch-config = {loc('getports.py'): ('custom',
+proj.launch-config = {loc('../Python Scripts/removeTrailSpacesonLines.py'): ('p'\
+        'roject',
+        (u'  *.py *.txt',
+         '')),
+                      loc('getports.py'): ('custom',
         (u'',
          'launch-4JW1fTGQSb4P5YcS'))}
 testing.auto-test-file-specs = (('glob',

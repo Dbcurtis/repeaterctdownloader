@@ -87,11 +87,16 @@ class CommandReader:
             try:
                 self.file_in.close()
                 self.loc = -1
-            except:
+            except IOError:
                 pass
 
 
 def __main():
+    """__main()
+
+    gets user input, opens port to the repeater, sends the contents of the specified file
+    to the repeater controller, closes down
+    """
     _ui = userinput.UserInput()
     _ui.request()
     _ui.open(detect_br=False)

@@ -13,6 +13,7 @@ class Utils:
     5) Process loop to select the above
 
     """
+    _cmds = ["cmds: -rmn", "-ran", "-rmd", "-cacn", "-q"]
     _parser = argparse.ArgumentParser()
     _parser.add_argument('-rmn', '--recall_macro_names',
                          help = 'return all macro names',action ="store_true")
@@ -45,8 +46,7 @@ class Utils:
 
 
     def __str__(self):
-        aa = "cmds: -rmn, -ran, -rmd, -cacn, -q"
-        return "testing:" + str(self.testing) + ", " + aa
+        return  ", ".join(['testing:' + str(self.testing) ] + Utils._cmds).rstrip()
 
     def process_loop(self):
         """ProcessLoop()
@@ -104,10 +104,7 @@ class Utils:
             checks if the response to the command indicates a rename
 
             """
-            #pat = re.compile(
-                #"Command number\s+(\d\d\d)\s+is\s+named\s+([0-9a-z]+)\..*",
-                #re.IGNORECASE | re.MULTILINE | re.DOTALL)
-            #px = Utils._rename_pat.search(a)
+
             _px = self.ui.controller_type.rename_pat.search(a)
             result = False
             if px:
@@ -127,8 +124,8 @@ class Utils:
             if c.sendcmd(
                 self.contInfo.cmdDict.get('rcn') + cmd,
                 display=False,
-                logIt=True,
-                selectIt=lambda a: not __sIt(a)): print('.', end='')
+                log_it=True,
+                select_it=lambda a: not __sIt(a)): print('.', end='')
             else: print('-', end='')
 
 
@@ -189,15 +186,15 @@ class Utils:
             return True
 
         for i in self.contInfo.userMacrosR:
-            cmd = '{num:03d}'.format(num=i)
+            _ = '{num:03d}'.format(num=i)
             if self.testing:
-                print('sending %s%s' %(self.contInfo.cmdDict.get('rmc'), cmd ))
+                print('sending %s%s' %(self.contInfo.cmdDict.get('rmc'), _ ))
                 continue
-            if c.sendcmd(self.contInfo.cmdDict.get('rmc') + cmd,
+            if c.sendcmd(self.contInfo.cmdDict.get('rmc') + _,
                          display=False,
-                         logIt=True,
-                         selectIt = lambda a: __sIt(_a),
-                         formatIt = lambda a: self.contInfo.fmtRCM(_a)):
+                         log_it=True,
+                         select_it = lambda a: __sIt(_a),
+                         format_it = lambda a: self.contInfo.fmtRCM(_a)):
                 print('.', end='')
 
 

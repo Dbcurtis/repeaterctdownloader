@@ -13,7 +13,7 @@ class ControllerSpecific:
 
     def __donothing(self, _str):
         return {}
-    
+
     class SerialSpeedinfo:
         """SerialSpeedinfo
 

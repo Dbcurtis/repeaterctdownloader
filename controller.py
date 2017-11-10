@@ -59,26 +59,29 @@ class Controller:
 
         If the uiIn.inputfn is blank, then the defualt file name of 'test.txt' will be used
         """
-        inputFileName = uiIn.inputfn.strip()
-        if not inputFileName:
-            inputFileName = 'test.txt'
+        _in_file_name = uiIn.inputfn.strip()
+        if not _in_file_name:
+            _in_file_name = 'test.txt'
 
-        m = Controller._fnPat.search(inputFileName)
-        filename = m.group(1)
-        self.cLfn = filename + '.cmdlog.txt'
-        self.cEfn = filename + '.exelog.txt'
+        _ = Controller._fnPat.search(_in_file_name)
+        _filename = _ and _.group(1)
+        if not _filename:
+            print("Filename must end in txt, using 'test.txt'")
+            _filename = 'test.txt'
+        self.cLfn = _filename + '.cmdlog.txt'
+        self.cEfn = _filename + '.exelog.txt'
         self.sp = uiIn.serial_port
         self.isFilesOpen = False
         self.isOpen = False
         self.ui = uiIn
         self.cmd = ""
-        self.lastResponse = ""
-        self.lastCmd = ""
-        self.lastDisplayed = ""
-        self.lastLogged = ""
+        self.last_response = ""
+        self.last_cmd = ""
+        self.last_displayed = ""
+        self.last_logged = ""
         self.cLFile = None
         self.cEFile = None
-        self.whenOpened = None
+        self.when_opened = None
         self.openTime = None
 
     def __str__(self):
@@ -111,29 +114,29 @@ class Controller:
             cEPathS = path.abspath(self.cEfn)
             self.cLFile = open(self.cLfn, 'w', encoding='utf-8')
             self.cEFile = open(self.cEfn, 'w', encoding='utf-8')
-            self.whenOpened = datetime.now().strftime(Controller._timeFmt)
+            self.when_opened = datetime.now().strftime(Controller._timeFmt)
             self.openTime = time()
-            self.cLFile.write(Controller._introMsg % (cLPathS, self.whenOpened))
-            self.cEFile.write(Controller._introMsg % (cEPathS, self.whenOpened))
+            self.cLFile.write(Controller._introMsg % (cLPathS, self.when_opened))
+            self.cEFile.write(Controller._introMsg % (cEPathS, self.when_opened))
             self.isFilesOpen = True
             self.sp.open()
             self.isOpen = True
             result = True
         except:
-            e = sys.exc_info()[0]
+            _e = sys.exc_info()[0]
             result = False
             self.isOpen = False
-            print("controller did not open! %s\n" % e)
+            print("controller did not open! %s\n" % _e)
 
         return result
 
 
     def sendcmd(self, cmdin, \
         display=True, \
-        logIt=True, \
+        log_it=True, \
         echoit=False, \
-        selectIt=lambda a: True, \
-        formatIt=lambda a: (a, {})):
+        select_it=lambda a: True, \
+        format_it=lambda a: (a, {})):
         """sendcmd(cmd, display=TF, logIt=TF
 
         Logs the command as provided in the execution log with the results
@@ -166,16 +169,16 @@ class Controller:
             cmd = cmdin
 
         #print(cmd) # display command on window
-        if logIt:
+        if log_it:
             self.cLFile.write(cmd + "\n")  # write to command log file
             self.cEFile.write(cmd + "\n")  # write to execution log file
 
-        sansComment = cmd.split('\n', 1)  # remove trailing new line
-        sansComment = sansComment[0].split(';', 1)  # remove trailing comment
-        necmd = sansComment[0].split()  # split on spaces
-
-        if len(''.join(necmd).strip()) == 0:  # ignore blank lines
-            self.lastCmd = ""
+        _sans_comment = cmd.split('\n', 1)  # remove trailing new line
+        _sans_comment = _sans_comment[0].split(';', 1)  # remove trailing comment
+        necmd = _sans_comment[0].split()  # split on spaces
+        _ = ''.join(necmd).strip()
+        if not _:  # ignore blank lines
+            self.last_cmd = ""
             return result
 
         else:
@@ -184,7 +187,7 @@ class Controller:
             #print(''.join(necmd)+"\n")
             necmd.append('\r')  # add a new line
             newcmd = ''.join(necmd)
-            self.lastCmd = newcmd
+            self.last_cmd = newcmd
             if not echoit:
                 self.sp.flushInput()  # deprecated, use reset_input_buffer()
                 #print(newcmd)
@@ -193,35 +196,33 @@ class Controller:
                 byts = String_2_Byte(newcmd)
                 self.sp.write(byts)
                 #self.sp.write(String_2_Byte(newcmd))
-                inList = []
+                _in_list = []
                 cnt = 100
                 while cnt > 0:  # keep reading input until the DTMF> prompt is seen.
                                # Remember the timeout changes with baud rate
                     #should get data atleast every timeout seconds
-                    inList.append(Byte_2_String(self.sp.dread(9999)))
+                    _in_list.append(Byte_2_String(self.sp.dread(9999)))
                     cnt = cnt - 1
-                    if ''.join(inList).endswith('DTMF>'):
+                    if ''.join(_in_list).endswith('DTMF>'):
                         break
 
-                # rnok = self.__resultNotOk__(''.join(inList))
                 self.sp.timeout = sto
-                #rnok = Controller.Is_Result_Error(''.join(inList))
-                rnok = Controller._errPat.search(''.join(inList))
-                if rnok:
-                    inList.append("******************E R R O R" + \
+                #rnok = Controller._errPat.search(''.join(inList))
+                if Controller._errPat.search(''.join(_in_list)): #rnok:
+                    _in_list.append("******************E R R O R" + \
                     "****************\nDTMF>")
                     result = False
-                response = ''.join(inList)
+                response = ''.join(_in_list)
             else:
                 response = newcmd
 
-            self.lastResponse = response
+            self.last_response = response
             if display:
-                self.lastDisplayed = response
+                self.last_displayed = response
                 print(response)
-            if logIt and selectIt(response):
-                self.lastLogged = response
-                self.cEFile.write(formatIt(response)[0])
+            if log_it and select_it(response):
+                self.last_logged = response
+                self.cEFile.write(format_it(response)[0])
         return result
 
     def close(self):
@@ -235,11 +236,11 @@ class Controller:
         if self.isFilesOpen:
             try:
                 self.cLFile.close()
-            except:
+            except IOError:
                 pass
             try:
                 self.cEFile.close()
-            except:
+            except IOError:
                 pass
             self.isFilesOpen = False
 
@@ -256,7 +257,7 @@ if __name__ == '__main__':
                     break
                 _c.sendcmd(cmd)
 
-        def sendUsersCmds(_ui):
+        def _send_users_cmds(_ui):
             """ test """
             _ui.open()
             _c = Controller(_ui)
@@ -272,7 +273,7 @@ if __name__ == '__main__':
         print('Available comport(s) are: %s' % getports.GetPorts().get())
 
         UII.request()
-        sendUsersCmds(UII)
+        _send_users_cmds(UII)
         UII.close()
 
     except(Exception, KeyboardInterrupt) as exc:

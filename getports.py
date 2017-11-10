@@ -18,7 +18,7 @@ class GetPorts:
     oldSerial = False
     try:
         j = serial.__version__
-    except:
+    except AttributeError:
         oldSerial = True
 
     def __init__(self):
@@ -30,17 +30,15 @@ class GetPorts:
         TBD
         """
         ports = serial.tools.list_ports.comports()
-        devs = ()
+        devs = []
         if GetPorts.oldSerial:
             devl = [port[0] for port in ports]
-            for _p in ports:
-                devl.append(_p[0])
-            devs = (p for p in devl)
+            devs = [p for p in devl]
 
         else:
-            devs = (port.device for port in ports)
+            devs = [port.device for port in ports]
 
-        self.devs = devs
+        self.devs = [p for p in devs]
         return self.devs
 
     def get_last(self):
