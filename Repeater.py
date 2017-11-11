@@ -99,7 +99,7 @@ def do_utility_cmds(_ui):
     _c = controller.Controller(_ui)
     _c.open()
     try:
-        _utils = utils.Utils(_ui)
+        _utils = utils.Utils(_ui, _c)
         _utils.process_loop()
     finally:
         _c.close()

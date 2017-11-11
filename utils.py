@@ -16,18 +16,23 @@ class Utils:
     _cmds = ["cmds: -rmn", "-ran", "-rmd", "-cacn", "-q"]
     _parser = argparse.ArgumentParser()
     _parser.add_argument('-rmn', '--recall_macro_names',
-                         help = 'return all macro names',action ="store_true")
+                         help='return all macro names',
+                         action="store_true")
     _parser.add_argument('-ran', '--recall_all_names',
-                         help = 'return all renamed commands', action="store_true")
+                         help='return all renamed commands',
+                         action="store_true")
     _parser.add_argument('-rmd', '--recall_macro_def',
-                         help = 'return all macro deffinitions', action="store_true")
+                         help='return all macro deffinitions',
+                         action="store_true")
     _parser.add_argument('-cacn', '--reset_all_comd_names',
-                         help = 'reset all command names', action="store_true")
+                         help='reset all command names',
+                         action="store_true")
     _parser.add_argument('-q', '--quit',
-                         help = 'quit the util', action="store_true")
+                         help='quit the util',
+                         action="store_true")
 
 
-    def __init__(self, ui, testing=False, showhelp=True):
+    def __init__(self, ui, _c, testing=False, showhelp=True):
         """__init__(ui,testing=False, showhelp=True)
 
         ui is the current UserInput
@@ -39,14 +44,16 @@ class Utils:
         self.sp = ui.serial_port
         self.contInfo = self.sp.controller_info
         self.testing = testing
+        self.c = _c
         if showhelp:
             try:
                 self.args = Utils._parser.parse_args(['-h'])
-            except SystemExit: pass
+            except SystemExit:
+                pass
 
 
     def __str__(self):
-        return  ", ".join(['testing:' + str(self.testing) ] + Utils._cmds).rstrip()
+        return  ", ".join(['testing:' + str(self.testing)] + Utils._cmds).rstrip()
 
     def process_loop(self):
         """ProcessLoop()
@@ -69,7 +76,7 @@ class Utils:
                 instr = "   -q -rmn -ran -rmd -cacn"
             else: instr = input('select command>')
 
-            options= instr.split()
+            options = instr.split()
 
             try:
                 self.args = Utils._parser.parse_args(options)
@@ -98,18 +105,18 @@ class Utils:
         If the cmdid has been renamed, logs the rename and the cmdid
 
         """
-        def __sIt(a):
+        def __sIt(_a):
             """__sIt(a)
 
             checks if the response to the command indicates a rename
 
             """
 
-            _px = self.ui.controller_type.rename_pat.search(a)
+            _px = self.ui.controller_type.rename_pat.search(_a)
             result = False
-            if px:
-                _g1 = px.group(1)
-                _g2 = px.group(2)
+            if _px:
+                _g1 = _px.group(1)
+                _g2 = _px.group(2)
                 result = _g1 == _g2
             else:
                 result = False
@@ -118,10 +125,10 @@ class Utils:
         for i in rng:
             cmd = '{num:03d}'. format(num=i)
             if self.testing:
-                print('sending %s%s' %(self.contInfo.cmdDict.get('rcn'), cmd ))
+                print('sending %s%s' %(self.contInfo.cmdDict.get('rcn'), cmd))
                 continue
 
-            if c.sendcmd(
+            if self.c.sendcmd(
                 self.contInfo.cmdDict.get('rcn') + cmd,
                 display=False,
                 log_it=True,
@@ -156,9 +163,9 @@ class Utils:
         for i in self.contInfo.safe2resetName:
             cmd = '{num:03d}'.format(num=i)
             if self.testing:
-                print('sending %s%s%s' %(self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd) )
+                print('sending %s%s%s' %(self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd))
                 continue
-            if c.sendcmd(self.contInfo.cmdDict.get('rpcmdn') + cmd + cmd, display = False):
+            if self.c.sendcmd(self.contInfo.cmdDict.get('rpcmdn') + cmd + cmd, display=False):
                 print('.', end='')
 
     def recallMacroDeffinitions(self):
@@ -180,21 +187,22 @@ class Utils:
                 #".*contains\s+[1-9]([0-9]+)?\s+commands.*",
                 #re.MULTILINE | re.IGNORECASE | re.DOTALL)
             #if None == Utils._macro_def_pat.match(text):
-            if Utils.ui.controller_type.macro_def_pat.match(_a) is None:
-                return False
+            #if self.ui.controller_type.macro_def_pat.match(_a) is None:
+                #return False
 
-            return True
+            #return True
+            return not self.ui.controller_type.macro_def_pat.match(_a) is None
 
         for i in self.contInfo.userMacrosR:
             _ = '{num:03d}'.format(num=i)
             if self.testing:
-                print('sending %s%s' %(self.contInfo.cmdDict.get('rmc'), _ ))
+                print('sending %s%s' %(self.contInfo.cmdDict.get('rmc'), _))
                 continue
-            if c.sendcmd(self.contInfo.cmdDict.get('rmc') + _,
-                         display=False,
-                         log_it=True,
-                         select_it = lambda a: __sIt(_a),
-                         format_it = lambda a: self.contInfo.fmtRCM(_a)):
+            if self.c.sendcmd(self.contInfo.cmdDict.get('rmc') + _,
+                              display=False,
+                              log_it=True,
+                              select_it=lambda a: __sIt(a),
+                              format_it=lambda a: self.contInfo.fmtRCM(a)):
                 print('.', end='')
 
 

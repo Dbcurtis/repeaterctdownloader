@@ -155,8 +155,7 @@ class TestMySerial(unittest.TestCase):
 
         #test 6) check that dbidx = -1 does as expected
         msclass._dbidx = -1
-        a = sp.dread(99)[0]
-        self.assertEqual(b'ok\nDTMF>', a)
+        self.assertEqual(b'ok\nDTMF>', sp.dread(99)[0])
 
         msclass._dbidx = 0
         sp.close()

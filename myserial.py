@@ -119,7 +119,7 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
         scps = MySerial._NO  # setup for storing the selected baud rate and timeout
         sto = 0.0
         # at this point the serial port is always closed
-        for cpsd in _ci.cpsData:
+        for cpsd in _ci.cps_data:
             _sp.baudrate = cpsd.bps
             _sp.timeout = cpsd.cpsDelay
             cnt = 2

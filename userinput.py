@@ -11,6 +11,14 @@ class UserInput:
 
     obtains user input for which serial port to use and a path for
     an input file to be read.
+    
+    if run as __main__
+
+    Displays available prots,
+    Obtains user input for the selected port and file (the file info is ignored)
+    Attempts to open the port, and if able prints "Requested Port can be opened"
+    May also generate an OSError if unable to match the controller baud rate
+    
     """
 
     def __init__(self, ctype=dlxii.DlxII()):
@@ -88,13 +96,6 @@ class UserInput:
         return True
 
 if __name__ == '__main__':
-    """__main__
-
-    Displays available prots,
-    Obtains user input for the selected port and file (the file info is ignored)
-    Attempts to open the port, and if able prints "Requested Port can be opened"
-    May also generate an OSError if unable to match the controller baud rate
-    """
     UI = UserInput()
     try:
         print('Available comport(s) are: %s' % getports.GetPorts().get())

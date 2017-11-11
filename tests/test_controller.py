@@ -192,7 +192,6 @@ class TestController(unittest.TestCase):
         c.close()
         fct = os.path.getmtime('test.exelog.txt')
         self.assertTrue(abs((fct) - (c.openTime)) < 1.0)
-        dkd =  abs((fct) - (ofct))
         self.assertTrue(abs((fct) - (ofct)) < 4.0)
         nf = open(c.cEfn, 'r', encoding='utf-8')
         lines = nf.readlines(99999)

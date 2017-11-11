@@ -25,14 +25,14 @@ class TestControllerspecific(unittest.TestCase):
     def testcreation(self):
         cs = dlxii.DlxII()
         self.assertEqual('RLC-Club Deluxe II v2.15', cs.get_Ctr_type())
-        cpsData = cs.cpsData
+        cpsData = cs.cps_data
         cps0 = cpsData[0]
         self.assertEqual('[CPS: 960, 0.215]', str(cps0))
         self.assertEqual(9600, cps0.bps)
         self.assertTrue(0.21 < cps0.cpsDelay < 0.22)
         ss = '[CPS: 960, 0.215]'
         self.assertEqual(ss, str(cps0))
-        rates = [d.bps for d in cs.cpsData]
+        rates = [d.bps for d in cs.cps_data]
         self.assertEqual([9600, 19200, 4800, 2400, 1200, 600, 300], rates)
         css = '[Dlxii: rename:Command number\\s+(\\d\\d\\d)\\s+is\\s+named' \
             '\\s+([0-9a-z]+)\\..*, macrodef:.*contains\\s+[1-9]([0-9]+)?\\s+commands.*]'
@@ -73,10 +73,10 @@ Command number 521 is named C47571.  It takes 0 digits of data.
 OK
 OK
 DTMF>"""
-        r = cs.fmtRCM(mdf)
+        _ = cs.fmtRCM(mdf)
         self.assertEqual('Command number 521 is named C47571.  It takes 0 digits of data.',
-                         r[0])
-        self.assertEqual(3, len(r[1]))
+                         _[0])
+        self.assertEqual(3, len(_[1]))
 
 if __name__ == '__main__':
     unittest.main()

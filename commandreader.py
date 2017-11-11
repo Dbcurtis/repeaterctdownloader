@@ -114,9 +114,4 @@ def __main():
         _ui.close()
 
 if __name__ == '__main__':
-    """Main
-
-    opens a UI, opens a CommandReader
-    Reads the imput file and dumps to the terminal
-    """
     __main()

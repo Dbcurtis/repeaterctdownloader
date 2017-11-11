@@ -4,7 +4,6 @@ Test file for commandreader
 """
 from __future__ import print_function
 import sys
-#from itertools import count
 import unittest
 import commandreader
 import userinput
@@ -31,7 +30,7 @@ class TestCommandreader(unittest.TestCase):
 
     def testopen(self):
         _cr = commandreader.CommandReader(TestCommandreader.ui)
-        fcr = None
+        _fcr = None
         try:
             self.assertTrue(_cr.is_closed)
             self.assertEqual("", _cr.get())
@@ -40,7 +39,7 @@ class TestCommandreader(unittest.TestCase):
             self.assertFalse(_cr.is_closed)
             try:
                 _cr.open()
-                self.assertTrue(False, "did not detect multiple attempts to open")
+                assert "did not detect multiple attempts to open"
             except AssertionError:
                 pass
 
@@ -48,12 +47,13 @@ class TestCommandreader(unittest.TestCase):
             self.assertTrue(_cr.is_closed)
             fakeui = userinput.UserInput()
             fakeui.inputfn = 'totaljunk.txt'
-            fcr = commandreader.CommandReader(fakeui)
-            self.assertFalse(fcr.open())
-            self.assertEqual("[Errno 2] No such file or directory: 'totaljunk.txt'", str(fcr.lasterror))
-            self.assertTrue(fcr.is_closed)
+            _fcr = commandreader.CommandReader(fakeui)
+            self.assertFalse(_fcr.open())
+            self.assertEqual("[Errno 2] No such file or directory: 'totaljunk.txt'",
+                             str(_fcr.lasterror))
+            self.assertTrue(_fcr.is_closed)
         finally:
-            fcr.close()
+            _fcr.close()
             _cr.close()
 
     def testclose(self):
