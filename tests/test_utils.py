@@ -14,7 +14,7 @@ import controller
 
 
 def eprint(*args, **kwargs):
-    print(*args, **kwargs, file=sys.stderr)
+    print(*args, file=sys.stderr, **kwargs)
 
 class Testutils(unittest.TestCase):
     sdevice = ""
