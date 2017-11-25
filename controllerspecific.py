@@ -8,9 +8,8 @@ class ControllerSpecific:
 
     TBD
     """
+    get_Ctr_type = 'Abstract Controller'
 
-    #def __donothing(self, _str):
-        #return {}
 
     class SerialSpeedinfo:
         """SerialSpeedinfo
@@ -27,7 +26,6 @@ class ControllerSpecific:
 
         def __repr__(self):
             return '[CPS: %s]' % (str(int(self.bps / 10)) + ", " + str(self.cpsDelay))
-
 
 
     def fmtRCM(self, _str):
@@ -55,10 +53,9 @@ class ControllerSpecific:
         """
         return (_str, {})
 
-    get_Ctr_type = lambda: None
 
     def __init__(self):
-        self.get_Ctr_type = lambda: 'Abstract Controller'
+       
         self.userMacrosR = range(0, 0)
         self.commandsR = range(0, 0)
         self.systemMacrosR = range(0, 0)
@@ -73,7 +70,7 @@ class ControllerSpecific:
             self.SerialSpeedinfo(600, 3),
             self.SerialSpeedinfo(300, 6)
         ]
-        self.cmdDict = {'rpcmdn': '', 'rcn': '', 'rmc': '',}
+        self.cmdDict = {'rpcmdn': None, 'rcn': None, 'rmc': None, 'prompt': '\n',}
         for ssi in self.cps_data:
             ssi.cpsDelay = round(0.1 + (1100.0 / ssi.bps), 3)
 
@@ -86,5 +83,4 @@ class ControllerSpecific:
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     def __str__(self):
-        return '[ControllerSpecific: rename:%s, macrodef:%s]' %  \
-               (self.rename_pat.pattern, self.macro_def_pat.pattern)
+        return ControllerSpecific.get_Ctr_type

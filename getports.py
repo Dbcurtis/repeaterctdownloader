@@ -27,14 +27,14 @@ class GetPorts:
 
     def get(self):
         """get()
+        
         TBD
         """
         ports = serial.tools.list_ports.comports()
         devs = []
-        if GetPorts.oldSerial:
-            devl = [port[0] for port in ports]
-            devs = [p for p in devl]
 
+        if GetPorts.oldSerial:
+            devs = [p for p in [port[0] for port in ports]]
         else:
             devs = [port.device for port in ports]
 

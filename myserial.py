@@ -28,6 +28,7 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
     def __init__(self, controller_info):
         super(MySerial, self).__init__()
         self.controller_info = controller_info
+        self.cont_prompt = self.controller_info.cmdDict.get('prompt')
 
     def __str__(self):
         #_aa = super(MySerial, self).__str__()
@@ -54,7 +55,7 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
         Checks to see if an open serial port is communicating with the controller
 
         Writes a \r to the serial port and reads the result
-        If the result ends with DTMF> the port and repeater are communicating
+        If the result ends with the controller prompt (i.e. DTMF>) the port and repeater are communicating
 
         Returns True if communicating, False if not
         """
@@ -67,15 +68,13 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
         _sp.dread(9999)
         _sp.write(MySerial.String_2_Byte('\r'))
         #will generate some response
-        #ending in DTMF> if the cps rate is correct
+        #ending in DTMF> if the cps rate is correct (for controllers like the dlxii)
 
         ctrlresult = MySerial.Byte_2_String(_sp.dread(9999))
-        #print(ctrlresult)
-        #sp.timeout = to
         _sp.close()
         _sp.timeout = _to
         _sp.open()
-        return ctrlresult.endswith("DTMF>")
+        return ctrlresult.endswith(self.cont_prompt)
 
     def find_baud_rate(self):
         """find_baud_rate()

@@ -19,6 +19,7 @@ def _send_specified_file(_ui):
     sends each line to the controller.
 
     """
+
     _ui.open()
     _c = controller.Controller(_ui)
     _cr = commandreader.CommandReader(_ui)
@@ -42,9 +43,16 @@ def send_file(_ui):
 
     asks for a file name and invokes _send_specified_file
     """
+    while 1:
 
-    _ui.inputfn = input("file name to send to repeater?>")
-    _send_specified_file(_ui)
+        try:
+            _ui.inputfn = input("file name to send to repeater?>")
+            _send_specified_file(_ui)
+            return True
+        except OSError:
+            print("%s not found" % _ui.inputfn)
+            if 'y' == input("Abort sendfile Y/N").lower().strip()[0:1]:
+                return False
 
 
 def _cmdloop(_c):
@@ -55,10 +63,9 @@ def _cmdloop(_c):
     Accepts a command from the user, sends it to the controller and displays the result.
 
     Loop exits on a command starting with a q or e
-
     """
     print("Quit or Exit to exit command mode")
-    while True:
+    while 1:
         cmd = input("input>")
         cmd = cmd.strip().upper()
         if cmd.startswith('Q') or cmd.startswith('E'):
@@ -83,6 +90,7 @@ def send_users_cmds(_ui):
     finally:
         _c.close()
         _ui.close()
+    return True
 
 
 
@@ -105,6 +113,8 @@ def do_utility_cmds(_ui):
         _c.close()
         _ui.close()
 
+    return True
+
 
 def main():
     """main()
@@ -124,20 +134,27 @@ def main():
     try:
         _ui.open()
         _send_specified_file(_ui)
-        while True:
+
+        def nodop(ignore):
+            return False
+
+        def errmsg(ignore):
+            print("only type one of Q, M, U, or F")
+            return True
+
+        cmddisptch = {
+            'q':nodop,
+            'm':send_users_cmds,
+            'u':do_utility_cmds,
+            'f':send_file,
+        }
+        ccc = True
+        while ccc:
             response = input("Type 'Q' to quit\n"
                              "Type 'M' for manual commands\n"
                              "type 'U' for Utility operations\n"
-                             "Type 'F' for file transfer (Q/F/M/U)?>").lower()
-            if response.startswith('q'):
-                break
-            if response.startswith('f'):
-                send_file(_ui)
-            if response.startswith('m'):
-                send_users_cmds(_ui)
-            if response.startswith('U'):
-                do_utility_cmds(_ui)
-            else: print("only type one of Q, M, U, or F")
+                             "Type 'F' for file transfer (Q/F/M/U)?>").lower()[0:1]
+            ccc = cmddisptch.get(response, errmsg)(response)
     finally:
         _ui.close()
 

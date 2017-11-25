@@ -22,6 +22,8 @@ class DlxII(controllerspecific.ControllerSpecific):
     N011Fmt_pat = re.compile(
         r'Command number\s*(\d{3,3})\s* is named (.*?)\.\s+It takes (\d{1,3}) digits of data\.',
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
+    
+    get_Ctr_type = 'RLC-Club Deluxe II v2.15'
 
     def __init__(self):
         super().__init__()
@@ -31,13 +33,13 @@ class DlxII(controllerspecific.ControllerSpecific):
         _sm = self.systemMacrosR
         self.safe2resetName = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
-        self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054',}
+        self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054', 'prompt': 'DTMF>',}
         """cmdDict
 
         A dict that associates commands with the controller specific command digits.
         """
 
-        self.get_Ctr_type = lambda: 'RLC-Club Deluxe II v2.15'
+    
 
     def __fmtN054(self, _str):  #fmt macro contents
         """__fmtN054(s)
@@ -133,5 +135,5 @@ class DlxII(controllerspecific.ControllerSpecific):
         return result
 
     def __str__(self):
-        return '[Dlxii: rename:%s, macrodef:%s]' %  (DlxII.rename_pat.pattern, \
-               DlxII.macro_def_pat.pattern)
+        return DlxII.get_Ctr_type
+    

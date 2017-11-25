@@ -142,7 +142,8 @@ class Utils:
         Scans the user macros to get the macro names.
 
        """
-        self._getCmdNames(self.contInfo.userMacrosR)
+        if self.contInfo.cmdDict.get('rcn'):
+            self._getCmdNames(self.contInfo.userMacrosR)
 
     def recallAllNames(self):
         """recallAllNames()
@@ -150,7 +151,8 @@ class Utils:
         scans all cmdids, if the cmdid has been renamed, the rename and cmdid are logged
 
         """
-        self._getCmdNames(self.contInfo.commandsR)
+        if self.contInfo.cmdDict.get('rcn'):
+            self._getCmdNames(self.contInfo.commandsR)
 
 
     def resetCmdNames(self):
@@ -159,7 +161,9 @@ class Utils:
         Sends a n010 cmdid cmdid to the repeater to reset the command names for each cmdid
         but not for the system macros.
         """
-
+        if not self.contInfo.cmdDict.get('rpcmdn'):
+            print('Command not supported for this controller')
+            return
         for i in self.contInfo.safe2resetName:
             cmd = '{num:03d}'.format(num=i)
             if self.testing:
@@ -192,7 +196,11 @@ class Utils:
 
             #return True
             return not self.ui.controller_type.macro_def_pat.match(_a) is None
-
+        
+        if not self.contInfo.cmdDict.get('rmc'):
+            print('Command not supported for this controller')
+            return
+        
         for i in self.contInfo.userMacrosR:
             _ = '{num:03d}'.format(num=i)
             if self.testing:

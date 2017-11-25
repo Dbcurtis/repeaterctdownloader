@@ -24,7 +24,7 @@ class TestControllerspecific(unittest.TestCase):
 
     def testcreation(self):
         cs = dlxii.DlxII()
-        self.assertEqual('RLC-Club Deluxe II v2.15', cs.get_Ctr_type())
+        self.assertEqual('RLC-Club Deluxe II v2.15', cs.get_Ctr_type)
         cpsData = cs.cps_data
         cps0 = cpsData[0]
         self.assertEqual('[CPS: 960, 0.215]', str(cps0))
@@ -34,8 +34,7 @@ class TestControllerspecific(unittest.TestCase):
         self.assertEqual(ss, str(cps0))
         rates = [d.bps for d in cs.cps_data]
         self.assertEqual([9600, 19200, 4800, 2400, 1200, 600, 300], rates)
-        css = '[Dlxii: rename:Command number\\s+(\\d\\d\\d)\\s+is\\s+named' \
-            '\\s+([0-9a-z]+)\\..*, macrodef:.*contains\\s+[1-9]([0-9]+)?\\s+commands.*]'
+        css = 'RLC-Club Deluxe II v2.15'
         self.assertEqual(css, str(cs))
 
 

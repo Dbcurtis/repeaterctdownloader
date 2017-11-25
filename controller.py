@@ -8,8 +8,12 @@ from datetime import datetime
 from os import path
 from time import time
 import userinput
-import getports
 
+
+#def call_clsinit(*args, **kwargs):
+    #cls = type(*args, **kwargs)
+    #cls._clsinit()
+    #return cls;
 
 class Controller:
     """Controller Class supports communication of commands to the controller
@@ -51,6 +55,12 @@ class Controller:
     _timeFmt = '%Y%m%d, %H:%M:%S'
 
 
+    @staticmethod
+    def _returnsame(a):
+        return a
+    
+  
+    
     def __init__(self, uiIn):  # get the port id and the logging file ids
         """__init__(uiIn)
 
@@ -83,6 +93,13 @@ class Controller:
         self.cEFile = None
         self.when_opened = None
         self.openTime = None
+        self.ctrl_prompt = self.ui.controller_type.cmdDict.get('prompt')
+        self._byte_string_ifd = {
+        #True: lambda a: Controller.Byte_2_String(a),
+        #False: lambda a: Controller._returnsame(a)
+        True: Controller.Byte_2_String,
+        False: Controller._returnsame,
+    }   
 
     def __str__(self):
         return '[Controller: %s]' % (str(self.isFilesOpen) + ", " + \
@@ -130,14 +147,16 @@ class Controller:
 
         return result
 
+    def _cnvtcmd(self, cmdin):
+        return self._byte_string_ifd.get(isinstance(cmdin, bytes))(cmdin)
 
-    def sendcmd(self, cmdin, \
+    def sendcmd(self, cmdin,  \
         display=True, \
         log_it=True, \
         echoit=False, \
         select_it=lambda a: True, \
         format_it=lambda a: (a, {})):
-        """sendcmd(cmd, display=TF, logIt=TF
+        """sendcmd(cmdin, display=TF, log_it=TF, echo_it=TF, select_it=TF, format_it=TF
 
         Logs the command as provided in the execution log with the results
         of the command.
@@ -162,11 +181,7 @@ class Controller:
         """
 
         result = True
-        cmd = ""
-        if type(cmdin) is bytes:  #isinstance was type
-            cmd = Controller.Byte_2_String(cmdin)
-        else:
-            cmd = cmdin
+        cmd = self._cnvtcmd(cmdin)
 
         #print(cmd) # display command on window
         if log_it:
@@ -198,19 +213,20 @@ class Controller:
                 #self.sp.write(String_2_Byte(newcmd))
                 _in_list = []
                 cnt = 100
-                while cnt > 0:  # keep reading input until the DTMF> prompt is seen.
-                               # Remember the timeout changes with baud rate
+                while cnt > 0:  # keep reading input until the controller
+                    # prompt (i.e. DTMF>) is seen.
+                    # Remember the timeout changes with baud rate
                     #should get data atleast every timeout seconds
                     _in_list.append(Byte_2_String(self.sp.dread(9999)))
                     cnt = cnt - 1
-                    if ''.join(_in_list).endswith('DTMF>'):
+                    if ''.join(_in_list).endswith(self.ctrl_prompt):
                         break
 
                 self.sp.timeout = sto
                 #rnok = Controller._errPat.search(''.join(inList))
                 if Controller._errPat.search(''.join(_in_list)): #rnok:
                     _in_list.append("******************E R R O R" + \
-                    "****************\nDTMF>")
+                    "****************\n"+self.ctrl_prompt)
                     result = False
                 response = ''.join(_in_list)
             else:
@@ -246,10 +262,11 @@ class Controller:
 
 if __name__ == '__main__':
     UII = userinput.UserInput()
+
     try:
         def _cmdloop(_c):
             print("Quit or Exit to exit command mode")
-            while True:
+            while 1:
                 cmd = input("input>")
                 cmd = cmd.strip().upper()
                 if cmd.startswith('Q') or cmd.startswith('E'):
@@ -270,7 +287,7 @@ if __name__ == '__main__':
                     _ui.serial_port.close()
                 _c.close()
 
-        print('Available comport(s) are: %s' % getports.GetPorts().get())
+        #print('Available comport(s) are: %s' % getports.GetPorts().get())
 
         UII.request()
         _send_users_cmds(UII)

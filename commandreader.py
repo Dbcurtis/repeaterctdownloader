@@ -12,6 +12,18 @@ class CommandReader:
     This class reads commands from a file.
     Those commands can be sent to Controller.sendcmd for execution
     """
+    
+    def _donothing(self):
+        pass
+    def _setclosed(self):
+        self.is_closed = True
+        try:
+            self.file_in.close()
+            self.loc = -1
+        except IOError:
+            pass
+        
+   
 
     def __init__(self, ui):
         self.ui = ui
@@ -21,6 +33,10 @@ class CommandReader:
         self.file_name = ui.inputfn
         self.lasterror = None
         self.file_in = None
+        self._set_closed_ifd = {
+            True: self._donothing,
+            False: self._setclosed,            
+        }         
 
     def __str__(self):
         return '[CommandReader %s]' % ('closed: '+str(self.is_closed) +  ", "+str(self.ui))
@@ -81,14 +97,8 @@ class CommandReader:
         Closes the input file and the reader
         Can be called multiple times.
         """
+        self._set_closed_ifd.get(self.is_closed)()
 
-        if not self.is_closed:
-            self.is_closed = True
-            try:
-                self.file_in.close()
-                self.loc = -1
-            except IOError:
-                pass
 
 
 def __main():

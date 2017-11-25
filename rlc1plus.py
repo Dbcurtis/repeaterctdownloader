@@ -6,39 +6,39 @@ import controllerspecific
 class Rlc1Plus(controllerspecific.ControllerSpecific):
     """ to be done """
 
+
+    rename_pat = re.compile(
+        r"Command number\s+(\d\d\d)\s+is\s+named\s+([0-9a-z]+)\..*",
+        re.IGNORECASE | re.MULTILINE | re.DOTALL)
+
+    macro_def_pat = re.compile(
+        r".*contains\s+[1-9]([0-9]+)?\s+commands.*",
+        re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+    N054Fmt_pat = re.compile(
+        r"MACRO\s+(\d{3,3})\s+contains\s+(\d{1,})\s+" + \
+        r"commands:(.*)this.*(\d{1,3}).*full\nOK\nOK\n",
+        re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+    N011Fmt_pat = re.compile(
+        r'Command number\s*(\d{3,3})\s* is named (.*?)\.\s+It takes (\d{1,3}) digits of data\.',
+        re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+    get_Ctr_type = 'RLC1 Plus'
+
     def __init__(self):
         super().__init__()
-        self.commandsR = range(0, 1000)
-        self.userMacrosR = range(500, 1000)  # goes from 500 to 999
+        self.commandsR = range(0, 215)
+        self.userMacrosR = range(141, 210)  # goes from 141 to 210
         self.systemMacrosR = range(200, 500)
         _sm = self.systemMacrosR
         self.safe2resetName = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
-        self.rename_pat = re.compile(
-            r"Command number\s+(\d\d\d)\s+is\s+named\s+([0-9a-z]+)\..*",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL)
-
-        self.macro_def_pat = re.compile(
-            r".*contains\s+[1-9]([0-9]+)?\s+commands.*",
-            re.MULTILINE | re.IGNORECASE | re.DOTALL)
-
-        self.N054Fmt_pat = re.compile(
-            r"MACRO\s+(\d{3,3})\s+contains\s+(\d{1,})\s+" + \
-            r"commands:(.*)this.*(\d{1,3}).*full\nOK\nOK\n",
-            re.MULTILINE | re.IGNORECASE | re.DOTALL)
-
-        self.N011Fmt_pat = re.compile(
-            r'Command number\s*(\d{3,3})\s* is named (.*?)\.\s+It takes (\d{1,3}) digits of data\.',
-            re.MULTILINE | re.IGNORECASE | re.DOTALL)
-
-
-        self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054',}
+        self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054','prompt': 'DTMF>', }
         """cmdDict
 
         A dict that associates commands with the controller specific command digits.
         """
-
-        self.get_Ctr_type = lambda: 'RLC-Club Deluxe II v2.15'
 
     def __fmtN054(self, _str):  #fmt macro contents
         """__fmtN054(s)
@@ -134,5 +134,4 @@ class Rlc1Plus(controllerspecific.ControllerSpecific):
         return result
 
     def __str__(self):
-        return '[Dlxii: rename:%s, macrodef:%s]' %  (self.rename_pat.pattern, \
-               self.macro_def_pat.pattern)
+        return Rlc1Plus.get_Ctr_type

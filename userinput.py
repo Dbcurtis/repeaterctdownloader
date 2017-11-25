@@ -3,6 +3,7 @@
 import sys
 import myserial
 import getports
+import knowncontrollers
 import dlxii
 
 
@@ -11,21 +12,45 @@ class UserInput:
 
     obtains user input for which serial port to use and a path for
     an input file to be read.
-    
+
     if run as __main__
 
     Displays available prots,
     Obtains user input for the selected port and file (the file info is ignored)
     Attempts to open the port, and if able prints "Requested Port can be opened"
     May also generate an OSError if unable to match the controller baud rate
-    
-    """
 
-    def __init__(self, ctype=dlxii.DlxII()):
+    """
+    @classmethod
+    def __ignore(cls, a):
+        pass
+
+    __close_ifd = {True: lambda a: a.close(), False: lambda a: UserInput.__ignore(a),}
+    __userInput_ifd = {
+        True: lambda o, a: UserInput.__popTestData(o, a),
+        False: lambda o, a: UserInput.__inputg(o, a),}    
+    
+    @staticmethod 
+    def __popTestData(o, a):
+        return o.__td.pop()
+    
+    @staticmethod 
+    def __inputg(o, a):
+        return input(a)
+    
+  
+    def __init__(self, ctype=dlxii.DlxII(), testdata=None):
         self.comm_port = ""
         self.inputfn = ""
-        controller_type = ctype
-        self.serial_port = myserial.MySerial(controller_type)
+        self.controller_type = ctype
+        self.serial_port = myserial.MySerial(self.controller_type)
+        self.__td = None
+        if testdata:
+            if isinstance(testdata, list):
+                self.__td = testdata
+                self.__td.reverse()
+            else:
+                assert "illegal testdata type"
 
     def __str__(self):
         return '[UserInput: %s]' % (self.comm_port + ", " + self.inputfn)
@@ -33,15 +58,20 @@ class UserInput:
     def __repr__(self):
         return '[UserInput: %s]' % (self.comm_port + ", " + self.inputfn)
 
+    def __inputa(self, query):
+        return UserInput.__userInput_ifd.get(isinstance(self.__td, list))(self, query)
+
     def request(self):
         """request()
 
         Request comm port id and filename containing controller commands
         """
-        while True:
+        while 1:
             available = getports.GetPorts().get()
+            #print('available ports:'+', '.join(available))
+            print('Available comport(s) are: %s' % available)
             tups = [(a.strip(), a.strip().lower()) for a in available]
-            useri = input("Comm Port for repeater?>").strip()
+            useri = self.__inputa("Comm Port for repeater?>").strip()
             hits = [t for t in tups if useri.lower() in t]
             if hits:
                 [_port] = hits
@@ -49,15 +79,28 @@ class UserInput:
                 print('Using serial port: %s' % self.comm_port)
                 break
 
-        self.inputfn = input("file name to send to repeater or blank?>")
+        print('Known controlers: \n\t'
+              +'\n\t'.join(knowncontrollers.KnownControllers.get_controller_ids()))
+
+        _msg = 'Controler options: ' + str(knowncontrollers.KnownControllers.get_known())
+        while 1:
+            print(_msg)
+            useri = self.__inputa("Controller type?>")
+            ctrl = knowncontrollers.KnownControllers.select_controller(useri)
+            if ctrl:
+                self.controller_type = ctrl
+                self.serial_port = myserial.MySerial(self.controller_type)
+                break
+
+        self.inputfn = self.__inputa("file name to send to repeater or blank?>")
 
     def close(self):
         """close()
 
         Closes the serial port if it is open
         """
-        if self.serial_port.isOpen():
-            self.serial_port.close()
+        UserInput.__close_ifd.get(self.serial_port.isOpen())(self.serial_port)
+
 
     def open(self, detect_br=True):
         """open()
@@ -98,7 +141,6 @@ class UserInput:
 if __name__ == '__main__':
     UI = UserInput()
     try:
-        print('Available comport(s) are: %s' % getports.GetPorts().get())
         UI.request()
         UI.open()
         print("Requested Port can be opened")

@@ -124,6 +124,20 @@ class TestController(unittest.TestCase):
         self.assertFalse(c.isFilesOpen)
         self.assertFalse(c.sp.isOpen())
 
+    def testcvntcmd(self):
+        mySPortclass = myserial.MySerial
+        c = controller.Controller(TestController.ui)
+        atext =  'this is ascii'
+        bbytes = b'this is bytes'
+        btext = 'this is bytes'
+        jjj = c._cnvtcmd(atext)
+        self.assertEqual(atext, jjj)
+        self.assertTrue(isinstance(jjj, str))
+        
+        jjj = c._cnvtcmd(bbytes)
+        self.assertEqual(btext, jjj)
+        self.assertTrue(isinstance(jjj, str))             
+        
     def testsendcmd(self):
         mySPortclass = myserial.MySerial
         c = controller.Controller(TestController.ui1)

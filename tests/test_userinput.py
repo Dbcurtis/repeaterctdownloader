@@ -86,6 +86,7 @@ class Testuserinput(unittest.TestCase):
         self.assertEqual(Testuserinput.sdevice, sp.port)
         self.assertEqual(9600, sp.baudrate)
         ui.close()
+        ui.close()
         self.assertFalse(sp.isOpen())
         self.assertFalse(ui.serial_port.isOpen())
         # prep for test with baudrate finder
@@ -114,9 +115,23 @@ class Testuserinput(unittest.TestCase):
         ui.close()
 
     def testclose(self): pass  # tested other places
-    def testrequest(self): pass  #requires manual
 
+    def testrequest(self):
+        fakeuser = ['', 'wrongport']
+        try:
+            ui = userinput.UserInput(testdata=fakeuser)
+            ui.request()
+            self.assertTrue(False, msg="did not fault on empty debug list")
+        except IndexError:
+            pass
 
+        ports = getports.GetPorts().get()
+        fakeuser += getports.GetPorts().get() + ['junk', 'dlx2', 'mytest.txt']
+        ui = userinput.UserInput(testdata=fakeuser)
+        ui.request()
+        self.assertEqual(ports[0], ui.comm_port)
+        self.assertEqual('mytest.txt', ui.inputfn)
+        self.assertTrue(isinstance(ui.controller_type, dlxii.DlxII))
 
 if __name__ == '__main__':
     unittest.main()
