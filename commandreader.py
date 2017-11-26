@@ -12,7 +12,7 @@ class CommandReader:
     This class reads commands from a file.
     Those commands can be sent to Controller.sendcmd for execution
     """
-    
+
     def _donothing(self):
         pass
     def _setclosed(self):
@@ -22,21 +22,20 @@ class CommandReader:
             self.loc = -1
         except IOError:
             pass
-        
-   
 
-    def __init__(self, ui):
-        self.ui = ui
+
+    def __init__(self, _ui):
+        self.ui = _ui
         self.line = ""
         self.is_closed = True
         self.loc = -1  # loc is used to keep track of when the read is done
-        self.file_name = ui.inputfn
+        self.file_name = self.ui.inputfn
         self.lasterror = None
         self.file_in = None
         self._set_closed_ifd = {
             True: self._donothing,
-            False: self._setclosed,            
-        }         
+            False: self._setclosed,
+        }
 
     def __str__(self):
         return '[CommandReader %s]' % ('closed: '+str(self.is_closed) +  ", "+str(self.ui))
@@ -69,11 +68,11 @@ class CommandReader:
             self.is_closed = True
         return result
 
-    def get(self):  # line returns line or "" if EOF
+    def get(self):
         """get()
 
         Gets the next line from the input file
-        if the file is closed, the returned line is ""
+        if the file is closed or EOF, the returned line is ""
         """
 
         if self.is_closed:
@@ -90,6 +89,8 @@ class CommandReader:
 
         except EOFError:
             self.is_closed = True
+            return ""
+
 
     def close(self):
         """close()
@@ -98,7 +99,6 @@ class CommandReader:
         Can be called multiple times.
         """
         self._set_closed_ifd.get(self.is_closed)()
-
 
 
 def __main():
@@ -113,9 +113,9 @@ def __main():
     _cr = CommandReader(_ui)
     try:
         _cr.open()
-        while True:
-            line = _cr.get()
-            if not line:
+        while 1:
+            _line = _cr.get()
+            if not _line:
                 break
             _jj = line.split('\n')
             print(_jj[0])

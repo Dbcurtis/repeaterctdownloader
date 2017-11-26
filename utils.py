@@ -70,33 +70,33 @@ class Utils:
         """
         print('commands- one of: (-h|-rmn|-ran|-rmd|-cacn|-q)')
 
-        while True:
+        while 1:
             instr = ""
             if self.testing:
                 instr = "   -q -rmn -ran -rmd -cacn"
             else: instr = input('select command>')
 
             options = instr.split()
-
             try:
                 self.args = Utils._parser.parse_args(options)
-                print(self.args)
+                _bol_fun_tuple_tuple = (
+                    (self.args.recall_all_names, self.recallAllNames),
+                    (self.args.recall_macro_def, self.recallMacroDeffinitions),
+                    (self.args.recall_macro_names, self.recallMacroNames),
+                    (self.args.reset_all_comd_names, self.resetCmdNames),
+                )
+                #print(self.args)
             except SystemExit:
                 pass
             else:
-                if self.args.recall_all_names:
-                    self.recallAllNames()
-                if self.args.recall_macro_def:
-                    self.recallMacroDeffinitions()
-                if self.args.recall_macro_names:
-                    self.recallMacroNames()
-                if self.args.reset_all_comd_names:
-                    self.resetCmdNames()
+                for _ in _bol_fun_tuple_tuple:
+                    if _[0]:
+                        _[1]()
                 if self.args.quit:
                     break
 
 
-    def _getCmdNames(self, rng):
+    def _get_cmd_names(self, rng):
         """_getCmdNames(rng)
 
         rng is the range of the commands to be scanned.
@@ -105,8 +105,8 @@ class Utils:
         If the cmdid has been renamed, logs the rename and the cmdid
 
         """
-        def __sIt(_a):
-            """__sIt(a)
+        def _sit(_a):
+            """_sit(a)
 
             checks if the response to the command indicates a rename
 
@@ -132,7 +132,7 @@ class Utils:
                 self.contInfo.cmdDict.get('rcn') + cmd,
                 display=False,
                 log_it=True,
-                select_it=lambda a: not __sIt(a)): print('.', end='')
+                select_it=lambda a: not _sit(a)): print('.', end='')
             else: print('-', end='')
 
 
@@ -143,7 +143,7 @@ class Utils:
 
        """
         if self.contInfo.cmdDict.get('rcn'):
-            self._getCmdNames(self.contInfo.userMacrosR)
+            self._get_cmd_names(self.contInfo.userMacrosR)
 
     def recallAllNames(self):
         """recallAllNames()
@@ -152,7 +152,7 @@ class Utils:
 
         """
         if self.contInfo.cmdDict.get('rcn'):
-            self._getCmdNames(self.contInfo.commandsR)
+            self._get_cmd_names(self.contInfo.commandsR)
 
 
     def resetCmdNames(self):
@@ -182,8 +182,8 @@ class Utils:
         the execution log.
 
         """
-        def __sIt(_a):
-            """__sIt(a)
+        def _sit(_a):
+            """_sit(a)
 
             tests if the response is a macro deffinition
             """
@@ -196,11 +196,11 @@ class Utils:
 
             #return True
             return not self.ui.controller_type.macro_def_pat.match(_a) is None
-        
+
         if not self.contInfo.cmdDict.get('rmc'):
             print('Command not supported for this controller')
             return
-        
+
         for i in self.contInfo.userMacrosR:
             _ = '{num:03d}'.format(num=i)
             if self.testing:
@@ -209,7 +209,7 @@ class Utils:
             if self.c.sendcmd(self.contInfo.cmdDict.get('rmc') + _,
                               display=False,
                               log_it=True,
-                              select_it=lambda a: __sIt(a),
+                              select_it=lambda a: _sit(a),
                               format_it=lambda a: self.contInfo.fmtRCM(a)):
                 print('.', end='')
 

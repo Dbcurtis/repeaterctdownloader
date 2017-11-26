@@ -56,11 +56,9 @@ class Controller:
 
 
     @staticmethod
-    def _returnsame(a):
-        return a
-    
-  
-    
+    def _returnsame(_a):
+        return _a
+
     def __init__(self, uiIn):  # get the port id and the logging file ids
         """__init__(uiIn)
 
@@ -95,11 +93,9 @@ class Controller:
         self.openTime = None
         self.ctrl_prompt = self.ui.controller_type.cmdDict.get('prompt')
         self._byte_string_ifd = {
-        #True: lambda a: Controller.Byte_2_String(a),
-        #False: lambda a: Controller._returnsame(a)
-        True: Controller.Byte_2_String,
-        False: Controller._returnsame,
-    }   
+            True: Controller.Byte_2_String,
+            False: Controller._returnsame,
+        }
 
     def __str__(self):
         return '[Controller: %s]' % (str(self.isFilesOpen) + ", " + \

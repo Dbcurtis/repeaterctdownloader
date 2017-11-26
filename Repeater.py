@@ -26,17 +26,16 @@ def _send_specified_file(_ui):
     _cr.open()
     _c.open()
     try:
-        while True:
+        while 1:
             line = _cr.get()
             if line == "":
                 break  #exit when file read
             _c.sendcmd(line, echoit=_DEBUGGING)
-        _cr.close()
-        _c.close()
     finally:
         _c.close()
         _cr.close()
         _ui.close()
+
 
 def send_file(_ui):
     """send_file()
@@ -51,7 +50,7 @@ def send_file(_ui):
             return True
         except OSError:
             print("%s not found" % _ui.inputfn)
-            if 'y' == input("Abort sendfile Y/N").lower().strip()[0:1]:
+            if input("Abort sendfile Y/N").lower().strip()[0:1] == 'y':
                 return False
 
 
@@ -66,9 +65,9 @@ def _cmdloop(_c):
     """
     print("Quit or Exit to exit command mode")
     while 1:
-        cmd = input("input>")
-        cmd = cmd.strip().upper()
-        if cmd.startswith('Q') or cmd.startswith('E'):
+        cmd = input("input>").cmd.strip().upper()
+        _f = cmd[0:1]
+        if _f == 'Q' or _f == 'E':
             print("Exiting command input mode...")
             break
         _c.sendcmd(cmd, echoit=_DEBUGGING)
@@ -93,7 +92,6 @@ def send_users_cmds(_ui):
     return True
 
 
-
 def do_utility_cmds(_ui):
     """doUtilityCmds()
 
@@ -112,7 +110,6 @@ def do_utility_cmds(_ui):
     finally:
         _c.close()
         _ui.close()
-
     return True
 
 
@@ -135,26 +132,27 @@ def main():
         _ui.open()
         _send_specified_file(_ui)
 
-        def nodop(ignore):
+        def _nodop(ignore):
             return False
 
-        def errmsg(ignore):
+        def _errmsg(ignore):
             print("only type one of Q, M, U, or F")
             return True
 
         cmddisptch = {
-            'q':nodop,
+            'q':_nodop,
             'm':send_users_cmds,
             'u':do_utility_cmds,
             'f':send_file,
         }
-        ccc = True
-        while ccc:
-            response = input("Type 'Q' to quit\n"
-                             "Type 'M' for manual commands\n"
-                             "type 'U' for Utility operations\n"
-                             "Type 'F' for file transfer (Q/F/M/U)?>").lower()[0:1]
-            ccc = cmddisptch.get(response, errmsg)(response)
+
+        _loop_ctl = True
+        while _loop_ctl:
+            _response = input("Type 'Q' to quit\n"
+                              "Type 'M' for manual commands\n"
+                              "type 'U' for Utility operations\n"
+                              "Type 'F' for file transfer (Q/F/M/U)?>").strip().lower()[0:1]
+            _loop_ctl = cmddisptch.get(_response, _errmsg)(_response)
     finally:
         _ui.close()
 

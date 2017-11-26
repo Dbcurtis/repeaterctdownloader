@@ -22,20 +22,20 @@ class UserInput:
 
     """
     @classmethod
-    def __ignore(cls, a):
+    def _ignore(cls, a):
         pass
 
-    __close_ifd = {True: lambda a: a.close(), False: lambda a: UserInput.__ignore(a),}
+    __close_ifd = {True: lambda a: a.close(), False: lambda a: UserInput._ignore(a),}
     __userInput_ifd = {
-        True: lambda o, a: UserInput.__popTestData(o, a),
-        False: lambda o, a: UserInput.__inputg(o, a),}    
+        True: lambda o, a: UserInput._popTestData(o, a),
+        False: lambda o, a: UserInput._inputg(o, a),}    
     
     @staticmethod 
-    def __popTestData(o, a):
+    def _popTestData(o, ignore):
         return o.__td.pop()
     
     @staticmethod 
-    def __inputg(o, a):
+    def _inputg(o, a):
         return input(a)
     
   

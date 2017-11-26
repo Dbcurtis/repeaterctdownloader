@@ -55,7 +55,8 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
         Checks to see if an open serial port is communicating with the controller
 
         Writes a \r to the serial port and reads the result
-        If the result ends with the controller prompt (i.e. DTMF>) the port and repeater are communicating
+        If the result ends with the controller prompt (i.e. DTMF>)
+        the port and repeater are communicating
 
         Returns True if communicating, False if not
         """
