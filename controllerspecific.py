@@ -55,7 +55,7 @@ class ControllerSpecific:
 
 
     def __init__(self):
-       
+
         self.userMacrosR = range(0, 0)
         self.commandsR = range(0, 0)
         self.systemMacrosR = range(0, 0)

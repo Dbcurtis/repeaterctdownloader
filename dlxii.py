@@ -22,7 +22,7 @@ class DlxII(controllerspecific.ControllerSpecific):
     N011Fmt_pat = re.compile(
         r'Command number\s*(\d{3,3})\s* is named (.*?)\.\s+It takes (\d{1,3}) digits of data\.',
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
-    
+
     get_Ctr_type = 'RLC-Club Deluxe II v2.15'
 
     def __init__(self):
@@ -39,7 +39,7 @@ class DlxII(controllerspecific.ControllerSpecific):
         A dict that associates commands with the controller specific command digits.
         """
 
-    
+
 
     def __fmtN054(self, _str):  #fmt macro contents
         """__fmtN054(s)
@@ -136,4 +136,3 @@ class DlxII(controllerspecific.ControllerSpecific):
 
     def __str__(self):
         return DlxII.get_Ctr_type
-    

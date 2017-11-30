@@ -24,7 +24,7 @@ class TestControllerspecific(unittest.TestCase):
         pass
 
     def testcreation(self):
-        _aa =  controllerspecific.ControllerSpecific.get_Ctr_type
+        _aa = controllerspecific.ControllerSpecific.get_Ctr_type
         self.assertEqual('Abstract Controller', controllerspecific.ControllerSpecific.get_Ctr_type)
         _cs = controllerspecific.ControllerSpecific()
         _ = _cs.cps_data
@@ -36,7 +36,7 @@ class TestControllerspecific(unittest.TestCase):
         self.assertEqual('[CPS: 960, 0.215]', str(cps0))
         rates = [d.bps for d in _cs.cps_data]
         self.assertEqual([9600, 19200, 4800, 2400, 1200, 600, 300], rates)
-        css =  'Abstract Controller'
+        css = 'Abstract Controller'
         self.assertEqual(css, str(_cs))
 
 

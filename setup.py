@@ -8,7 +8,7 @@ https://github.com/pypa/sampleproject
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
-import codecs 
+import codecs
 from os import path
 
 here = path.abspath(path.dirname(__file__))
@@ -80,7 +80,7 @@ setup(
     install_requires=['pyserial',
                       'datetime',
                       'time',
-                      ],
+                     ],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

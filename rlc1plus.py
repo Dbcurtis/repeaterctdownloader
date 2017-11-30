@@ -34,7 +34,7 @@ class Rlc1Plus(controllerspecific.ControllerSpecific):
         _sm = self.systemMacrosR
         self.safe2resetName = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
-        self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054','prompt': 'DTMF>', }
+        self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054', 'prompt': 'DTMF>', }
         """cmdDict
 
         A dict that associates commands with the controller specific command digits.

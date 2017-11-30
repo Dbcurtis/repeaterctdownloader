@@ -27,7 +27,7 @@ class GetPorts:
 
     def get(self):
         """get()
-        
+
         TBD
         """
         ports = serial.tools.list_ports.comports()

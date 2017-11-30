@@ -80,10 +80,10 @@ class Testutils(unittest.TestCase):
 
     def testrecallMacroNames(self):
         pass
-    
+
     def testrecallAllNames(self):
         pass
-    
+
     def testresetCmdNames(self):
         ui = userinput.UserInput()
         ui.comm_port = Testutils.sdevice

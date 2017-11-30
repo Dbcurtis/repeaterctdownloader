@@ -117,7 +117,7 @@ def __main():
             _line = _cr.get()
             if not _line:
                 break
-            _jj = line.split('\n')
+            _jj = _line.split('\n')
             print(_jj[0])
     finally:
         _cr.close()

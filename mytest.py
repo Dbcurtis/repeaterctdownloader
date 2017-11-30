@@ -1,8 +1,7 @@
 
 
 def testthrow():
-    assert(False)
-
+    assert False
 
 
 if __name__ == '__main__':
@@ -16,4 +15,3 @@ if __name__ == '__main__':
         print("error")
 
     print("done")
-
