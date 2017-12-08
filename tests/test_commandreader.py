@@ -9,6 +9,10 @@ import commandreader
 import userinput
 
 def eprint(*args, **kwargs):
+    """eprint(*args, **kwards)
+    
+    force a print to sys.stderr
+    """
     print(*args, file=sys.stderr, **kwargs)
 
 class TestCommandreader(unittest.TestCase):

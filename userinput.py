@@ -25,14 +25,14 @@ class UserInput:
     def _ignore(cls, _ignore):
         pass
 
-    __close_ifd = {True: lambda a: a.close(), False: lambda a: UserInput._ignore(a),}
-    __userInput_ifd = {
-        True: lambda o, a: UserInput._popTestData(o, a),
+    _close_ifd = {True: lambda a: a.close(), False: lambda a: UserInput._ignore(a),}
+    _userInput_ifd = {
+        True: lambda o, a: UserInput._pop_test_data(o, a),
         False: lambda o, a: UserInput._inputg(o, a),}
 
     @staticmethod
-    def _popTestData(o, ignore):
-        return o.__td.pop()
+    def _pop_test_data(queue, ignore):
+        return queue.__td.pop()
 
     @staticmethod
     def _inputg(ignore, _a):
@@ -58,8 +58,8 @@ class UserInput:
     def __repr__(self):
         return '[UserInput: %s]' % (self.comm_port + ", " + self.inputfn)
 
-    def __inputa(self, query):
-        return UserInput.__userInput_ifd.get(isinstance(self.__td, list))(self, query)
+    def _inputa(self, query):
+        return UserInput._userInput_ifd.get(isinstance(self.__td, list))(self, query)
 
     def request(self):
         """request()
@@ -71,7 +71,7 @@ class UserInput:
             #print('available ports:'+', '.join(available))
             print('Available comport(s) are: %s' % available)
             tups = [(a.strip(), a.strip().lower()) for a in available]
-            useri = self.__inputa("Comm Port for repeater?>").strip()
+            useri = self._inputa("Comm Port for repeater?>").strip()
             hits = [t for t in tups if useri.lower() in t]
             if hits:
                 [_port] = hits
@@ -85,21 +85,21 @@ class UserInput:
         _msg = 'Controler options: ' + str(knowncontrollers.KnownControllers.get_known())
         while 1:
             print(_msg)
-            useri = self.__inputa("Controller type?>")
+            useri = self._inputa("Controller type?>")
             ctrl = knowncontrollers.KnownControllers.select_controller(useri)
             if ctrl:
                 self.controller_type = ctrl
                 self.serial_port = myserial.MySerial(self.controller_type)
                 break
 
-        self.inputfn = self.__inputa("file name to send to repeater or blank?>")
+        self.inputfn = self._inputa("file name to send to repeater or blank?>")
 
     def close(self):
         """close()
 
         Closes the serial port if it is open
         """
-        UserInput.__close_ifd.get(self.serial_port.isOpen())(self.serial_port)
+        UserInput._close_ifd.get(self.serial_port.isOpen())(self.serial_port)
 
 
     def open(self, detect_br=True):

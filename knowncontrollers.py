@@ -12,7 +12,7 @@ class KnownControllers:
 
     __kc = {
         'dlx2':(dlxii.DlxII(), re.compile(r"dlx(ii|2)", re.A|re.I)),
-        'rlc1+':(rlc1plus.Rlc1Plus(), re.compile(r"rlc1(\+|p(lus)?)")),}
+        'rlc1+':(rlc1plus.Rlc1Plus(), re.compile(r"rlc1(\+|p(lus)?)", re.A|re.I)),}
 
     __known = ', '.join(sorted([a for a in __kc.keys()]))
     @staticmethod
@@ -37,12 +37,16 @@ class KnownControllers:
 
     @staticmethod
     def select_controller(_str):
+        """select_controller(str)
+
+        Matches _str against controlled class/regex tuples
+        """
         _ = _str.strip()
         result = None
         for _n in KnownControllers.__kc.values():
             _mx = _n[1].match(_)
             if _mx:
-                result = _n[0]
+                result = _n[0]  # get the object corrosponding to the match
                 break
         return result
 

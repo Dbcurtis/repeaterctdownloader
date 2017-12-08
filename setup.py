@@ -5,11 +5,12 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
 # To use a consistent encoding
 import codecs
 from os import path
+# Always prefer setuptools over distutils
+from setuptools import setup, find_packages
+
 
 here = path.abspath(path.dirname(__file__))
 
@@ -91,7 +92,7 @@ setup(
         'test': ['coverage'],
     },
 
-    Python_requires = '>=3.4',
+    Python_requires='>=3.4',
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these

@@ -169,8 +169,8 @@ class TestController(unittest.TestCase):
         ofct = fct
         self.assertTrue(abs((fct) - (c.openTime)) < 1.0)
 
-        ff = open('test.exelog.txt', 'r', encoding='utf-8')
-        lines = ff.readlines(999)
+        _file = open('test.exelog.txt', 'r', encoding='utf-8')
+        lines = _file.readlines(999)
 
         self.assertTrue(lines[1].startswith(';---'))
         self.assertTrue(lines[3].startswith(';---'))
@@ -186,9 +186,9 @@ class TestController(unittest.TestCase):
         self.assertEqual(2, len(content.split('Error:')))
         self.assertEqual(2, len(content.split('*E R R O R*')))
 
-        ff = open('test.cmdlog.txt', 'r', encoding='utf-8')
-        lines = ff.readlines(999)
-        ff.close()
+        _file = open('test.cmdlog.txt', 'r', encoding='utf-8')
+        lines = _file.readlines(999)
+        _file.close()
 
         print("need to handle cmdlog.txt")
 
