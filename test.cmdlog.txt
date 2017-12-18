@@ -1,6 +1,6 @@
 
 ;-------------
-; File: K:\RepeaterControlerDownloaderP34\test.cmdlog.txt, Created on: 20171130, 18:52:06 UTC
+; File: k:\RepeaterControlerDownloaderP34\test.cmdlog.txt, Created on: 20171208, 12:27:24 UTC
 ;-----------------
 009 ;no filter
 010 ;no display but log

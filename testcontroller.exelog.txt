@@ -1,4 +1,4 @@
 
 ;-------------
-; File: K:\RepeaterControlerDownloaderP34\testcontroller.exelog.txt, Created on: 20171130, 18:52:02 UTC
+; File: k:\RepeaterControlerDownloaderP34\testcontroller.exelog.txt, Created on: 20171208, 12:27:20 UTC
 ;-----------------

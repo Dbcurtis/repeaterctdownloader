@@ -1,0 +1,50 @@
+# metadata test file 1 
+#<metadata repeater="dlx2-887354">
+#<!-- metadata block 1 -->
+#<filelist>
+#</filelist>
+#<slot id="1">
+data md1, slot 1, line 1
+data md1, slot 1, line 2
+#</slot>
+
+#</metadata>
+
+non meta data data
+
+#<metadata repeater="dlx2-887354">
+#<!-- metadata block 2 -->
+#<filelist>
+#<file>test/cm1_test_1.txt</file>
+#<file>test/cm1_test_2.txt</file>
+#<file>test/cm1_test_3.txt</file>
+#</filelist>
+#<slot id="2">
+data md2, slot 2, line 1
+data md2, slot 2, line 2
+#</slot>
+#<slot id='3'>
+data md2, slot 3, line 1
+data md2, slot 3, line 2
+data md2, slot 3, line 3
+#</slot>
+#</metadata>
+
+#<metadata repeater="club-887354">
+#<!-- metadata block 3 -->
+#<filelist>
+#<file>test/cm1_test_1.txt</file>
+#<file>test/cm1_test_2.txt</file>
+#<file>test/cm1_test_3.txt</file>
+#</filelist>
+#<slot id="10">
+data md3, slot 10, line 1
+data md3, slot 10, line 2
+#</slot>
+#<slot id='7'>
+data md3, slot 7, line 1
+data md3, slot 7, line 2
+data md3, slot 7, line 3
+#</slot>
+
+#</metadata>

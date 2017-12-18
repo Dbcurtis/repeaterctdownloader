@@ -1,0 +1,6 @@
+#/ comment test file 3
+# cmt
+#cmt
+data
+#/ cmt2
+#/cmt3

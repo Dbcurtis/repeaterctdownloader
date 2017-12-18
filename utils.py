@@ -27,6 +27,9 @@ class Utils:
     _parser.add_argument('-cacn', '--reset_all_comd_names',
                          help='reset all command names',
                          action="store_true")
+    _parser.add_argument('-acr', '--apply command to range',
+                         help='apply command to aruments in specified range',
+                         action="store_true")
     _parser.add_argument('-q', '--quit',
                          help='quit the util',
                          action="store_true")
@@ -60,6 +63,7 @@ class Utils:
 
         Select and execut which UTIL program to run.
         You commands are run in the following order (assuming all are selected):
+        0)-acr
         1)-ran
         2)-rmd
         3)-rmn
@@ -68,18 +72,19 @@ class Utils:
 
         This is the primary user access to the utilities
         """
-        print('commands- one of: (-h|-rmn|-ran|-rmd|-cacn|-q)')
+        print('commands- one of: (-h|-acr|-rmn|-ran|-rmd|-cacn|-q)')
 
         while 1:
             instr = ""
             if self.testing:
-                instr = "   -q -rmn -ran -rmd -cacn"
+                instr = "   -q -acr -rmn -ran -rmd -cacn"
             else: instr = input('select command>')
 
             options = instr.split()
             try:
                 self.args = Utils._parser.parse_args(options)
                 _bol_fun_tuple_tuple = (
+                    (self.args.recall_apply_command_to_range, self.doacr),
                     (self.args.recall_all_names, self.recallAllNames),
                     (self.args.recall_macro_def, self.recallMacroDeffinitions),
                     (self.args.recall_macro_names, self.recallMacroNames),
@@ -144,6 +149,25 @@ class Utils:
        """
         if self.contInfo.cmdDict.get('rcn'):
             self._get_cmd_names(self.contInfo.userMacrosR)
+
+    def doacr(self):
+        while True:
+            userinput = input('specify the command and range of argument (for example, 003 500 1000)>')
+            if not userinput.strip():
+                break
+            args = userinput.split(' ')
+            if len(args) != 3:
+                continue
+            cmd = int(args[0])
+            start = int(args[1])
+            end = int(args[2])
+            if cmd > 999 or start > end or end > 999:
+                continue
+            for i in range(start, end):
+                '{num:03d}'.format(num=i)
+                command = " ".join(['cmd', ])
+                self.c.sendcmd()
+        pass
 
     def recallAllNames(self):
         """recallAllNames()
