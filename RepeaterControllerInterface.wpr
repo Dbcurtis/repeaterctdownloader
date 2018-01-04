@@ -48,6 +48,9 @@ proj.launch-config = {loc('../Python Scripts/removeTrailSpacesonLines.py'): ('p'
          '')),
                       loc('getports.py'): ('custom',
         (u'',
-         'launch-4JW1fTGQSb4P5YcS'))}
+         'launch-4JW1fTGQSb4P5YcS')),
+                      loc('utils.py'): ('project',
+        (u'-acr',
+         ''))}
 testing.auto-test-file-specs = (('glob',
                                  'test_*.py'),)

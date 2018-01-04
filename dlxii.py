@@ -15,15 +15,17 @@ class DlxII(controllerspecific.ControllerSpecific):
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     N054Fmt_pat = re.compile(
-        r"MACRO\s+(\d{3,3})\s+contains\s+(\d{1,})\s+" + \
-        r"commands:(.*)this.*(\d{1,3}).*full\nOK\nOK\n",
+        r"MACRO\s+(?P<macro>\d{3,3})\s+contains\s+(?P<numins>\d{1,})\s+" + \
+        r"commands:(?P<cmds>.*)this.*(?P<full>\d{1,3}).*full\nOK\nOK\n",
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     N011Fmt_pat = re.compile(
-        r'Command number\s*(\d{3,3})\s* is named (.*?)\.\s+It takes (\d{1,3}) digits of data\.',
+        r'Command number\s*(?P<cmdno>\d{3,3})\s* is named (?P<name>.*?)\.\s+It takes (?P<digs>\d{1,3}) digits of data\.',
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
+
     get_Ctr_type = 'RLC-Club Deluxe II v2.15'
+  
 
     def __init__(self):
         super().__init__()
@@ -37,9 +39,49 @@ class DlxII(controllerspecific.ControllerSpecific):
         """cmdDict
 
         A dict that associates commands with the controller specific command digits.
+        to be replaced by newcmd_dict eventually
         """
+        __N029pat =     re.compile(
+        r'This\s+is\s+(?P<A>\w+),\s*(?P<m>\d\d)-(?P<d>\d\d)-(?P<Y>\d{4,4})\s*\nOK\n', 
+        re.MULTILINE | re.IGNORECASE | re.DOTALL)
+        
+        __N027pat =     re.compile(
+                r'The\s+time\s+is\s+(?P<I>\d{1,2}):(?P<M>\d\d)\s*(?P<p>[ap].m.)\nOK\n', 
+            re.MULTILINE | re.IGNORECASE | re.DOTALL)        
+        
+        self.newcmd_dict = {'rpcmdn': ('N010', ),  #this dict is not used yet
+                            'rcn': ('N011', DlxII.N011Fmt_pat, self.__fmt_proc, None, ),
+                            'rmc': ('N054', DlxII.N054Fmt_pat, self.__fmt_proc_one, None, ),
+                            'gdate': ('N029', __N029pat, self.__fmt_proc, None,),
+                            'gtime': ('N027', __N027pat, self.__fmt_proc, None, ),
+                            'sdate': ('N028', None, None, self.__fmt_cmd, ),
+                            'stime': ('N025', None, None, self.__fmt_cmd, ), 
+                            }  # cmd name:(cmd,replypat,replyfmt)
+        """newcmd_dict
+
+        a dict that assocates commands, reply patterns, and reply formatters
+        """
+    def __fmt_cmd(self, _arg):
+        cmd = "".join(_arg)
+        return cmd
 
 
+    def __fmt_proc(self, _mx):
+        if not _mx:
+            return {}
+        return _mx.groupdict()
+            
+        
+    def __fmt_proc_one(self, _mx):
+        if not _mx:
+            return{}
+        result = _mx.groupdict()
+        cmds = _mx.group('cmds').strip()
+        lst = [l for l in cmds.split('\n') if l.strip()]
+        result['cmds'] = lst
+        return result        
+
+ 
 
     def __fmtN054(self, _str):  #fmt macro contents
         """__fmtN054(s)

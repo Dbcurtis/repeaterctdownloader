@@ -38,6 +38,95 @@ class TestControllerspecific(unittest.TestCase):
         self.assertEqual(css, str(cs))
 
 
+    def testnewcmd_dict(self):
+        cs = dlxii.DlxII()
+        mdf = """DTMF>N054 501N054501
+Macro 501 contains 2 commands:
+  #00  Command #038 with 00 digits of data:
+  #01  Command #000 with 02 digits of data: 13
+This macro is 9 percent full
+OK
+OK
+DTMF>"""        
+        tup = cs.newcmd_dict['rmc']
+        self.assertEqual('N054', tup[0])
+        pat = tup[1]
+        mx = pat.search(mdf)
+        res = mx.groupdict()
+        self.assertEqual('2', res['numins'])
+        self.assertEqual('9', res['full'])
+        self.assertEqual('501', res['macro'])
+        cmdraw = res['cmds'].strip()
+        cmdlines = [l for l in cmdraw.split('\n') if l.strip()]
+        self.assertEqual(2, len(cmdlines))
+        self.assertTrue('#038' in cmdlines[0])
+        self.assertTrue('#000' in cmdlines[1])
+        
+        mx = pat.search(mdf)
+        res = tup[2](mx)
+        self.assertEqual('2', res['numins'])
+        self.assertEqual('9', res['full'])
+        self.assertEqual('501', res['macro'])
+        self.assertEqual(2, len(res['cmds']))
+        cmdlines = res['cmds']
+        self.assertTrue('#038' in cmdlines[0])
+        self.assertTrue('#000' in cmdlines[1])
+   
+        
+        mdf = """OK
+DTMF>N011 521N011521
+Command number 521 is named C47571.  It takes 0 digits of data.
+OK
+OK
+DTMF>"""
+        tup = cs.newcmd_dict['rcn']
+        self.assertEqual('N011', tup[0])
+        pat = tup[1]
+        mx = pat.search(mdf)
+        res = tup[2](mx) 
+        self.assertEqual('521', res['cmdno'])
+        self.assertEqual('C47571', res['name'])
+        self.assertEqual('0', res['digs'])
+        
+        mdf = """DTMF>N029
+This is Wednesday, 01-03-2018
+OK
+DTMF>"""
+        tup = cs.newcmd_dict['gdate']
+        self.assertEqual('N029', tup[0])
+        pat = tup[1]
+        mx = pat.search(mdf)
+        res = tup[2](mx) 
+        self.assertEqual('Wednesday', res['A'])
+        self.assertEqual('01', res['m'])
+        self.assertEqual('03', res['d'])
+        self.assertEqual('2018', res['Y'])    
+        
+        
+        mdf = """DTMF>N027
+The time is 12:23 P.M.
+OK
+DTMF"""
+        tup = cs.newcmd_dict['gtime']
+        self.assertEqual('N027', tup[0])
+        pat = tup[1]
+        mx = pat.search(mdf)
+        res = tup[2](mx) 
+        self.assertEqual('12', res['I'])
+        self.assertEqual('23', res['M'])
+        self.assertEqual('P.M.', res['p'])        
+        
+        
+    def testfmtcmd(self):
+        cs = dlxii.DlxII()
+        tup = cs.newcmd_dict['sdate']
+        arg = (tup[0], 'arg1', 'arg2', 'arg3', 'arg4' )
+        cmd = tup[3](arg)        
+        self.assertEqual('N028arg1arg2arg3arg4', cmd)
+    
+    
+        
+
     def testfmtRMC(self):
         cs = dlxii.DlxII()
         r = cs.fmtRMC("junk test")

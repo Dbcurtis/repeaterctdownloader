@@ -21,6 +21,7 @@ class ControllerSpecific:
             self.bps = bps
             self.cpsDelay = cpsDelay
 
+
         def __str__(self):
             return '[CPS: %s]' % (str(int(self.bps / 10)) + ", " + str(self.cpsDelay))
 
@@ -32,7 +33,7 @@ class ControllerSpecific:
         """fmtRCM(_str)
 
         Formats the response from the Recall Command Name command if such exists
-        _str is a string that includes the reponse
+        _str is a string that includes the response
 
         Returns a tuple with the formatted string and a dictionary for the relevent info
 
@@ -70,7 +71,13 @@ class ControllerSpecific:
             self.SerialSpeedinfo(600, 3),
             self.SerialSpeedinfo(300, 6)
         ]
-        self.cmdDict = {'rpcmdn': None, 'rcn': None, 'rmc': None, 'prompt': '\n',}
+        self.newcmd_dict = {}  # cmd name:(cmd,replypat,replyfmt)
+        
+        self.cmdDict = {'rpcmdn': None,
+                        'rcn': None,
+                        'rmc': None,
+                        'prompt': '\n',
+                        }
         for ssi in self.cps_data:
             ssi.cpsDelay = round(0.1 + (1100.0 / ssi.bps), 3)
 

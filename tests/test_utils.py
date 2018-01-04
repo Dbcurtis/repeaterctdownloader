@@ -93,6 +93,9 @@ class Testutils(unittest.TestCase):
 
     def testrecallMacroDeffinitions(self):
         pass
+    
+    def testacr(self):
+        pass
 
     def teststr(self):
         ui = userinput.UserInput()
