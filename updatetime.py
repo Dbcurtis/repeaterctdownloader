@@ -13,31 +13,36 @@ R_DOW = [7, 6, 0, 1, 2, 3, 4, 5, ]
 M_DOW = ['2', '3', '4', '5', '6', '7', '1', ]
 
 TWO_CHAR = '{num:02d}'
-def _delay():
+def _delay(debug=False):
     """_delay()
 
     if the time is >23:50, waits until 2 seconds after the date changes before continuing
-    
-    after the delay, returns the then current time.
+
+    after the delay, returns a tuple with the then current time and a debug message or None if
+    debugging is false.
     """
     while 1:
+        msg = None
         os_time = time.localtime(time.time())
         if os_time.tm_hour < HOURLIM:
             break
         if os_time.tm_min < MINLIM:
             break
         delymin = os_time.tm_min - MINLIM
-        time.sleep(delymin*60+2)
-        return time.localtime(time.time())
+        if debug:
+            msg = 'debug wait for %i min and 2 seconds' % delymin
+        else:
+            time.sleep(delymin*60+2)
+        return (time.localtime(time.time()), msg)
 
 def check_date(_res, _sdtpl, _os_time):
     """check_date(_res,_sdtpl,_os_time)
 
     _res is the dict set by gdtpl[2] that has keys A, m, d, Y
     with the same meaning as https://docs.python.org/3.0/library/time.html
-    
+
     _sdtpl is the set date tuple
-    
+
     _os_time is the current computer time
     """
     cmd = None
@@ -60,11 +65,11 @@ def check_date(_res, _sdtpl, _os_time):
 def check_time(_res, _sttpl, _os_time):
     """check_time(_res,_sttpl,_os_time)
 
-    _res is the dict set by gttpl[2] that has keys I, M, p 
+    _res is the dict set by gttpl[2] that has keys I, M, p
     with the same meaning as https://docs.python.org/3.0/library/time.html
-    
+
     _sttpl is the set time tuple
-    
+
     _os_time is the current computer time
     """
     cmd = None
@@ -115,7 +120,7 @@ def main():
     try:
         _ui.open()
         _c = controller.Controller(_ui)
-        os_time = _delay()
+        os_time = _delay()[0]
         _c.open()
         ctrl = _c.ui.controller_type
         gdtpl = ctrl.newcmd_dict['gdate']
@@ -146,7 +151,6 @@ def main():
             except Exception as ve:  #do not really know what I am trying to catch here surly ValueError, but what others?
                 time.sleep(10)  #10 sec sleep
                 print(ve.args)
-                      
 
         if cntdown > 0:
             pass
