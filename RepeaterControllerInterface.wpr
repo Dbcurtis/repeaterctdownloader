@@ -49,6 +49,9 @@ proj.launch-config = {loc('../Python Scripts/removeTrailSpacesonLines.py'): ('p'
                       loc('getports.py'): ('custom',
         (u'',
          'launch-4JW1fTGQSb4P5YcS')),
+                      loc('updatetime.py'): ('project',
+        (u'dlx3 com3',
+         '')),
                       loc('utils.py'): ('project',
         (u'-acr',
          ''))}

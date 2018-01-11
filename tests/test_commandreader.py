@@ -7,6 +7,8 @@ import sys
 import unittest
 import commandreader
 import userinput
+import knowncontrollers
+import dlxii
 
 def eprint(*args, **kwargs):
     """eprint(*args, **kwards)
@@ -16,7 +18,8 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 class TestCommandreader(unittest.TestCase):
-    ui = userinput.UserInput()
+    ctrl = knowncontrollers.select_controller('dlxii')[1]
+    ui = userinput.UserInput(ctrl)
 
     def setUp(self):
         pass
@@ -49,7 +52,7 @@ class TestCommandreader(unittest.TestCase):
 
             _cr.close()
             self.assertTrue(_cr.is_closed)
-            fakeui = userinput.UserInput()
+            fakeui = userinput.UserInput(dlxii.Device())
             fakeui.inputfn = 'totaljunk.txt'
             _fcr = commandreader.CommandReader(fakeui)
             self.assertFalse(_fcr.open())
@@ -57,7 +60,8 @@ class TestCommandreader(unittest.TestCase):
                              str(_fcr.lasterror))
             self.assertTrue(_fcr.is_closed)
         finally:
-            _fcr.close()
+            if _fcr:
+                _fcr.close()
             _cr.close()
 
     def testclose(self):

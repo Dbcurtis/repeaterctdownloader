@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """This script updates the repeaters time"""
 import sys
+import argparse
 import time
+
+import knowncontrollers
 import controller
 import userinput
 import getports
@@ -13,27 +16,43 @@ R_DOW = [7, 6, 0, 1, 2, 3, 4, 5, ]
 M_DOW = ['2', '3', '4', '5', '6', '7', '1', ]
 
 TWO_CHAR = '{num:02d}'
-def _delay(debug=False):
+SET_ATTEMPT_MAX = 15
+
+
+_PARSER = argparse.ArgumentParser(description="Sets a controller's date and time if needed",
+                                  epilog="Useful for running in a cron job"
+                                 )
+_PARSER.add_argument('Controller', nargs='?', default='dlx2',
+                     help='Controller type, one of [dlx2, rlc1+] dlx2 is default'
+                    )
+_PARSER.add_argument('Port',
+                     help='Port id if required, if only one open port, that one will be used'
+                    )
+
+def _delay(debug=False, testtime=None):
     """_delay()
 
     if the time is >23:50, waits until 2 seconds after the date changes before continuing
 
-    after the delay, returns a tuple with the then current time and a debug message or None if
-    debugging is false.
+    after the delay, returns a tuple with the then current time and a debug message. if
+    debugging is false the debugging message is None
     """
     while 1:
         msg = None
+
         os_time = time.localtime(time.time())
-        if os_time.tm_hour < HOURLIM:
+        if testtime:
+            os_time = testtime
+        if os_time.tm_hour < HOURLIM or os_time.tm_min < MINLIM:
             break
-        if os_time.tm_min < MINLIM:
-            break
-        delymin = os_time.tm_min - MINLIM
+
+        delymin = 60 - os_time.tm_min  #- MINLIM
         if debug:
-            msg = 'debug wait for %i min and 2 seconds' % delymin
+            msg = 'debug wait for {} min and 2 seconds' .format(delymin)
+            break
         else:
             time.sleep(delymin*60+2)
-        return (time.localtime(time.time()), msg)
+    return (time.localtime(time.time()), msg)
 
 def check_date(_res, _sdtpl, _os_time):
     """check_date(_res,_sdtpl,_os_time)
@@ -44,21 +63,24 @@ def check_date(_res, _sdtpl, _os_time):
     _sdtpl is the set date tuple
 
     _os_time is the current computer time
+
+    return None if the repeater date and the computer date match
+    otherwise returns the command to set the repeater date.
     """
     cmd = None
     dow = _res['A'].lower()
-    m = _res['m']
-    d = _res['d']
-    Y = _res['Y']
+    _m = _res['m']
+    _d = _res['d']
+    _Y = _res['Y']
 
-    oY = str(_os_time.tm_year)
-    om = TWO_CHAR.format(num=_os_time.tm_mon)
-    od = TWO_CHAR.format(num=_os_time.tm_mday)
-    owd = _os_time.tm_wday
-    textdow = O_DOW[owd]
-    aa = M_DOW[owd]
-    if Y != oY or d != od or m != m or textdow != dow:
-        arg = (_sdtpl[0], om, od, oY[2:4], aa, )
+    _oY = str(_os_time.tm_year)
+    _om = TWO_CHAR.format(num=_os_time.tm_mon)
+    _od = TWO_CHAR.format(num=_os_time.tm_mday)
+    _owd = _os_time.tm_wday
+    textdow = O_DOW[_owd]
+    #aa = M_DOW[_owd]
+    if not (_Y == _oY and _d == _od and _m == _m and textdow == dow):
+        arg = (_sdtpl[0], _om, _od, _oY[2:4], M_DOW[_owd], )
         cmd = _sdtpl[3](arg)
     return cmd
 
@@ -71,34 +93,156 @@ def check_time(_res, _sttpl, _os_time):
     _sttpl is the set time tuple
 
     _os_time is the current computer time
+
+    return None if the repeater time and the computer time match
+    otherwise returns the command to set the repeater time.
     """
     cmd = None
 
-    I = _res['I']
-    M = _res['M']
-    p = _res['p']
-    pm = '0'
-    if p[0:1] == 'P':
-        pm = '1'
+    _I = _res['I']
+    _M = _res['M']
+    _p = _res['p']
+    _pm = '0'
+    if _p[0:1] == 'P':
+        _pm = '1'
 
-    cp = '0'
+    _cp = '0'
     if _os_time.tm_hour > 11:
-        cp = '1'
+        _cp = '1'
 
-    adjhour = _os_time.tm_hour
-    if adjhour == 0 and cp == '0':
-        adjhour = 12
-    oH = TWO_CHAR.format(num=adjhour)
+    _adjhour = _os_time.tm_hour
+    if _adjhour == 0 and _cp == '0':
+        _adjhour = 12
+    oH = TWO_CHAR.format(num=_adjhour)
     oM = TWO_CHAR.format(num=_os_time.tm_min)
     if _os_time.tm_hour >= 13:
-
         oH = TWO_CHAR.format(num=_os_time.tm_hour-12)
-        cp = '1'
-    if I != oH or M != oM or pm != cp:
-        arg = (_sttpl[0], oH, oM, cp)
+        _cp = '1'
+    if not (_I == oH and _M == oM and _pm == _cp):
+        arg = (_sttpl[0], oH, oM, _cp)
         cmd = _sttpl[3](arg)
 
     return cmd
+
+def process_cmdline():
+    """process_cmdline()
+
+    processes the command line arguments
+    returns a UserInput if arguments are ok, Otherwise raises an exception
+    """
+    _available_ports = getports.GetPorts().get()
+    args = _PARSER.parse_args()
+    if not args.Port.upper() in _available_ports:
+        msg = 'Port {} not available: available ports are: {}, aborting' \
+            .format(args.Port, _available_ports)
+        raise Exception(msg)
+
+    ctrl = knowncontrollers.select_controller(args.Controller)
+    if not ctrl:
+        msg = 'Controller {} not available: available controlers are: {}, aborting' \
+            .format(args.Controller, knowncontrollers.get_controller_ids())
+        raise Exception(msg)
+
+    _ui = userinput.UserInput()
+    _ui.controller_type = ctrl
+    _ui.serial_port = args.Port
+    return _ui
+
+def _doit(_ui, debug_time=None):
+    """doit(_ui)
+
+    does all the work
+    _ui is the UserInput
+
+    returns    cntdown, succ, noneed which is the countdown, if successful, if not needed
+
+    """
+    result = ()
+    try:
+        _ui.open()
+        _c = controller.Controller(_ui)
+        _c.open()
+        ctrl = _c.ui.controller_type
+        gdtpl = ctrl.newcmd_dict['gdate']
+        gttpl = ctrl.newcmd_dict['gtime']
+        sttpl = ctrl.newcmd_dict['stime']
+        sdtpl = ctrl.newcmd_dict['sdate']
+        cntdown = SET_ATTEMPT_MAX  #fifteen attempts max
+
+        def setdate():
+            """setdate()
+
+            checks to see if the dates are different, and if so, generates and executes a command
+            to the controller
+
+            returns with the command if a command was needed, or None if no date change was required
+            """
+            cmd = None
+            if _c.sendcmd(gdtpl[0]):  #get date info from controller
+                _res = gdtpl[2](gdtpl[1].search(_c.last_response))
+                systime = time.localtime(time.time())
+                if debug_time:
+                    systime = debug_time
+                cmd = check_date(_res, sdtpl, systime)
+                if cmd:
+                    if not _c.sendcmd(cmd):
+                        raise ValueError("retry date command send error")
+            return cmd
+
+        def settime():
+            """settime()
+
+            checks to see if the times are different, and if so, generates and executes a command
+            to the controller
+
+            returns with the command if a command was needed, or None if no time change was required
+            """
+            cmd = None
+            if _c.sendcmd(gttpl[0]):
+                _res = gttpl[2](gttpl[1].search(_c.last_response))
+                systime = time.localtime(time.time())
+                if debug_time:
+                    systime = debug_time
+                cmd = check_time(_res, sttpl, systime)
+                if cmd:
+                    if not _c.sendcmd(cmd):
+                        raise ValueError("retry time command send error")
+            return cmd
+
+        while cntdown > 0:
+            cntdown -= 1
+            try:
+
+                #check the dates are the same and if not make them so
+                if setdate():
+                    continue  #made a change, try again
+
+                if not settime():
+                    break
+                   # continue  #made a change try again
+
+            except Exception as _ve:  #do not really know what I am trying to catch here
+                # shurly ValueError, but what others?
+                time.sleep(10)  #10 sec sleep
+                print(_ve.args)
+
+        succ = cntdown > 0
+        noneed = cntdown == SET_ATTEMPT_MAX - 1
+        result = (cntdown, succ, noneed)
+        if noneed:
+            print('Controller date-time was current')
+        else:
+            print("Controller time sucessfully set: {}" .format(succ))
+        _c.close()
+        _ui.close()
+
+    finally:
+        if _c:
+            _c.close()
+        if _ui:
+            _ui.close()
+
+    return result
 
 def main():
     """main()
@@ -110,56 +254,12 @@ def main():
 
     compares them and if more than 60 seconds difference updates the time on the controller
     """
+    _ui = None
+    _c = None
 
-
-    _available_ports = getports.GetPorts().get()
-    print("Available serial ports are: %s" % _available_ports)
-
-    _ui = userinput.UserInput()
-    _ui.request()
-    try:
-        _ui.open()
-        _c = controller.Controller(_ui)
-        os_time = _delay()[0]
-        _c.open()
-        ctrl = _c.ui.controller_type
-        gdtpl = ctrl.newcmd_dict['gdate']
-        gttpl = ctrl.newcmd_dict['gtime']
-        sttpl = ctrl.newcmd_dict['stime']
-        sdtpl = ctrl.newcmd_dict['sdate']
-        cntdown = 15  #fifteen attempts max
-        while cntdown > 0:
-            cntdown -= 1
-            try:
-                if _c.sendcmd(gdtpl[0]):  #get date info from controller
-                    _res = gdtpl[2](gdtpl[1].search(_c.last_response))
-                    cmd = check_date(_res, sdtpl, time.localtime(time.time()))
-                    if cmd:
-                        if _c.sendcmd(cmd):
-                            continue
-                        else:
-                            raise ValueError("retry date command send")
-                    if _c.sendcmd(gttpl[0]):
-                        _res = gttpl[2](gttpl[1].search(_c.last_response))
-                        cmd = check_time(_res, gttpl, time.localtime(time.time()))
-                        if cmd:
-                            if _c.sendcmd(cmd):
-                                break
-                            else:
-                                raise ValueError("retry time command send")
-                        break
-            except Exception as ve:  #do not really know what I am trying to catch here surly ValueError, but what others?
-                time.sleep(10)  #10 sec sleep
-                print(ve.args)
-
-        if cntdown > 0:
-            pass
-        _c.close()
-        _ui.close()
-
-    finally:
-        _ui.close()
-
+    _ui = process_cmdline()
+    _delay()
+    _doit(_ui)
 
 if __name__ == '__main__':
 

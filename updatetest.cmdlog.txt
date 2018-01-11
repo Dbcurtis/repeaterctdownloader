@@ -1,0 +1,11 @@
+
+;-------------
+; File: k:\RepeaterControlerDownloaderP34\updatetest.cmdlog.txt, Created on: 20180110, 21:17:27 UTC
+;-----------------
+N029
+N0280103184
+N029
+N027
+N02512021
+N029
+N027

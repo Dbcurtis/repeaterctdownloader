@@ -12,14 +12,15 @@ import controller
 import serial
 import myserial
 import getports
+import dlxii
 
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 class TestController(unittest.TestCase):
-    ui = userinput.UserInput()
-    ui1 = userinput.UserInput()
+    ui = userinput.UserInput(dlxii.Device())
+    ui1 = userinput.UserInput(dlxii.Device())
     sdevice = ""
 
 
@@ -194,7 +195,7 @@ class TestController(unittest.TestCase):
 
         time.sleep(3)
         #
-        lui = userinput.UserInput()
+        lui = userinput.UserInput(dlxii.Device())
         lui.comm_port = TestController.ui.comm_port
         lui.open(detect_br=False)
         c = controller.Controller(lui)

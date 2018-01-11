@@ -11,6 +11,7 @@ import userinput
 import utils
 import getports
 import controller
+import dlxii
 
 
 def eprint(*args, **kwargs):
@@ -64,7 +65,7 @@ class Testutils(unittest.TestCase):
         myserial.MySerial._dbidx = 0
 
     def testcreation(self):
-        ui = userinput.UserInput()
+        ui = userinput.UserInput(dlxii.Device())
         ui.comm_port = Testutils.sdevice
         c = controller.Controller(ui)
         utili = utils.Utils(ui, c, testing=False, showhelp=False)
@@ -73,7 +74,7 @@ class Testutils(unittest.TestCase):
         self.assertTrue(utili.testing)
 
     def testprocessLoop(self):
-        ui = userinput.UserInput()
+        ui = userinput.UserInput(dlxii.Device())
         ui.comm_port = Testutils.sdevice
         utili = utils.Utils(ui, controller.Controller(ui), testing=True, showhelp=False)
         utili.process_loop()
@@ -85,7 +86,7 @@ class Testutils(unittest.TestCase):
         pass
 
     def testresetCmdNames(self):
-        ui = userinput.UserInput()
+        ui = userinput.UserInput(dlxii.Device())
         ui.comm_port = Testutils.sdevice
         utili = utils.Utils(ui, controller.Controller(ui), testing=True, showhelp=False)
         myserial.MySerial._dbidx = -1
@@ -98,13 +99,29 @@ class Testutils(unittest.TestCase):
         pass
 
     def teststr(self):
-        ui = userinput.UserInput()
+        ui = userinput.UserInput(dlxii.Device())
         ui.comm_port = Testutils.sdevice
         c = controller.Controller(ui)
         utili = utils.Utils(ui, c, testing=False, showhelp=False)
-        self.assertEqual('testing:False, cmds: -rmn, -ran, -rmd, -cacn, -q', str(utili))
+        self.assertEqual('testing:False, cmds: -acr, -rmn, -ran, -rmd, -cacn, -q', str(utili))
         utili = utils.Utils(ui, c, testing=True, showhelp=False)
-        self.assertEqual('testing:True, cmds: -rmn, -ran, -rmd, -cacn, -q', str(utili))
+        self.assertEqual('testing:True, cmds: -acr, -rmn, -ran, -rmd, -cacn, -q', str(utili))
+        
+    def testrange_2_list(self):
+        aa = utils._range_2_list
+        jj = aa((0, 0))
+        self.assertEqual([0], jj)
+        jj = aa([(0, 0)])
+        self.assertEqual([0], jj)
+        jj = aa([(0, 1), (4, 5), ])
+        self.assertEqual([0, 1, 4, 5], jj)
+        jj = aa([(0, 2), (5, 5), (10, 12)])
+        self.assertEqual([0, 1, 2, 5, 10, 11, 12], jj)
+        jj = aa([(0, 2), (1, 11), (10, 12)])
+        self.assertEqual([0, 1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 10, 11, 12], jj)
+        jj = set(jj)
+        self.assertEqual(set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), jj)
+       
 
 if __name__ == '__main__':
     unittest.main()

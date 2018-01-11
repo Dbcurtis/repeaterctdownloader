@@ -3,7 +3,8 @@
 """
 import re
 import controllerspecific
-class DlxII(controllerspecific.ControllerSpecific):
+#class DlxII(controllerspecific.ControllerSpecific):
+class Device(controllerspecific.ControllerSpecific):
     """ to be done """
 
     rename_pat = re.compile(
@@ -37,7 +38,9 @@ class DlxII(controllerspecific.ControllerSpecific):
 
         self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054', 'prompt': 'DTMF>',}
         """cmdDict
-
+        
+        deprecated use newcmd_dict instead
+        
         A dict that associates commands with the controller specific command digits.
         to be replaced by newcmd_dict eventually
         """
@@ -50,13 +53,18 @@ class DlxII(controllerspecific.ControllerSpecific):
             re.MULTILINE | re.IGNORECASE | re.DOTALL)        
         
         self.newcmd_dict = {'rpcmdn': ('N010', ),  #this dict is not used yet
-                            'rcn': ('N011', DlxII.N011Fmt_pat, self.__fmt_proc, None, ),
-                            'rmc': ('N054', DlxII.N054Fmt_pat, self.__fmt_proc_one, None, ),
+                            'rcn': ('N011', Device.N011Fmt_pat, self.__fmt_proc, None, ),
+                            'rmc': ('N054', Device.N054Fmt_pat, self.__fmt_proc_one, None, ),
                             'gdate': ('N029', __N029pat, self.__fmt_proc, None,),
                             'gtime': ('N027', __N027pat, self.__fmt_proc, None, ),
                             'sdate': ('N028', None, None, self.__fmt_cmd, ),
-                            'stime': ('N025', None, None, self.__fmt_cmd, ), 
-                            }  # cmd name:(cmd,replypat,replyfmt)
+                            'stime': ('N025', None, None, self.__fmt_cmd, ),
+                            'smacro': (200, 499),
+                            'umacro': (500, 999),
+                            'lstcmd': 999,
+                            'notcmd': [(14, 19), (89, 89),(97, 99),  (117, 118), (153, 154), (193, 194), ], 
+                            'prompt': 'DTMF>', 
+                            }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
         """newcmd_dict
 
         a dict that assocates commands, reply patterns, and reply formatters
@@ -91,7 +99,7 @@ class DlxII(controllerspecific.ControllerSpecific):
         'macro', 'numins', 'cmds' and 'full'
 
         """
-        _mx = DlxII.N054Fmt_pat.search(_str)
+        _mx = Device.N054Fmt_pat.search(_str)
         if _mx:
             cmds = _mx.group(3).strip()
             lst = [l for l in cmds.split('\n') if l.strip()]
@@ -111,7 +119,7 @@ class DlxII(controllerspecific.ControllerSpecific):
         If unsuccssful, returns an empty dict.
 
         """
-        _mx = DlxII.N011Fmt_pat.search(_str)
+        _mx = Device.N011Fmt_pat.search(_str)
         if _mx:
             result = {'cmdno': _mx.group(1),
                       'name': _mx.group(2),
@@ -177,4 +185,4 @@ class DlxII(controllerspecific.ControllerSpecific):
         return result
 
     def __str__(self):
-        return DlxII.get_Ctr_type
+        return Device.get_Ctr_type

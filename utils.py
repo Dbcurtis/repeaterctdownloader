@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 """ TBD """
 import argparse
+def _range_2_list(_arg):
+    if isinstance(_arg, tuple):
+        _tlist = [_arg]
+    else:
+        _tlist = _arg
+    lst = []
+    for t in _tlist:
+        if t[0] == t[1]:
+            lst += [t[0]]
+            continue
+        lst += list(range(t[0], t[1]+1))
+    return lst
 
 class Utils:
     """Utils Class supports routines to operate on multiple commands.
@@ -13,7 +25,8 @@ class Utils:
     5) Process loop to select the above
 
     """
-    _cmds = ["cmds: -rmn", "-ran", "-rmd", "-cacn", "-q"]
+    _3d = '{num:03d}'
+    _cmds = ["cmds: -acr", "-rmn", "-ran", "-rmd", "-cacn", "-q"]
     _parser = argparse.ArgumentParser()
     _parser.add_argument('-rmn', '--recall_macro_names',
                          help='return all macro names',
@@ -27,12 +40,13 @@ class Utils:
     _parser.add_argument('-cacn', '--reset_all_comd_names',
                          help='reset all command names',
                          action="store_true")
-    _parser.add_argument('-acr', '--apply command to range',
+    _parser.add_argument('-acr', '--apply_command_to_range',
                          help='apply command to aruments in specified range',
                          action="store_true")
     _parser.add_argument('-q', '--quit',
                          help='quit the util',
                          action="store_true")
+
 
 
     def __init__(self, ui, _c, testing=False, showhelp=True):
@@ -84,7 +98,7 @@ class Utils:
             try:
                 self.args = Utils._parser.parse_args(options)
                 _bol_fun_tuple_tuple = (
-                    (self.args.recall_apply_command_to_range, self.doacr),
+                    (self.args.apply_command_to_range, self.doacr),
                     (self.args.recall_all_names, self.recallAllNames),
                     (self.args.recall_macro_def, self.recallMacroDeffinitions),
                     (self.args.recall_macro_names, self.recallMacroNames),
@@ -128,9 +142,9 @@ class Utils:
             return result
 
         for i in rng:
-            cmd = '{num:03d}'. format(num=i)
+            cmd = Utils._3d.format(num=i)
             if self.testing:
-                print('sending %s%s' %(self.contInfo.cmdDict.get('rcn'), cmd))
+                print('sending {}{}'.format(self.contInfo.cmdDict.get('rcn'), cmd))
                 continue
 
             if self.c.sendcmd(
@@ -151,23 +165,67 @@ class Utils:
             self._get_cmd_names(self.contInfo.userMacrosR)
 
     def doacr(self):
+        print('Entering apply_command_to_range module')
+        notcmdttup =  self.contInfo.newcmd_dict.get('notcmd')
+        notcmdlst = _range_2_list(notcmdttup)                
+        lstcmd = self.contInfo.newcmd_dict.get('lstcmd')
+        testargs = ['n123 456 458', 'N123 456 458', "", ]
+        testidx = 0
         while True:
-            userinput = input('specify the command and range of argument (for example, 003 500 1000)>')
+            userinput = ''
+            if self.testing:
+                userinput = testargs[testidx]
+                testidx += 1
+            else:
+                userinput = input('specify the command and range of argument (for example, 003 {} {}) cr to exit >'.format(str(lstcmd-50), str(lstcmd)))
             if not userinput.strip():
+                print("exiting apply_command_to_range module")
                 break
             args = userinput.split(' ')
             if len(args) != 3:
                 continue
-            cmd = int(args[0])
+            cmdtxt = args[0]
+            _1st = cmdtxt[0:1].upper()
+            leadingn = _1st == 'N'
+            cmdnum = 0
+            if leadingn:
+                cmdnum = int(args[0][1:])
+            else:
+                cmdnum = int(args[0])
+            
             start = int(args[1])
             end = int(args[2])
-            if cmd > 999 or start > end or end > 999:
+            
+            aa = (cmdnum < 0 , start < 0, end < 0, cmdnum > lstcmd, start > end ,  end > lstcmd)
+            tst = False
+            for t in aa:
+                if t:
+                    tst = True
+                    break
+            
+            if tst:
                 continue
+                
+            aa = []
+            if leadingn:
+                aa.append('N')
+            aa.append(Utils._3d.format(num=cmdnum))
+            cmd = "".join(aa)
             for i in range(start, end):
-                '{num:03d}'.format(num=i)
-                command = " ".join(['cmd', ])
-                self.c.sendcmd()
-        pass
+                if i in notcmdlst:
+                    continue
+                command = " ".join([cmd, Utils._3d.format(num=i)])
+                if self.testing:
+                    print('sending {}'.format(command))
+                    continue
+                if self.c.sendcmd(command, display=True, log_it=True):
+                    print('.', end='')
+                else:
+                    print('Command error')
+                    break #break the for
+            pass 
+        
+      
 
     def recallAllNames(self):
         """recallAllNames()
@@ -189,9 +247,9 @@ class Utils:
             print('Command not supported for this controller')
             return
         for i in self.contInfo.safe2resetName:
-            cmd = '{num:03d}'.format(num=i)
+            cmd =Utils._3d.format(num=i)
             if self.testing:
-                print('sending %s%s%s' %(self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd))
+                print('sending {}{}{}'.format(self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd))
                 continue
             if self.c.sendcmd(self.contInfo.cmdDict.get('rpcmdn') + cmd + cmd, display=False):
                 print('.', end='')
@@ -211,14 +269,7 @@ class Utils:
 
             tests if the response is a macro deffinition
             """
-            #pat = re.compile(
-                #".*contains\s+[1-9]([0-9]+)?\s+commands.*",
-                #re.MULTILINE | re.IGNORECASE | re.DOTALL)
-            #if None == Utils._macro_def_pat.match(text):
-            #if self.ui.controller_type.macro_def_pat.match(_a) is None:
-                #return False
 
-            #return True
             return not self.ui.controller_type.macro_def_pat.match(_a) is None
 
         if not self.contInfo.cmdDict.get('rmc'):
@@ -226,9 +277,9 @@ class Utils:
             return
 
         for i in self.contInfo.userMacrosR:
-            _ = '{num:03d}'.format(num=i)
+            _ = Utils._3d.format(num=i)
             if self.testing:
-                print('sending %s%s' %(self.contInfo.cmdDict.get('rmc'), _))
+                print('sending {}{}'.format(self.contInfo.cmdDict.get('rmc'), _))
                 continue
             if self.c.sendcmd(self.contInfo.cmdDict.get('rmc') + _,
                               display=False,

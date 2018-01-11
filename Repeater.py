@@ -49,7 +49,7 @@ def send_file(_ui):
             _send_specified_file(_ui)
             return True
         except OSError:
-            print("%s not found" % _ui.inputfn)
+            print("{} not found".format(_ui.inputfn))
             if input("Abort sendfile Y/N").lower().strip()[0:1] == 'y':
                 return False
 
@@ -124,7 +124,7 @@ def main():
     """
 
     _available_ports = getports.GetPorts().get()
-    print("Available serial ports are: %s" % _available_ports)
+    print("Available serial ports are: {}".format(_available_ports))
 
     _ui = userinput.UserInput()
     _ui.request()

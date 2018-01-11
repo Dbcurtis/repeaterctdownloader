@@ -3,7 +3,7 @@
 """
 import re
 import controllerspecific
-class Rlc1Plus(controllerspecific.ControllerSpecific):
+class Device(controllerspecific.ControllerSpecific):
     """ to be done """
 
 
@@ -134,4 +134,4 @@ class Rlc1Plus(controllerspecific.ControllerSpecific):
         return result
 
     def __str__(self):
-        return Rlc1Plus.get_Ctr_type
+        return Device.get_Ctr_type

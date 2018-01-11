@@ -4,7 +4,7 @@ import sys
 import myserial
 import getports
 import knowncontrollers
-import dlxii
+
 
 
 class UserInput:
@@ -12,6 +12,9 @@ class UserInput:
 
     obtains user input for which serial port to use and a path for
     an input file to be read.
+
+    If only a single serial port is available, it is used by default.
+    If no serial port is available it throws an unchecked exception
 
     if run as __main__
 
@@ -21,15 +24,6 @@ class UserInput:
     May also generate an OSError if unable to match the controller baud rate
 
     """
-    @classmethod
-    def _ignore(cls, _ignore):
-        pass
-
-    _close_ifd = {True: lambda a: a.close(), False: lambda a: UserInput._ignore(a),}
-    _userInput_ifd = {
-        True: lambda o, a: UserInput._pop_test_data(o, a),
-        False: lambda o, a: UserInput._inputg(o, a),}
-
     @staticmethod
     def _pop_test_data(queue, ignore):
         return queue.__td.pop()
@@ -38,12 +32,26 @@ class UserInput:
     def _inputg(ignore, _a):
         return input(_a)
 
+    @staticmethod
+    def _ignore(_ignoreme):
+        return
 
-    def __init__(self, ctype=dlxii.DlxII(), testdata=None):
+    _close_ifd = {True: lambda a: a.close(),
+                  False: lambda a: UserInput._ignore(a),}
+
+    _userInput_ifd = {
+        True: lambda o, a: UserInput._pop_test_data(o, a),
+        False: lambda o, a: UserInput._inputg(o, a),}
+
+
+    def __init__(self, ctype=None, testdata=None):
         self.comm_port = ""
         self.inputfn = ""
         self.controller_type = ctype
-        self.serial_port = myserial.MySerial(self.controller_type)
+        if self.controller_type:
+            self.serial_port = myserial.MySerial(self.controller_type)
+        else:
+            self.serial_port = None
         self.__td = None
         if testdata:
             if isinstance(testdata, list):
@@ -53,10 +61,10 @@ class UserInput:
                 assert "illegal testdata type"
 
     def __str__(self):
-        return '[UserInput: %s]' % (self.comm_port + ", " + self.inputfn)
+        return '[UserInput: {}, {}]'.foramt(self.comm_port, self.inputfn)
 
     def __repr__(self):
-        return '[UserInput: %s]' % (self.comm_port + ", " + self.inputfn)
+        return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
 
     def _inputa(self, query):
         return UserInput._userInput_ifd.get(isinstance(self.__td, list))(self, query)
@@ -67,28 +75,36 @@ class UserInput:
         Request comm port id and filename containing controller commands
         """
         while 1:
+            tups = []
             available = getports.GetPorts().get()
-            #print('available ports:'+', '.join(available))
-            print('Available comport(s) are: %s' % available)
-            tups = [(a.strip(), a.strip().lower()) for a in available]
-            useri = self._inputa("Comm Port for repeater?>").strip()
+            if available and len(available) > 1:
+                print('Available comport(s) are: {}'.format(available))
+                tups = [(_.strip(), _.strip().lower()) for _ in available]
+                useri = self._inputa("Comm Port for repeater?>").strip()
+            elif available:
+                tups = [(_.strip(), _.strip().lower()) for _ in available]
+            else:
+                print('No available ports')
+                self.close()
+                raise Exception(" no available ports")
+
             hits = [t for t in tups if useri.lower() in t]
             if hits:
                 [_port] = hits
                 self.comm_port = _port[0]
-                print('Using serial port: %s' % self.comm_port)
+                print('Using serial port: {}'.format(self.comm_port))
                 break
 
         print('Known controlers: \n\t'
-              +'\n\t'.join(knowncontrollers.KnownControllers.get_controller_ids()))
+              +'\n\t'.join(knowncontrollers.get_controller_ids()))
 
-        _msg = 'Controler options: ' + str(knowncontrollers.KnownControllers.get_known())
+        _msg = 'Controler options: ' + str(knowncontrollers.get_known())
         while 1:
             print(_msg)
             useri = self._inputa("Controller type?>")
-            ctrl = knowncontrollers.KnownControllers.select_controller(useri)
+            ctrl = knowncontrollers.select_controller(useri)
             if ctrl:
-                self.controller_type = ctrl
+                self.controller_type = ctrl[1]
                 self.serial_port = myserial.MySerial(self.controller_type)
                 break
 
@@ -119,13 +135,16 @@ class UserInput:
 
         thows exception if no baud rate is found
         """
+        if not self.comm_port:
+            raise AttributeError('comport not specified')
         sport = self.serial_port
         try:
             sport.port = self.comm_port  # '/dev/ttyACM0'
             sport.timeout = .2
             sport.baudrate = 9600
-            if sport.isOpen():
-                sport.close()
+            UserInput._close_ifd.get(self.serial_port.isOpen())(self.serial_port)
+            #if sport.isOpen():
+                #sport.close()
             sport.open()
 
         except myserial.serial.SerialException as sex:

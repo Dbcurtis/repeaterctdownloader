@@ -23,7 +23,7 @@ class TestControllerspecific(unittest.TestCase):
         pass
 
     def testcreation(self):
-        cs = dlxii.DlxII()
+        cs = dlxii.Device()
         self.assertEqual('RLC-Club Deluxe II v2.15', cs.get_Ctr_type)
         cpsData = cs.cps_data
         cps0 = cpsData[0]
@@ -39,7 +39,7 @@ class TestControllerspecific(unittest.TestCase):
 
 
     def testnewcmd_dict(self):
-        cs = dlxii.DlxII()
+        cs = dlxii.Device()
         mdf = """DTMF>N054 501N054501
 Macro 501 contains 2 commands:
   #00  Command #038 with 00 digits of data:
@@ -118,7 +118,7 @@ DTMF"""
         
         
     def testfmtcmd(self):
-        cs = dlxii.DlxII()
+        cs = dlxii.Device()
         tup = cs.newcmd_dict['sdate']
         arg = (tup[0], 'arg1', 'arg2', 'arg3', 'arg4' )
         cmd = tup[3](arg)        
@@ -128,7 +128,7 @@ DTMF"""
         
 
     def testfmtRMC(self):
-        cs = dlxii.DlxII()
+        cs = dlxii.Device()
         r = cs.fmtRMC("junk test")
         self.assertEqual("junk test", r[0])
         self.assertEqual({}, r[1])
@@ -151,7 +151,7 @@ DTMF>"""
 
 
     def testfmtRCM(self):
-        cs = dlxii.DlxII()
+        cs = dlxii.Device()
         r = cs.fmtRMC("junk test")
         self.assertEqual("junk test", r[0])
         self.assertEqual({}, r[1])

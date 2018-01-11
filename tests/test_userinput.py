@@ -21,7 +21,7 @@ class Testuserinput(unittest.TestCase):
 
     def setUp(self):
         mySPortclass = myserial.MySerial
-        sp = mySPortclass(dlxii.DlxII())
+        sp = mySPortclass(dlxii.Device())
         sp.port = Testuserinput.sdevice
         sp.baudrate = 9600
         sp.timeout = 1.5
@@ -77,7 +77,7 @@ class Testuserinput(unittest.TestCase):
 
     def testopen(self):
         self.assertTrue(myserial.MySerial._debugging)
-        ui = userinput.UserInput()
+        ui = userinput.UserInput(dlxii.Device())
         ui.inputfn = "cmdreadertest.txt"
         ui.comm_port = Testuserinput.sdevice
         self.assertTrue(ui.open(detect_br=False))
@@ -119,7 +119,7 @@ class Testuserinput(unittest.TestCase):
     def testrequest(self):
         fakeuser = ['', 'wrongport']
         try:
-            ui = userinput.UserInput(testdata=fakeuser)
+            ui = userinput.UserInput(dlxii.Device(), testdata=fakeuser)
             ui.request()
             self.assertTrue(False, msg="did not fault on empty debug list")
         except IndexError:
@@ -127,11 +127,11 @@ class Testuserinput(unittest.TestCase):
 
         ports = getports.GetPorts().get()
         fakeuser += getports.GetPorts().get() + ['junk', 'dlx2', 'mytest.txt']
-        ui = userinput.UserInput(testdata=fakeuser)
+        ui = userinput.UserInput(dlxii.Device(), testdata=fakeuser)
         ui.request()
         self.assertEqual(ports[0], ui.comm_port)
         self.assertEqual('mytest.txt', ui.inputfn)
-        self.assertTrue(isinstance(ui.controller_type, dlxii.DlxII))
+        self.assertTrue(isinstance(ui.controller_type, dlxii.Device))
 
 if __name__ == '__main__':
     unittest.main()

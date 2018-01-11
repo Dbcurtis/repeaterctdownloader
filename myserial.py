@@ -28,7 +28,7 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
     def __init__(self, controller_info):
         super(MySerial, self).__init__()
         self.controller_info = controller_info
-        self.cont_prompt = self.controller_info.cmdDict.get('prompt')
+        self.cont_prompt = self.controller_info.newcmd_dict.get('prompt')
 
     def __str__(self):
         #_aa = super(MySerial, self).__str__()
@@ -44,7 +44,7 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
             return self.read(numchar)
         else:
             if MySerial._dbidx < 0:
-                return  [b'ok\nDTMF>']
+                return  [b'OK\nDTMF>']
             result = MySerial._debugreturns[MySerial._dbidx]
             MySerial._dbidx += 1
             return result

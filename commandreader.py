@@ -38,10 +38,10 @@ class CommandReader:
         }
 
     def __str__(self):
-        return '[CommandReader %s]' % ('closed: '+str(self.is_closed) +  ", "+str(self.ui))
+        return '[CommandReader closed: {}, {}]'.format(str(self.is_closed), str(self.ui))
 
     def __repr__(self):
-        return '[CommandReader %s]' % ('closed: '+str(self.is_closed) +  ", "+str(self.ui))
+        return '[CommandReader closed: {}, {}]'.format(str(self.is_closed), str(self.ui))
 
     def open(self):
         """open()
@@ -62,10 +62,12 @@ class CommandReader:
             self.lasterror = None
             result = True
             self.loc = -1
+
         except FileNotFoundError as _e:
             print(_e)
             self.lasterror = _e
             self.is_closed = True
+
         return result
 
     def get(self):

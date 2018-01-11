@@ -10,10 +10,6 @@ from time import time
 import userinput
 
 
-#def call_clsinit(*args, **kwargs):
-    #cls = type(*args, **kwargs)
-    #cls._clsinit()
-    #return cls;
 
 class Controller:
     """Controller Class supports communication of commands to the controller
@@ -91,20 +87,24 @@ class Controller:
         self.cEFile = None
         self.when_opened = None
         self.openTime = None
-        self.ctrl_prompt = self.ui.controller_type.cmdDict.get('prompt')
+        self.ctrl_prompt = self.ui.controller_type.newcmd_dict.get('prompt')
         self._byte_string_ifd = {
             True: Controller.Byte_2_String,
             False: Controller._returnsame,
         }
 
     def __str__(self):
-        return '[Controller: %s]' % (str(self.isFilesOpen) + ", " + \
-        str(self.isOpen) + ', ' + str(self.ui))
+        return '[Controller: {}, {}, {}]'.format(
+            str(self.isFilesOpen),
+            str(self.isOpen),
+            str(self.ui))
 
     def __repr__(self):
-        return '[Controller: %s]' % (str(self.sp.isOpen()) + ', ' + \
-        str(self.isFilesOpen) + \
-        ", " + str(self.isOpen) + ', ' + str(self.ui))
+        return '[Controller:  {}, {}, {}, {}]'.format(
+            str(self.sp.isOpen()), 
+            str(self.isFilesOpen), 
+            str(self.isOpen),
+            str(self.ui))
 
 
     def open(self):
@@ -139,7 +139,7 @@ class Controller:
             _e = sys.exc_info()[0]
             result = False
             self.isOpen = False
-            print("controller did not open! %s\n" % _e)
+            print("controller did not open! {}\n".format(_e))
 
         return result
 

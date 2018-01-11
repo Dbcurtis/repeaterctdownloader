@@ -23,7 +23,7 @@ class TestMySerial(unittest.TestCase):
 
     def setUp(self):
         myclass = myserial.MySerial
-        sp = myclass(dlxii.DlxII())
+        sp = myclass(dlxii.Device())
         sp.port = TestMySerial.sdevice
         sp.baudrate = 9600
         sp.timeout = 1.5
@@ -96,7 +96,7 @@ class TestMySerial(unittest.TestCase):
         """
 
 
-        sp = myserial.MySerial(dlxii.DlxII())
+        sp = myserial.MySerial(dlxii.Device())
         msclass = myserial.MySerial
         TestMySerial.gsp = sp
         msclass._debugging = True
@@ -155,7 +155,7 @@ class TestMySerial(unittest.TestCase):
 
         #test 6) check that dbidx = -1 does as expected
         msclass._dbidx = -1
-        self.assertEqual(b'ok\nDTMF>', sp.dread(99)[0])
+        self.assertEqual(b'OK\nDTMF>', sp.dread(99)[0])
 
         msclass._dbidx = 0
         sp.close()
