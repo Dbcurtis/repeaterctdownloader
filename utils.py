@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """ TBD """
 import argparse
+
+IF_N = {True: lambda a: int(a[1:]), False: lambda a: int(a),}
+
 def _range_2_list(_arg):
     if isinstance(_arg, tuple):
         _tlist = [_arg]
     else:
         _tlist = _arg
     lst = []
-    for t in _tlist:
-        if t[0] == t[1]:
-            lst += [t[0]]
+    for _ in _tlist:
+        if _[0] == _[1]:
+            lst += [_[0]]
             continue
-        lst += list(range(t[0], t[1]+1))
+        lst += list(range(_[0], _[1]+1))
     return lst
 
 class Utils:
@@ -49,7 +52,7 @@ class Utils:
 
 
 
-    def __init__(self, ui, _c, testing=False, showhelp=True):
+    def __init__(self, _ui, _c, testing=False, showhelp=True):
         """__init__(ui,testing=False, showhelp=True)
 
         ui is the current UserInput
@@ -57,8 +60,8 @@ class Utils:
         and instead just prints them.
         showhelp True -> prints the help message
         """
-        self.ui = ui
-        self.sp = ui.serial_port
+        self.ui = _ui
+        self.sp = _ui.serial_port
         self.contInfo = self.sp.controller_info
         self.testing = testing
         self.c = _c
@@ -133,12 +136,22 @@ class Utils:
 
             _px = self.ui.controller_type.rename_pat.search(_a)
             result = False
-            if _px:
-                _g1 = _px.group(1)
-                _g2 = _px.group(2)
-                result = _g1 == _g2
-            else:
-                result = False
+            def _aa(_a):
+                _g1 = _a.group(1)
+                _g2 = _a.group(2)
+                return _g1 == _g2
+            def _rf(_a):
+                return False
+
+            IF_PX = {True: _aa, False: _rf,}
+            result = IF_PX.get(_px)
+            #if _px:
+                #_g1 = _px.group(1)
+                #_g2 = _px.group(2)
+                #result = _g1 == _g2
+            #else:
+                #result = False
+            #assert result1 == result
             return result
 
         for i in rng:
@@ -165,9 +178,12 @@ class Utils:
             self._get_cmd_names(self.contInfo.userMacrosR)
 
     def doacr(self):
+        """doacr()
+
+        """
         print('Entering apply_command_to_range module')
-        notcmdttup =  self.contInfo.newcmd_dict.get('notcmd')
-        notcmdlst = _range_2_list(notcmdttup)                
+        #notcmdttup = self.contInfo.newcmd_dict.get('notcmd')
+        notcmdlst = _range_2_list(self.contInfo.newcmd_dict.get('notcmd'))
         lstcmd = self.contInfo.newcmd_dict.get('lstcmd')
         testargs = ['n123 456 458', 'N123 456 458', "", ]
         testidx = 0
@@ -177,40 +193,43 @@ class Utils:
                 userinput = testargs[testidx]
                 testidx += 1
             else:
-                userinput = input('specify the command and range of argument (for example, 003 {} {}) cr to exit >'.format(str(lstcmd-50), str(lstcmd)))
+                userinput = input(
+                    'specify the command and range of argument (for example, 003 {} {}) cr to exit >'.format(str(lstcmd-50), str(lstcmd)))
             if not userinput.strip():
                 print("exiting apply_command_to_range module")
                 break
             args = userinput.split(' ')
             if len(args) != 3:
                 continue
-            cmdtxt = args[0]
-            _1st = cmdtxt[0:1].upper()
+            #cmdtxt = args[0]
+            _1st = args[0][0:1].upper()
             leadingn = _1st == 'N'
             cmdnum = 0
-            if leadingn:
-                cmdnum = int(args[0][1:])
-            else:
-                cmdnum = int(args[0])
-            
+
+            cmdnum = IF_N.get(leadingn)(args[0])
+            #if leadingn:
+                #cmdnum = int(args[0][1:])
+            #else:
+                #cmdnum = int(args[0])
+
             start = int(args[1])
             end = int(args[2])
-            
-            aa = (cmdnum < 0 , start < 0, end < 0, cmdnum > lstcmd, start > end ,  end > lstcmd)
+
+            _ = (cmdnum < 0, start < 0, end < 0, cmdnum > lstcmd, start > end, end > lstcmd)
             tst = False
-            for t in aa:
-                if t:
+            for _t in _:
+                if _t:
                     tst = True
                     break
-            
+
             if tst:
                 continue
-                
-            aa = []
+
+            _ = []
             if leadingn:
-                aa.append('N')
-            aa.append(Utils._3d.format(num=cmdnum))
-            cmd = "".join(aa)
+                _.append('N')
+            _.append(Utils._3d.format(num=cmdnum))
+            cmd = "".join(_)
             for i in range(start, end):
                 if i in notcmdlst:
                     continue
@@ -223,9 +242,6 @@ class Utils:
                 else:
                     print('Command error')
                     break #break the for
-            pass 
-        
-      
 
     def recallAllNames(self):
         """recallAllNames()
@@ -247,7 +263,7 @@ class Utils:
             print('Command not supported for this controller')
             return
         for i in self.contInfo.safe2resetName:
-            cmd =Utils._3d.format(num=i)
+            cmd = Utils._3d.format(num=i)
             if self.testing:
                 print('sending {}{}{}'.format(self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd))
                 continue

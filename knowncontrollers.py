@@ -8,13 +8,14 @@ import copy
 #import rlc1plus
 
 
-_kc = {
-    #'dlx2':(dlxii.DlxII(), re.compile(r"dlx(ii|2)", re.A|re.I), 'dlxii'),
-    #'rlc1+':(rlc1plus.Rlc1Plus(), re.compile(r"rlc1(\+|p(lus)?)", re.A|re.I), 'rlc1plus'),}
-    'dlx2':(re.compile(r"dlx(ii|2)", re.A|re.I), 'dlxii'),
-    'rlc1+':(re.compile(r"rlc1(\+|p(lus)?)", re.A|re.I), 'rlc1plus'),}
+CTRL_DICT_A = {
 
-_known = ', '.join(sorted([a for a in _kc.keys()]))
+    'dlx2':(re.compile(r"dlx(ii|2)", re.A|re.I), 'dlxii'),
+    'rlclub': (re.compile(r"(rlcclub|club|rlclub)", re.A|re.I), 'club'),
+    'rlc1+':(re.compile(r"rlc1(\+|p(lus)?)", re.A|re.I), 'rlc1plus'),
+}
+
+_KNOWN = ', '.join(sorted([a for a, b in CTRL_DICT_A.items()]))
 
 def get_controller_ids():
     """KnownControllers.get_controller_ids()
@@ -23,7 +24,7 @@ def get_controller_ids():
     """
     return sorted([
         c[1] for c in
-        [n for n in _kc.values()]
+        [n for n in CTRL_DICT_A.values()]
     ])
 
 
@@ -33,7 +34,7 @@ def get_known():
     Returns a string that has recognized names for the known controllers.
     Not Sorted, other versions of the names can be recognized
     """
-    return _known
+    return _KNOWN
 
 def select_controller(_str):
     """select_controller(str)
@@ -43,7 +44,7 @@ def select_controller(_str):
     """
     _ = _str.strip()
     result = None
-    for _n in _kc.values():
+    for _n in CTRL_DICT_A.values():
         _mx = _n[0].match(_)
         if _mx:
             #result = _n[0]  # get the object corrosponding to the match
@@ -57,7 +58,7 @@ class KnownControllers:
     """
 
     def __init__(self):
-        self._jj = copy.copy(_kc)
+        self._jj = copy.copy(CTRL_DICT_A)
 
     def known_controllers(self):
         """known_controllers()

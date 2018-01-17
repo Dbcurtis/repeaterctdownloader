@@ -8,6 +8,7 @@ import knowncontrollers
 import controller
 import userinput
 import getports
+import controllerspecific
 
 HOURLIM = 23
 MINLIM = 50
@@ -18,6 +19,9 @@ M_DOW = ['2', '3', '4', '5', '6', '7', '1', ]
 TWO_CHAR = '{num:02d}'
 SET_ATTEMPT_MAX = 15
 
+INST = controllerspecific.INST
+PAT = controllerspecific.PAT
+REPL_FMT = controllerspecific.REPL_FMT
 
 _PARSER = argparse.ArgumentParser(description="Sets a controller's date and time if needed",
                                   epilog="Useful for running in a cron job"
@@ -28,6 +32,10 @@ _PARSER.add_argument('Controller', nargs='?', default='dlx2',
 _PARSER.add_argument('Port',
                      help='Port id if required, if only one open port, that one will be used'
                     )
+def _NOOP(a):
+    pass
+
+CLOSER = {False: lambda a: a.close(), True: lambda a: _NOOP(a)}
 
 def _delay(debug=False, testtime=None):
     """_delay()
@@ -158,16 +166,8 @@ def _doit(_ui, debug_time=None):
 
     """
     result = ()
+    _the_time = {False:  debug_time, True:time.localtime(time.time()),}
     try:
-        _ui.open()
-        _c = controller.Controller(_ui)
-        _c.open()
-        ctrl = _c.ui.controller_type
-        gdtpl = ctrl.newcmd_dict['gdate']
-        gttpl = ctrl.newcmd_dict['gtime']
-        sttpl = ctrl.newcmd_dict['stime']
-        sdtpl = ctrl.newcmd_dict['sdate']
-        cntdown = SET_ATTEMPT_MAX  #fifteen attempts max
 
         def setdate():
             """setdate()
@@ -178,15 +178,12 @@ def _doit(_ui, debug_time=None):
             returns with the command if a command was needed, or None if no date change was required
             """
             cmd = None
-            if _c.sendcmd(gdtpl[0]):  #get date info from controller
-                _res = gdtpl[2](gdtpl[1].search(_c.last_response))
-                systime = time.localtime(time.time())
-                if debug_time:
-                    systime = debug_time
+            if _c.sendcmd(gdtpl[INST]):  #get date info from controller
+                _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.last_response))
+                systime = _the_time.get(debug_time is None)
                 cmd = check_date(_res, sdtpl, systime)
-                if cmd:
-                    if not _c.sendcmd(cmd):
-                        raise ValueError("retry date command send error")
+                if cmd and not _c.sendcmd(cmd):
+                    raise ValueError("retry date command send error")
             return cmd
 
         def settime():
@@ -198,17 +195,23 @@ def _doit(_ui, debug_time=None):
             returns with the command if a command was needed, or None if no time change was required
             """
             cmd = None
-            if _c.sendcmd(gttpl[0]):
-                _res = gttpl[2](gttpl[1].search(_c.last_response))
-                systime = time.localtime(time.time())
-                if debug_time:
-                    systime = debug_time
+            if _c.sendcmd(gttpl[INST]):
+                _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.last_response))
+                systime = _the_time.get(debug_time is None)
                 cmd = check_time(_res, sttpl, systime)
-                if cmd:
-                    if not _c.sendcmd(cmd):
-                        raise ValueError("retry time command send error")
+                if cmd and not _c.sendcmd(cmd):
+                    raise ValueError("retry time command send error")
             return cmd
 
+        _ui.open()
+        _c = controller.Controller(_ui)
+        _c.open()
+        ctrl = _c.ui.controller_type
+        gdtpl = ctrl.newcmd_dict['gdate']
+        gttpl = ctrl.newcmd_dict['gtime']
+        sttpl = ctrl.newcmd_dict['stime']
+        sdtpl = ctrl.newcmd_dict['sdate']
+        cntdown = SET_ATTEMPT_MAX  #fifteen attempts max
         while cntdown > 0:
             cntdown -= 1
             try:
@@ -229,18 +232,21 @@ def _doit(_ui, debug_time=None):
         succ = cntdown > 0
         noneed = cntdown == SET_ATTEMPT_MAX - 1
         result = (cntdown, succ, noneed)
-        if noneed:
-            print('Controller date-time was current')
-        else:
-            print("Controller time sucessfully set: {}" .format(succ))
+        ifa = {True: 'Controller date-time was current',
+               False:"Controller time sucessfully set: {}" .format(succ),}
+        print(ifa.get(noneed))
+
         _c.close()
         _ui.close()
 
     finally:
-        if _c:
-            _c.close()
-        if _ui:
-            _ui.close()
+
+        CLOSER.get(_c is None)(_c)
+        CLOSER.get(_ui is None)(_ui)
+        #if _c:
+            #_c.close()
+        #if _ui:
+            #_ui.close()
 
     return result
 

@@ -101,8 +101,8 @@ class Controller:
 
     def __repr__(self):
         return '[Controller:  {}, {}, {}, {}]'.format(
-            str(self.sp.isOpen()), 
-            str(self.isFilesOpen), 
+            str(self.sp.isOpen()),
+            str(self.isFilesOpen),
             str(self.isOpen),
             str(self.ui))
 
@@ -212,7 +212,7 @@ class Controller:
                 while cnt > 0:  # keep reading input until the controller
                     # prompt (i.e. DTMF>) is seen.
                     # Remember the timeout changes with baud rate
-                    #should get data atleast every timeout seconds
+                    # should get data atleast every timeout seconds
                     _in_list.append(Byte_2_String(self.sp.dread(9999)))
                     cnt = cnt - 1
                     if ''.join(_in_list).endswith(self.ctrl_prompt):
@@ -232,9 +232,11 @@ class Controller:
             if display:
                 self.last_displayed = response
                 print(response)
+
             if log_it and select_it(response):
                 self.last_logged = response
                 self.cEFile.write(format_it(response)[0])
+
         return result
 
     def close(self):

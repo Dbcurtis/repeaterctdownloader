@@ -27,7 +27,6 @@ setup(
     version='1.0a1.dev1',
 
     description='A utility to transfer commands and files to an arcom or TBD** repeater controller',
-    #long_description= 'A utility to send ASCII commands and comands in file(s) to a repeater controler.',
 
     # The project's main homepage.
     url='https://gitlab.com/TBD',

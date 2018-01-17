@@ -33,7 +33,7 @@ class TestKnownControllers(unittest.TestCase):
 
     def test_getcontrollerids(self):
         aa = knowncontrollers.get_controller_ids()
-        exp = ["dlxii", "rlc1plus"]
+        exp = ["club", "dlxii", "rlc1plus"]
         self.assertEqual(exp, aa)
 
     def test_select_controller(self):

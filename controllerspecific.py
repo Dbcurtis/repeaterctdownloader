@@ -3,6 +3,11 @@
 
 import re
 
+#offsets into the newcmd_dict
+INST = 0
+PAT = 1
+REPL_FMT = 2
+
 class ControllerSpecific:
     """ControllerSpecific
 
@@ -11,6 +16,7 @@ class ControllerSpecific:
     get_Ctr_type = 'Abstract Controller'
 
 
+    
     class SerialSpeedinfo:
         """SerialSpeedinfo
 
@@ -71,25 +77,25 @@ class ControllerSpecific:
             self.SerialSpeedinfo(600, 3),
             self.SerialSpeedinfo(300, 6)
         ]
-        
-        self.newcmd_dict = {'rpcmdn': (None, None, None, ), 
-                                'rcn': (None, None, None, ), 
-                                    'rmc': (None, None, None, ), 
-                                    'gdate': (None, None, None, ), 
-                                    'gtime': (None, None, None, ), 
-                                    'sdate': (None, None, None, ), 
-                                    'stime': (None, None, None, ),
-                                    'smacro': None,
-                                    'umacro': None,
-                                    'lstcmd': None,
-                                    'notcmd': None, 
-                                    'prompt': '\n',
-                                    }  # cmd name:(cmd,replypat,replyfmt, cmdformat)       
+
+        self.newcmd_dict = {'rpcmdn': (None, None, None, ),
+                            'rcn': (None, None, None, ),
+                            'rmc': (None, None, None, ),
+                            'gdate': (None, None, None, ),
+                            'gtime': (None, None, None, ),
+                            'sdate': (None, None, None, ),
+                            'stime': (None, None, None, ),
+                            'smacro': None,
+                            'umacro': None,
+                            'lstcmd': None,
+                            'notcmd': None,
+                            'prompt': '\n',
+                           }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
         self.cmdDict = {'rpcmdn': None,
                         'rcn': None,
                         'rmc': None,
                         'prompt': '\n',
-                        }
+                       }
         for ssi in self.cps_data:
             ssi.cpsDelay = round(0.1 + (1100.0 / ssi.bps), 3)
 

@@ -6,6 +6,21 @@ import getports
 import knowncontrollers
 
 
+def _ignore(_ignoreme):
+    return
+
+def _pop_test_data(queue, ignore):
+    return queue.pop()
+
+def _inputg(ignore, _a):
+    return input(_a)
+
+_close_ifd = {True: lambda a: a.close(),
+              False: _ignore,}
+
+_userInput_ifd = {
+    True: _pop_test_data,
+    False: _inputg,}
 
 class UserInput:
     """UserInput()
@@ -24,55 +39,35 @@ class UserInput:
     May also generate an OSError if unable to match the controller baud rate
 
     """
-    @staticmethod
-    def _pop_test_data(queue, ignore):
-        return queue.__td.pop()
 
-    @staticmethod
-    def _inputg(ignore, _a):
-        return input(_a)
-
-    @staticmethod
-    def _ignore(_ignoreme):
-        return
-
-    _close_ifd = {True: lambda a: a.close(),
-                  False: lambda a: UserInput._ignore(a),}
-
-    _userInput_ifd = {
-        True: lambda o, a: UserInput._pop_test_data(o, a),
-        False: lambda o, a: UserInput._inputg(o, a),}
-
+    def _inputa(self, query):
+        return _userInput_ifd.get(isinstance(self._td, list))(self._td, query)
 
     def __init__(self, ctype=None, testdata=None):
         self.comm_port = ""
         self.inputfn = ""
         self.controller_type = ctype
-        if self.controller_type:
-            self.serial_port = myserial.MySerial(self.controller_type)
-        else:
-            self.serial_port = None
-        self.__td = None
+        if_cnd = {False:  myserial.MySerial(self.controller_type), True: None,}
+        self.serial_port = if_cnd.get(self.controller_type is None)
+
+        self._td = None
         if testdata:
             if isinstance(testdata, list):
-                self.__td = testdata
-                self.__td.reverse()
+                self._td = testdata
+                self._td.reverse()
             else:
                 assert "illegal testdata type"
 
     def __str__(self):
-        return '[UserInput: {}, {}]'.foramt(self.comm_port, self.inputfn)
+        return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
 
     def __repr__(self):
         return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
 
-    def _inputa(self, query):
-        return UserInput._userInput_ifd.get(isinstance(self.__td, list))(self, query)
-
     def request(self):
         """request()
 
-        Request comm port id and filename containing controller commands
+        Request comm port id, repeater controller type, and filename containing controller commands
         """
         while 1:
             tups = []
@@ -115,7 +110,7 @@ class UserInput:
 
         Closes the serial port if it is open
         """
-        UserInput._close_ifd.get(self.serial_port.isOpen())(self.serial_port)
+        _close_ifd.get(self.serial_port.isOpen())(self.serial_port)
 
 
     def open(self, detect_br=True):
@@ -142,9 +137,7 @@ class UserInput:
             sport.port = self.comm_port  # '/dev/ttyACM0'
             sport.timeout = .2
             sport.baudrate = 9600
-            UserInput._close_ifd.get(self.serial_port.isOpen())(self.serial_port)
-            #if sport.isOpen():
-                #sport.close()
+            _close_ifd.get(self.serial_port.isOpen())(self.serial_port)
             sport.open()
 
         except myserial.serial.SerialException as sex:
@@ -152,9 +145,8 @@ class UserInput:
             print(sex)
             return False
 
-        if detect_br:
-            if not sport.find_baud_rate():
-                raise OSError('Unable to match controller baud rate')
+        if detect_br and not sport.find_baud_rate():
+            raise OSError('Unable to match controller baud rate')
         return True
 
 if __name__ == '__main__':
@@ -164,6 +156,7 @@ if __name__ == '__main__':
         UI.open()
         print("Requested Port can be opened")
         UI.close()
+
     except(Exception, KeyboardInterrupt) as exc:
         UI.close()
         sys.exit(str(exc))

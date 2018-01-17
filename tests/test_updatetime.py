@@ -3,7 +3,7 @@
 Test file for updatetime
 """
 
-import sys
+
 import unittest
 import time
 import dlxii
@@ -77,15 +77,19 @@ class Testupdatetime(unittest.TestCase):
  
         
     def testcheckdate(self):
-        
-        mdf = """DTMF>N029
-This is Wednesday, 01-03-2018
-OK
-DTMF>"""
+
         cs = dlxii.Device()
         tup = cs.newcmd_dict['gdate']
         self.assertEqual('N029', tup[0])
         pat = tup[1]
+        mdf = """total crap >"""
+        mx = pat.search(mdf)
+        self.assertFalse(mx)
+         
+        mdf = """DTMF>N029
+This is Wednesday, 01-03-2018
+OK
+DTMF>"""        
         mx = pat.search(mdf)
         _res = tup[2](mx)
         sdtpl = cs.newcmd_dict['sdate']
@@ -181,7 +185,6 @@ DTMF"""
         matchtime =  time.strptime("03 Jan 2018 23 59 00", "%d %b %Y %H %M %S")  
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02511591', cd)         
-        
 
         mdf = """DTMF>N027
 The time is 12:00 P.M.
@@ -202,7 +205,7 @@ DTMF"""
         matchtime =  time.strptime("03 Jan 2018 11 59 00", "%d %b %Y %H %M %S")  
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02511590', cd)    
-        
+
         mdf = """DTMF>N027
 The time is 12:01 P.M.
 OK
