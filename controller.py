@@ -45,7 +45,7 @@ class Controller:
 
     _introMsg = """
 ;-------------
-; File: %s, Created on: %s UTC
+; File: {}, Created on: {} UTC
 ;-----------------
 """
     _timeFmt = '%Y%m%d, %H:%M:%S'
@@ -129,8 +129,8 @@ class Controller:
             self.cmd_err_file = open(self.cmd_errfile_name, 'w', encoding='utf-8')
             self.when_opened = datetime.now().strftime(Controller._timeFmt)
             self.open_time = time()
-            self.cmd_log_file.write(Controller._introMsg % (cmd_log_paths, self.when_opened))
-            self.cmd_err_file.write(Controller._introMsg % (cmd_err_paths, self.when_opened))
+            self.cmd_log_file.write(Controller._introMsg.format(cmd_log_paths, self.when_opened))
+            self.cmd_err_file.write(Controller._introMsg.format(cmd_err_paths, self.when_opened))
             self.is_files_open = True
             self.sp.open()
             self.isOpen = True
@@ -314,8 +314,6 @@ if __name__ == '__main__':
                 if _ui.serial_port.isOpen():
                     _ui.serial_port.close()
                 _c.close()
-
-        #print('Available comport(s) are: %s' % getports.GetPorts().get())
 
         UII.request()
         _send_users_cmds(UII)

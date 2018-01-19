@@ -1,6 +1,6 @@
 
 ;-------------
-; File: k:\RepeaterControlerDownloaderP34\updatetest.cmdlog.txt, Created on: 20180118, 11:52:13 UTC
+; File: k:\RepeaterControlerDownloaderP34\updatetest.cmdlog.txt, Created on: 20180118, 21:31:21 UTC
 ;-----------------
 N029
 N0280103184
