@@ -15,8 +15,6 @@ class ControllerSpecific:
     """
     get_Ctr_type = 'Abstract Controller'
 
-
-    
     class SerialSpeedinfo:
         """SerialSpeedinfo
 
@@ -91,11 +89,7 @@ class ControllerSpecific:
                             'notcmd': None,
                             'prompt': '\n',
                            }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
-        self.cmdDict = {'rpcmdn': None,
-                        'rcn': None,
-                        'rmc': None,
-                        'prompt': '\n',
-                       }
+
         for ssi in self.cps_data:
             ssi.cpsDelay = round(0.1 + (1100.0 / ssi.bps), 3)
 

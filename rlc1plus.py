@@ -3,6 +3,28 @@
 """
 import re
 import controllerspecific
+
+
+
+def _fmt_cmd(_arg):
+    cmd = "".join(_arg)
+    return cmd
+
+
+def _fmt_proc(_mx):
+    if not _mx:
+        return {}
+    return _mx.groupdict()
+
+def _fmt_proc_one(_mx):
+    if not _mx:
+        return{}
+    result = _mx.groupdict()
+    cmds = _mx.group('cmds').strip()
+    lst = [l for l in cmds.split('\n') if l.strip()]
+    result['cmds'] = lst
+    return result
+
 class Device(controllerspecific.ControllerSpecific):
     """ to be done """
 
@@ -28,17 +50,42 @@ class Device(controllerspecific.ControllerSpecific):
 
     def __init__(self):
         super().__init__()
+        print(">>>>>>>>>>>>THIS NEEDS TO BE TESTED it is all "+\
+              "wrong re formatting and possibly commands>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         self.commandsR = range(0, 215)
         self.userMacrosR = range(141, 210)  # goes from 141 to 210
         self.systemMacrosR = range(200, 500)
         _sm = self.systemMacrosR
         self.safe2resetName = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
-        self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054', 'prompt': 'DTMF>', }
-        """cmdDict
 
-        A dict that associates commands with the controller specific command digits.
-        """
+        __N029pat = re.compile(
+            r'This\s+is\s+(?P<A>\w+),\s*(?P<m>\d\d)-(?P<d>\d\d)-(?P<Y>\d{4,4})\s*\nOK\n',
+            re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+        __N027pat = re.compile(
+            r'The\s+time\s+is\s+(?P<I>\d{1,2}):(?P<M>\d\d)\s*(?P<p>[ap].m.)\nOK\n',
+            re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+        self.newcmd_dict = {'rpcmdn': ('027', ),
+                            'rcn': ('028', Device.N011Fmt_pat, _fmt_proc, None, ),
+                            'rmc': ('129', Device.N054Fmt_pat, _fmt_proc_one, None, ),
+                            'gdate': ('056', __N029pat, _fmt_proc, None,),
+                            'gtime': ('054', __N027pat, _fmt_proc, None, ),
+                            'sdate': ('059', None, None, _fmt_cmd, ),
+                            'stime': ('058', None, None, _fmt_cmd, ),
+                            'smacro': (),
+                            'umacro': (141, 210),
+                            'lstcmd': 215,
+                            'notcmd': [(14, 19), (33, 33), (89, 89), (97, 99), (117, 118),
+                                       (153, 154), (168, 168), (193, 194), ],
+                            'prompt': 'DTMF>',
+                           }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
+        """newcmd_dict
+
+            a dict that assocates commands, reply patterns, and reply formatters
+
+            """
 
     def __fmtN054(self, _str):  #fmt macro contents
         """__fmtN054(s)

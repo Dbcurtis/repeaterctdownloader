@@ -32,7 +32,7 @@ _PARSER.add_argument('Controller', nargs='?', default='dlx2',
 _PARSER.add_argument('Port',
                      help='Port id if required, if only one open port, that one will be used'
                     )
-def _NOOP(a):
+def _NOOP(ignore):
     pass
 
 CLOSER = {False: lambda a: a.close(), True: lambda a: _NOOP(a)}
@@ -177,6 +177,8 @@ def _doit(_ui, debug_time=None):
 
             returns with the command if a command was needed, or None if no date change was required
             """
+            gdtpl = ctrl.newcmd_dict['gdate']
+            sdtpl = ctrl.newcmd_dict['sdate']
             cmd = None
             if _c.sendcmd(gdtpl[INST]):  #get date info from controller
                 _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.last_response))
@@ -195,6 +197,8 @@ def _doit(_ui, debug_time=None):
             returns with the command if a command was needed, or None if no time change was required
             """
             cmd = None
+            gttpl = ctrl.newcmd_dict['gtime']
+            sttpl = ctrl.newcmd_dict['stime']
             if _c.sendcmd(gttpl[INST]):
                 _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.last_response))
                 systime = _the_time.get(debug_time is None)
@@ -207,10 +211,6 @@ def _doit(_ui, debug_time=None):
         _c = controller.Controller(_ui)
         _c.open()
         ctrl = _c.ui.controller_type
-        gdtpl = ctrl.newcmd_dict['gdate']
-        gttpl = ctrl.newcmd_dict['gtime']
-        sttpl = ctrl.newcmd_dict['stime']
-        sdtpl = ctrl.newcmd_dict['sdate']
         cntdown = SET_ATTEMPT_MAX  #fifteen attempts max
         while cntdown > 0:
             cntdown -= 1
@@ -243,10 +243,6 @@ def _doit(_ui, debug_time=None):
 
         CLOSER.get(_c is None)(_c)
         CLOSER.get(_ui is None)(_ui)
-        #if _c:
-            #_c.close()
-        #if _ui:
-            #_ui.close()
 
     return result
 

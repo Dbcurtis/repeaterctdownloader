@@ -102,10 +102,10 @@ class Utils:
                 self.args = Utils._parser.parse_args(options)
                 _bol_fun_tuple_tuple = (
                     (self.args.apply_command_to_range, self.doacr),
-                    (self.args.recall_all_names, self.recallAllNames),
-                    (self.args.recall_macro_def, self.recallMacroDeffinitions),
-                    (self.args.recall_macro_names, self.recallMacroNames),
-                    (self.args.reset_all_comd_names, self.resetCmdNames),
+                    (self.args.recall_all_names, self.recall_all_names),
+                    (self.args.recall_macro_def, self.recall_macro_deffinitions),
+                    (self.args.recall_macro_names, self.recall_macro_names),
+                    (self.args.reset_all_comd_names, self.reset_cmd_names),
                 )
                 #print(self.args)
             except SystemExit:
@@ -157,24 +157,24 @@ class Utils:
         for i in rng:
             cmd = Utils._3d.format(num=i)
             if self.testing:
-                print('sending {}{}'.format(self.contInfo.cmdDict.get('rcn'), cmd))
+                print('sending {}{}'.format(self.contInfo.newcmd_dict.get('rcn')[0], cmd))
                 continue
 
             if self.c.sendcmd(
-                self.contInfo.cmdDict.get('rcn') + cmd,
+                self.contInfo.newcmd_dict.get('rcn')[0] + cmd,
                 display=False,
                 log_it=True,
                 select_it=lambda a: not _sit(a)): print('.', end='')
             else: print('-', end='')
 
 
-    def recallMacroNames(self):
-        """recallMacroNames()
+    def recall_macro_names(self):
+        """recall_macro_names()
 
         Scans the user macros to get the macro names.
 
        """
-        if self.contInfo.cmdDict.get('rcn'):
+        if self.contInfo.newcmd_dict.get('rcn')[0]:
             self._get_cmd_names(self.contInfo.userMacrosR)
 
     def doacr(self):
@@ -230,10 +230,10 @@ class Utils:
                 _.append('N')
             _.append(Utils._3d.format(num=cmdnum))
             cmd = "".join(_)
-            for i in range(start, end):
-                if i in notcmdlst:
+            for _i in range(start, end):
+                if _i in notcmdlst:
                     continue
-                command = " ".join([cmd, Utils._3d.format(num=i)])
+                command = " ".join([cmd, Utils._3d.format(num=_i)])
                 if self.testing:
                     print('sending {}'.format(command))
                     continue
@@ -243,34 +243,35 @@ class Utils:
                     print('Command error')
                     break #break the for
 
-    def recallAllNames(self):
-        """recallAllNames()
+    def recall_all_names(self):
+        """recall_all_names()
 
         scans all cmdids, if the cmdid has been renamed, the rename and cmdid are logged
 
         """
-        if self.contInfo.cmdDict.get('rcn'):
+        if self.contInfo.newcmd_dict.get('rcn')[0]:
             self._get_cmd_names(self.contInfo.commandsR)
 
 
-    def resetCmdNames(self):
-        """ resetCmdNames()
+    def reset_cmd_names(self):
+        """ reset_cmd_names()
 
         Sends a n010 cmdid cmdid to the repeater to reset the command names for each cmdid
         but not for the system macros.
         """
-        if not self.contInfo.cmdDict.get('rpcmdn'):
+        if not self.contInfo.newcmd_dict.get('rpcmdn')[0]:
             print('Command not supported for this controller')
             return
+
         for i in self.contInfo.safe2resetName:
             cmd = Utils._3d.format(num=i)
             if self.testing:
-                print('sending {}{}{}'.format(self.contInfo.cmdDict.get('rpcmdn'), cmd, cmd))
+                print('sending {}{}{}'.format(self.contInfo.newcmd_dict.get('rpcmdn')[0], cmd, cmd))
                 continue
-            if self.c.sendcmd(self.contInfo.cmdDict.get('rpcmdn') + cmd + cmd, display=False):
+            if self.c.sendcmd(self.contInfo.newcmd_dict.get('rpcmdn')[0] + cmd + cmd, display=False):
                 print('.', end='')
 
-    def recallMacroDeffinitions(self):
+    def recall_macro_deffinitions(self):
         """recallMacroDeffinitions()
 
         Scans the user macros to get the macro deffinitions.  If the deffinition has
@@ -288,16 +289,16 @@ class Utils:
 
             return not self.ui.controller_type.macro_def_pat.match(_a) is None
 
-        if not self.contInfo.cmdDict.get('rmc'):
+        if not self.contInfo.newcmd_dict.get('rmc')[0]:
             print('Command not supported for this controller')
             return
 
         for i in self.contInfo.userMacrosR:
             _ = Utils._3d.format(num=i)
             if self.testing:
-                print('sending {}{}'.format(self.contInfo.cmdDict.get('rmc'), _))
+                print('sending {}{}'.format(self.contInfo.newcmd_dict.get('rmc')[0], _))
                 continue
-            if self.c.sendcmd(self.contInfo.cmdDict.get('rmc') + _,
+            if self.c.sendcmd(self.contInfo.newcmd_dict.get('rmc')[0] + _,
                               display=False,
                               log_it=True,
                               select_it=lambda a: _sit(a),

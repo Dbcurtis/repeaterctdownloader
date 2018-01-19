@@ -36,6 +36,9 @@ class TestCommandreader(unittest.TestCase):
         pass
 
     def testopen(self):
+        """testopen()
+
+        """
         _cr = commandreader.CommandReader(TestCommandreader.ui)
         _fcr = None
         try:

@@ -94,10 +94,10 @@ class TestController(unittest.TestCase):
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
         self.assertTrue(c.isOpen)
-        self.assertTrue(c.isFilesOpen)
+        self.assertTrue(c.is_files_open)
         self.assertTrue(c.sp.isOpen())
-        self.assertEqual('testcontroller.cmdlog.txt', c.cLFile.name)
-        self.assertEqual('testcontroller.exelog.txt', c.cEFile.name)
+        self.assertEqual('testcontroller.cmdlog.txt', c.cmd_log_file.name)
+        self.assertEqual('testcontroller.exelog.txt', c.cmd_err_file.name)
         c.close()
 
         c = controller.Controller(TestController.ui1)
@@ -105,10 +105,10 @@ class TestController(unittest.TestCase):
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
         self.assertTrue(c.isOpen)
-        self.assertTrue(c.isFilesOpen)
+        self.assertTrue(c.is_files_open)
         self.assertTrue(c.sp.isOpen())
-        self.assertEqual('test.cmdlog.txt', c.cLFile.name)
-        self.assertEqual('test.exelog.txt', c.cEFile.name)
+        self.assertEqual('test.cmdlog.txt', c.cmd_log_file.name)
+        self.assertEqual('test.exelog.txt', c.cmd_err_file.name)
         c.close()
 
 
@@ -119,10 +119,10 @@ class TestController(unittest.TestCase):
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
         self.assertTrue(c.isOpen)
-        self.assertTrue(c.isFilesOpen)
+        self.assertTrue(c.is_files_open)
         c.close()
         self.assertFalse(c.isOpen)
-        self.assertFalse(c.isFilesOpen)
+        self.assertFalse(c.is_files_open)
         self.assertFalse(c.sp.isOpen())
 
     def testcvntcmd(self):
@@ -168,7 +168,7 @@ class TestController(unittest.TestCase):
         c.close()
         fct = os.path.getmtime('test.exelog.txt')
         ofct = fct
-        self.assertTrue(abs((fct) - (c.openTime)) < 1.0)
+        self.assertTrue(abs((fct) - (c.open_time)) < 1.0)
 
         _file = open('test.exelog.txt', 'r', encoding='utf-8')
         lines = _file.readlines(999)
@@ -206,9 +206,9 @@ class TestController(unittest.TestCase):
         #response = c.last_response
         c.close()
         fct = os.path.getmtime('test.exelog.txt')
-        self.assertTrue(abs((fct) - (c.openTime)) < 1.0)
+        self.assertTrue(abs((fct) - (c.open_time)) < 1.0)
         self.assertTrue(abs((fct) - (ofct)) < 4.0)
-        nf = open(c.cEfn, 'r', encoding='utf-8')
+        nf = open(c.cmd_errfile_name, 'r', encoding='utf-8')
         lines = nf.readlines(99999)
         nf.close()
         #  by here pretty sure the standard operations are working ok

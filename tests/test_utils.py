@@ -90,7 +90,7 @@ class Testutils(unittest.TestCase):
         ui.comm_port = Testutils.sdevice
         utili = utils.Utils(ui, controller.Controller(ui), testing=True, showhelp=False)
         myserial.MySerial._dbidx = -1
-        utili.resetCmdNames()
+        utili.reset_cmd_names()
 
     def testrecallMacroDeffinitions(self):
         pass

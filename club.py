@@ -21,9 +21,9 @@ class Device(controllerspecific.ControllerSpecific):
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     N011Fmt_pat = re.compile(
-        r'Command number\s*(?P<cmdno>\d{3,3})\s* is named (?P<name>.*?)\.\s+It takes (?P<digs>\d{1,3}) digits of data\.',
+        r'Command number\s*(?P<cmdno>\d{3,3})\s*' + \
+        r'is named (?P<name>.*?)\.\s+It takes (?P<digs>\d{1,3}) digits of data\.',
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
-
 
     get_Ctr_type = 'RLC-Club v2.15'
 
@@ -36,14 +36,7 @@ class Device(controllerspecific.ControllerSpecific):
         _sm = self.systemMacrosR
         self.safe2resetName = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
-        self.cmdDict = {'rpcmdn': 'N010', 'rcn': 'N011', 'rmc': 'N054', 'prompt': 'DTMF>',}
-        """cmdDict
 
-        deprecated use newcmd_dict instead
-
-        A dict that associates commands with the controller specific command digits.
-        to be replaced by newcmd_dict eventually
-        """
         __N029pat = re.compile(
             r'This\s+is\s+(?P<A>\w+),\s*(?P<m>\d\d)-(?P<d>\d\d)-(?P<Y>\d{4,4})\s*\nOK\n',
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
