@@ -67,20 +67,22 @@ class Device(controllerspecific.ControllerSpecific):
             r'The\s+time\s+is\s+(?P<I>\d{1,2}):(?P<M>\d\d)\s*(?P<p>[ap].m.)\nOK\n',
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
-        self.newcmd_dict = {'rpcmdn': ('027', ),
-                            'rcn': ('028', Device.N011Fmt_pat, _fmt_proc, None, ),
-                            'rmc': ('129', Device.N054Fmt_pat, _fmt_proc_one, None, ),
-                            'gdate': ('056', __N029pat, _fmt_proc, None,),
-                            'gtime': ('054', __N027pat, _fmt_proc, None, ),
-                            'sdate': ('059', None, None, _fmt_cmd, ),
-                            'stime': ('058', None, None, _fmt_cmd, ),
-                            'smacro': (),
-                            'umacro': (141, 210),
-                            'lstcmd': 215,
-                            'notcmd': [(14, 19), (33, 33), (89, 89), (97, 99), (117, 118),
-                                       (153, 154), (168, 168), (193, 194), ],
-                            'prompt': 'DTMF>',
-                           }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
+        self.newcmd_dict.update( # these are all wrong and will need to be changed
+            {
+                'rpcmdn': ('027', ),
+                'rcn': ('028', Device.N011Fmt_pat, _fmt_proc, None, ),
+                'rmc': ('129', Device.N054Fmt_pat, _fmt_proc_one, None, ),
+                'gdate': ('056', __N029pat, _fmt_proc, None,),
+                'gtime': ('054', __N027pat, _fmt_proc, None, ),
+                'sdate': ('059', None, None, _fmt_cmd, ),
+                'stime': ('058', None, None, _fmt_cmd, ),
+                'umacro': (141, 210),
+                'lstcmd': 215,
+                'notcmd': [(14, 19), (33, 33), (89, 89), (97, 99), (117, 118),
+                           (153, 154), (168, 168), (193, 194), ],
+                'prompt': 'DTMF>',
+                }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
+            )
         """newcmd_dict
 
             a dict that assocates commands, reply patterns, and reply formatters

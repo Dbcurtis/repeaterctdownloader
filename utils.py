@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """ TBD """
 import argparse
+import re
+
 
 IF_N = {True: lambda a: int(a[1:]), False: lambda a: int(a),}
+IF_TUP = {True: lambda a: [a], False: lambda a: a,}
 
 def _range_2_list(_arg):
-    if isinstance(_arg, tuple):
-        _tlist = [_arg]
-    else:
-        _tlist = _arg
+    _tlist = IF_TUP.get(isinstance(_arg, tuple))(_arg)
     lst = []
     for _ in _tlist:
         if _[0] == _[1]:
@@ -16,6 +16,8 @@ def _range_2_list(_arg):
             continue
         lst += list(range(_[0], _[1]+1))
     return lst
+
+_3D = '{num:03d}'
 
 class Utils:
     """Utils Class supports routines to operate on multiple commands.
@@ -28,7 +30,7 @@ class Utils:
     5) Process loop to select the above
 
     """
-    _3d = '{num:03d}'
+
     _cmds = ["cmds: -acr", "-rmn", "-ran", "-rmd", "-cacn", "-q"]
     _parser = argparse.ArgumentParser()
     _parser.add_argument('-rmn', '--recall_macro_names',
@@ -62,14 +64,16 @@ class Utils:
         """
         self.ui = _ui
         self.sp = _ui.serial_port
-        self.contInfo = self.sp.controller_info
+        self.cont_info = self.sp.controller_info
         self.testing = testing
         self.c = _c
+        self.args = None
         if showhelp:
-            try:
-                self.args = Utils._parser.parse_args(['-h'])
-            except SystemExit:
-                pass
+            Utils._parser.print_help()
+            #try:
+                #self.args = Utils._parser.parse_args(['-h'])
+            #except SystemExit:
+                #pass
 
 
     def __str__(self):
@@ -143,8 +147,8 @@ class Utils:
             def _rf(_a):
                 return False
 
-            IF_PX = {True: _aa, False: _rf,}
-            result = IF_PX.get(_px)
+            if_px = {True: _aa, False: _rf,}
+            result = if_px.get(_px)
             #if _px:
                 #_g1 = _px.group(1)
                 #_g2 = _px.group(2)
@@ -155,13 +159,13 @@ class Utils:
             return result
 
         for i in rng:
-            cmd = Utils._3d.format(num=i)
+            cmd = _3D.format(num=i)
             if self.testing:
-                print('sending {}{}'.format(self.contInfo.newcmd_dict.get('rcn')[0], cmd))
+                print('sending {}{}'.format(self.cont_info.newcmd_dict.get('rcn')[0], cmd))
                 continue
 
             if self.c.sendcmd(
-                self.contInfo.newcmd_dict.get('rcn')[0] + cmd,
+                self.cont_info.newcmd_dict.get('rcn')[0] + cmd,
                 display=False,
                 log_it=True,
                 select_it=lambda a: not _sit(a)): print('.', end='')
@@ -174,32 +178,52 @@ class Utils:
         Scans the user macros to get the macro names.
 
        """
-        if self.contInfo.newcmd_dict.get('rcn')[0]:
-            self._get_cmd_names(self.contInfo.userMacrosR)
+        if self.cont_info.newcmd_dict.get('rcn')[0]:
+            self._get_cmd_names(self.cont_info.userMacrosR)
 
     def doacr(self):
         """doacr()
 
+        Apply command to range.
+
+        Asks for a specified command to be applied to a range of single arguments
+        for example in a deluxe 2 controller, you can specify cmd 062 (change
+        the beginning of Command Names) input of "n062 1 30" will strip off
+        extra digits to make commands 1-30 be three digits or less
+
+        User input is at least 3 elements seperated by spaces (one space only?)
+        max is 4 to allow a single argument to be applied to each of the things
+        in the range.  Thus, input of "062 0 999 #" will rename all the commands of
+        the controller to start with a #
+
+
         """
         print('Entering apply_command_to_range module')
         #notcmdttup = self.contInfo.newcmd_dict.get('notcmd')
-        notcmdlst = _range_2_list(self.contInfo.newcmd_dict.get('notcmd'))
-        lstcmd = self.contInfo.newcmd_dict.get('lstcmd')
-        testargs = ['n123 456 458', 'N123 456 458', "", ]
+        notcmdlst = _range_2_list(self.cont_info.newcmd_dict.get('notcmd'))
+        _x = self.cont_info.newcmd_dict.get('ecn')
+        if _x:
+            notcmdlst.append(_x)  #do not apply to execute command by number command
+        lstcmd = self.cont_info.newcmd_dict.get('lstcmd')
+        dtmfpat = self.cont_info.newcmd_dict.get('dtmf')
+        testargs = ['n123 456 458', 'N123 456 458', '123 456 458', '123 456 458 a2#*0']
+
         testidx = 0
-        while True:
-            userinput = ''
+        while testidx < len(testargs):
             if self.testing:
                 userinput = testargs[testidx]
                 testidx += 1
             else:
                 userinput = input(
-                    'specify the command and range of argument (for example, 003 {} {}) cr to exit >'.format(str(lstcmd-50), str(lstcmd)))
+                    'specify the command and range of argument '\
+                                '(for example, 003 {} {}) cr to exit >'
+                    .format(str(lstcmd-50), str(lstcmd)))
+
             if not userinput.strip():
                 print("exiting apply_command_to_range module")
                 break
             args = userinput.split(' ')
-            if len(args) != 3:
+            if len(args) not in (3, 4):
                 continue
             #cmdtxt = args[0]
             _1st = args[0][0:1].upper()
@@ -207,13 +231,14 @@ class Utils:
             cmdnum = 0
 
             cmdnum = IF_N.get(leadingn)(args[0])
-            #if leadingn:
-                #cmdnum = int(args[0][1:])
-            #else:
-                #cmdnum = int(args[0])
-
             start = int(args[1])
             end = int(args[2])
+            pram = ''
+            if len(args) == 4:
+                pram = args[3]
+                if not dtmfpat.match(pram):
+                    print("{} must be only DTMF characters".format(pram))
+                    continue
 
             _ = (cmdnum < 0, start < 0, end < 0, cmdnum > lstcmd, start > end, end > lstcmd)
             tst = False
@@ -228,12 +253,12 @@ class Utils:
             _ = []
             if leadingn:
                 _.append('N')
-            _.append(Utils._3d.format(num=cmdnum))
+            _.append(_3D.format(num=cmdnum))
             cmd = "".join(_)
             for _i in range(start, end):
                 if _i in notcmdlst:
                     continue
-                command = " ".join([cmd, Utils._3d.format(num=_i)])
+                command = " ".join([cmd, _3D.format(num=_i), pram])
                 if self.testing:
                     print('sending {}'.format(command))
                     continue
@@ -249,8 +274,8 @@ class Utils:
         scans all cmdids, if the cmdid has been renamed, the rename and cmdid are logged
 
         """
-        if self.contInfo.newcmd_dict.get('rcn')[0]:
-            self._get_cmd_names(self.contInfo.commandsR)
+        if self.cont_info.newcmd_dict.get('rcn')[0]:
+            self._get_cmd_names(self.cont_info.commandsR)
 
 
     def reset_cmd_names(self):
@@ -259,16 +284,19 @@ class Utils:
         Sends a n010 cmdid cmdid to the repeater to reset the command names for each cmdid
         but not for the system macros.
         """
-        if not self.contInfo.newcmd_dict.get('rpcmdn')[0]:
+        if not self.cont_info.newcmd_dict.get('rpcmdn')[0]:
             print('Command not supported for this controller')
             return
 
-        for i in self.contInfo.safe2resetName:
-            cmd = Utils._3d.format(num=i)
+        for i in self.cont_info.safe2resetName:
+            cmd = _3D.format(num=i)
             if self.testing:
-                print('sending {}{}{}'.format(self.contInfo.newcmd_dict.get('rpcmdn')[0], cmd, cmd))
+                print('sending {}{}{}'
+                      .format(self.cont_info.newcmd_dict.get('rpcmdn')[0], cmd, cmd))
                 continue
-            if self.c.sendcmd(self.contInfo.newcmd_dict.get('rpcmdn')[0] + cmd + cmd, display=False):
+            if self.c.sendcmd('{}{}{}'
+                              .format(self.cont_info.newcmd_dict.get('rpcmdn')[0], cmd, cmd),
+                              display=False):
                 print('.', end='')
 
     def recall_macro_deffinitions(self):
@@ -288,21 +316,21 @@ class Utils:
             """
 
             return not self.ui.controller_type.macro_def_pat.match(_a) is None
-
-        if not self.contInfo.newcmd_dict.get('rmc')[0]:
+        valid = isinstance(self.cont_info.newcmd_dict.get('umacro'), tuple)
+        if not (self.cont_info.newcmd_dict.get('rmc')[0] or valid):
             print('Command not supported for this controller')
             return
 
-        for i in self.contInfo.userMacrosR:
-            _ = Utils._3d.format(num=i)
+        for i in self.cont_info.userMacrosR:
+            _ = _3D.format(num=i)
             if self.testing:
-                print('sending {}{}'.format(self.contInfo.newcmd_dict.get('rmc')[0], _))
+                print('sending {}{}'.format(self.cont_info.newcmd_dict.get('rmc')[0], _))
                 continue
-            if self.c.sendcmd(self.contInfo.newcmd_dict.get('rmc')[0] + _,
+            if self.c.sendcmd(self.cont_info.newcmd_dict.get('rmc')[0] + _,
                               display=False,
                               log_it=True,
                               select_it=lambda a: _sit(a),
-                              format_it=lambda a: self.contInfo.fmtRCM(a)):
+                              format_it=lambda a: self.cont_info.fmtRCM(a)):
                 print('.', end='')
 
 

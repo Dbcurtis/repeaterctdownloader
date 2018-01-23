@@ -87,6 +87,10 @@ class ControllerSpecific:
                             'umacro': None,
                             'lstcmd': None,
                             'notcmd': None,
+                            'ecn': None,  #execute command by number
+                            'dtmf': re.compile(
+                                r'^[0-9ABCD#*]+$',
+                                re.IGNORECASE),
                             'prompt': '\n',
                            }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
 
@@ -94,12 +98,14 @@ class ControllerSpecific:
             ssi.cpsDelay = round(0.1 + (1100.0 / ssi.bps), 3)
 
         self.rename_pat = re.compile(
-            ".*",
+            r".*",
             re.IGNORECASE | re.MULTILINE | re.DOTALL)
 
         self.macro_def_pat = re.compile(
-            ".*",
+            r".*",
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+
 
     def __str__(self):
         return ControllerSpecific.get_Ctr_type

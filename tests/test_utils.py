@@ -72,6 +72,8 @@ class Testutils(unittest.TestCase):
         self.assertFalse(utili.testing)
         utili = utils.Utils(ui, c, testing=True, showhelp=False)
         self.assertTrue(utili.testing)
+        utili = utils.Utils(ui, c, testing=True, showhelp=True)
+     
 
     def testprocessLoop(self):
         ui = userinput.UserInput(dlxii.Device())
@@ -96,7 +98,12 @@ class Testutils(unittest.TestCase):
         pass
     
     def testacr(self):
-        pass
+        ui = userinput.UserInput(dlxii.Device())
+        ui.comm_port = Testutils.sdevice
+        utili = utils.Utils(ui, controller.Controller(ui), testing=True, showhelp=False)
+        myserial.MySerial._dbidx = -1
+        utili.doacr()
+        
 
     def teststr(self):
         ui = userinput.UserInput(dlxii.Device())
