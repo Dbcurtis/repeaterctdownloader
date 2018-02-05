@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-""" to be done
+"""dlxii.py
+
+A subclass of controllerspecific with deffinitions for the Club Deluxe II repeater
+
 """
 import re
 import controllerspecific
@@ -7,16 +10,34 @@ import controllerspecific
 
 
 def _fmt_cmd(_arg):
+    """_fmt_cmd(_arg)
+
+    _arg is something that can be joined.
+
+    Used in the newcmd_dict data structure
+    """
     cmd = "".join(_arg)
     return cmd
 
 
 def _fmt_proc(_mx):
+    """_fmt_proc(_mx)
+
+    _mx is a matcher that has been searched
+    returns None if mx was not matched, and a groupdict if it was matched
+
+    Used in the newcmd_dict data structure
+    """
     if not _mx:
         return {}
     return _mx.groupdict()
 
 def _fmt_proc_one(_mx):
+    """_fmt_proc_one(_mx)
+
+    _mx is a matcher that has been searched
+    returns None if mx was not matched, and a groupdict if it was matched
+    """
     if not _mx:
         return{}
     result = _mx.groupdict()
@@ -26,7 +47,7 @@ def _fmt_proc_one(_mx):
     return result
 
 def _fmtN011(_str):
-    """__fmtN011(s)
+    """_fmtN011(s)
 
     Performs a regex, and if successful, returns a dict with keys:
     'cmdno', 'name', and 'digs'
@@ -64,7 +85,11 @@ def _fmtN054(_str):  #fmt macro contents
     return {}
 
 class Device(controllerspecific.ControllerSpecific):
-    """ to be done """
+    """Device
+
+    Subclass of ControllerSpecific
+    Defines the RLC-CLUB Deluxe II v2.15 parameters
+    """
 
     get_Ctr_type = 'RLC-Club Deluxe II v2.15'
 
@@ -87,6 +112,11 @@ class Device(controllerspecific.ControllerSpecific):
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     def __init__(self):
+        """__init__()
+
+        
+        
+        """
         super().__init__()
 
         _sm = self.systemMacrosR

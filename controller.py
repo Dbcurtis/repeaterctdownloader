@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-""" TO BE SUPPLIED
+"""controller.py
+
+Module to send commands to a repeater controller over a serial line.
+
+
 """
 
 import sys
@@ -10,6 +14,16 @@ from time import time
 import userinput
 
 
+STRING_2_BYTE = lambda a: bytearray([ord(s) for s in a])
+BYTE_2_STRING = lambda a: "".join([chr(i) for i in a if i != 13])
+
+def _remove_comment(_cmdline):
+    _sans_comment = _cmdline.split('\n', 1)  # remove trailing new line
+    _sans_comment = _sans_comment[0].split(';', 1)  # remove trailing comment
+    return _sans_comment[0].split()
+
+def _none():
+    pass
 
 class Controller:
     """Controller Class supports communication of commands to the controller
@@ -39,8 +53,8 @@ class Controller:
 
     _errPat = re.compile(r".*error:.*", re.I | re.DOTALL)
     _fnPat = re.compile(r'(.+)\.txt$', re.I)
-    String_2_Byte = lambda a: bytearray([ord(s) for s in a])
-    Byte_2_String = lambda a: "".join([chr(i) for i in a if i != 13])
+
+
     #Is_Result_Error = lambda a: Controller._errPat.search(a)
 
     _introMsg = """
@@ -61,8 +75,9 @@ class Controller:
         uiIn is a UserInput object that has defined a file name as input and a
         serial port to be opened to the controller
 
-        If the uiIn.inputfn is blank, then the defualt file name of 'test.txt' will be used
+        If the uiIn.inputfn is blank, then the default file name of 'test.txt' is used
         """
+
         _in_file_name = uiIn.inputfn.strip()
         if not _in_file_name:
             _in_file_name = 'test.txt'
@@ -72,38 +87,39 @@ class Controller:
         if not _filename:
             print("Filename must end in txt, using 'test.txt'")
             _filename = 'test.txt'
-        self.cmd_logfile_name = _filename + '.cmdlog.txt'
-        self.cmd_errfile_name = _filename + '.exelog.txt'
-        self.sp = uiIn.serial_port
-        self.is_files_open = False
-        self.isOpen = False
         self.ui = uiIn
+        self.sp = uiIn.serial_port
         self.cmd = ""
-        self.last_response = ""
-        self.last_cmd = ""
-        self.last_displayed = ""
-        self.last_logged = ""
-        self.cmd_log_file = None
-        self.cmd_err_file = None
-        self.when_opened = None
-        self.open_time = None
+        self.atts = {}
+        self.atts['cmd_logfile_name'] = _filename + '.cmdlog.txt'
+        self.atts['cmd_errfile_name'] = _filename + '.exelog.txt'
+        self.atts['is_files_open'] = False
+        self.atts['isOpen'] = False
+        self.atts['last_response'] = ""
+        self.atts['last_cmd'] = ""
+        self.atts['last_displayed'] = ""
+        self.atts['last_logged'] = ""
+        self.atts['cmd_log_file'] = None
+        self.atts['cmd_err_file'] = None
+        self.atts['when_opened'] = None
+        self.atts['open_time'] = None
         self.ctrl_prompt = self.ui.controller_type.newcmd_dict.get('prompt')
         self._byte_string_ifd = {
-            True: Controller.Byte_2_String,
+            True: BYTE_2_STRING,
             False: Controller._returnsame,
         }
 
     def __str__(self):
         return '[Controller: {}, {}, {}]'.format(
-            str(self.is_files_open),
-            str(self.isOpen),
+            str(self.atts['is_files_open']),
+            str(self.atts['isOpen']),
             str(self.ui))
 
     def __repr__(self):
         return '[Controller:  {}, {}, {}, {}]'.format(
             str(self.sp.isOpen()),
-            str(self.is_files_open),
-            str(self.isOpen),
+            str(self.atts['is_files_open']),
+            str(self.atts['isOpen']),
             str(self.ui))
 
 
@@ -120,25 +136,28 @@ class Controller:
 
         if self.sp.isOpen():
             self.sp.close()
-        self.is_files_open = False
+        self.atts['is_files_open'] = False
         result = False
         try:
-            cmd_log_paths = path.abspath(self.cmd_logfile_name)
-            cmd_err_paths = path.abspath(self.cmd_errfile_name)
-            self.cmd_log_file = open(self.cmd_logfile_name, 'w', encoding='utf-8')
-            self.cmd_err_file = open(self.cmd_errfile_name, 'w', encoding='utf-8')
-            self.when_opened = datetime.now().strftime(Controller._timeFmt)
-            self.open_time = time()
-            self.cmd_log_file.write(Controller._introMsg.format(cmd_log_paths, self.when_opened))
-            self.cmd_err_file.write(Controller._introMsg.format(cmd_err_paths, self.when_opened))
-            self.is_files_open = True
+            cmd_log_paths = path.abspath(self.atts['cmd_logfile_name'])
+            cmd_err_paths = path.abspath(self.atts['cmd_errfile_name'])
+            self.atts['cmd_log_file'] = open(self.atts['cmd_logfile_name'], 'w', encoding='utf-8')
+            self.atts['cmd_err_file'] = open(self.atts['cmd_errfile_name'], 'w', encoding='utf-8')
+            self.atts['when_opened'] = datetime.now().strftime(Controller._timeFmt)
+            self.atts['open_time'] = time()
+            self.atts['cmd_log_file'].write(Controller._introMsg.format(
+                cmd_log_paths, self.atts['when_opened']))
+            self.atts['cmd_err_file'].write(Controller._introMsg.format(
+                cmd_err_paths, self.atts['when_opened']))
+            self.atts['is_files_open'] = True
             self.sp.open()
-            self.isOpen = True
+            self.atts['isOpen'] = True
             result = True
         except:
             _e = sys.exc_info()[0]
             result = False
-            self.isOpen = False
+            #self.isOpen = False
+            self.atts['isOpen'] = False
             print("controller did not open! {}\n".format(_e))
 
         return result
@@ -146,6 +165,8 @@ class Controller:
     def _cnvtcmd(self, cmdin):
         return self._byte_string_ifd.get(isinstance(cmdin, bytes))(cmdin)
 
+
+        
     def sendcmd(self, \
                 cmdin,  \
                 display=True, \
@@ -153,7 +174,7 @@ class Controller:
                 echoit=False, \
                 select_it=lambda a: True, \
                 format_it=lambda a: (a, {})):
-        """sendcmd(cmdin, display=TF, log_it=TF, echo_it=TF, select_it=TF, format_it=TF
+        """sendcmd(cmdin, display=TF, log_it=TF, echo_it=TF, select_it=TF, format_it=TF)
 
         Logs the command as provided in the execution log with the results
         of the command.
@@ -175,59 +196,50 @@ class Controller:
 
         formatIt is a lambda that formats the response before logging it
 
-        echo_it is a TF that if True then,
+        echo_it is a TF that if True then, TBD
 
         returns a True if command executed ok, false otherwise
         """
-        def _none():
-            pass
 
         result = True
         cmd = self._cnvtcmd(cmdin)
 
         def _write_logs():
-            self.cmd_log_file.write(cmd + "\n")  # write to command log file
-            self.cmd_err_file.write(cmd + "\n")  # write to execution log file
-        #if log_it:
-            #self.cLFile.write(cmd + "\n")  # write to command log file
-            #self.cEFile.write(cmd + "\n")  # write to execution log file
+            self.atts['cmd_log_file'].write(cmd + "\n")  # write to command log file
+            self.atts['cmd_err_file'].write(cmd + "\n")  # write to execution log file
+
         _if_log = {
             True: _write_logs,
             False: _none,
         }
         _if_log.get(log_it)()
 
-        _sans_comment = cmd.split('\n', 1)  # remove trailing new line
-        _sans_comment = _sans_comment[0].split(';', 1)  # remove trailing comment
-        _new_cmd_list = _sans_comment[0].split()  # split on spaces
+        _new_cmd_list = _remove_comment(cmd)
 
         if not ''.join(_new_cmd_list).strip():  # ignore blank lines
-            self.last_cmd = ""
+            #self.last_cmd = ""
+            self.atts['last_cmd'] = ""
             return result
 
         else:
-            String_2_Byte = Controller.String_2_Byte
-            Byte_2_String = Controller.Byte_2_String
             #print(''.join(necmd)+"\n")
             _new_cmd_list.append('\r')  # add a new line character
             newcmd = ''.join(_new_cmd_list)
-            self.last_cmd = newcmd
+            self.atts['last_cmd'] = newcmd
 
             if not echoit:
                 self.sp.flushInput()  # deprecated, use reset_input_buffer()
                 #print(newcmd)
                 _saved_to = self.sp.timeout  # speed up the reads
                 self.sp.timeout = 0.2
-                #byts = String_2_Byte(newcmd)
-                #self.sp.write(byts)
-                self.sp.write(String_2_Byte(newcmd))
+                self.sp.write(STRING_2_BYTE(newcmd))
                 _in_list = []
                 _cnt = 100
                 while _cnt > 0:  # keep reading input until the controller
                     # prompt (i.e. DTMF>) is seen.
                     # Remember the timeout changes with baud rate
                     # should get data atleast every timeout seconds
-                    _in_list.append(Byte_2_String(self.sp.dread(9999)))
+                    _in_list.append(BYTE_2_STRING(self.sp.dread(9999)))
                     _cnt += -1
                     if ''.join(_in_list).endswith(self.ctrl_prompt):
                         break
@@ -242,10 +254,10 @@ class Controller:
             else:
                 response = newcmd
 
-            self.last_response = response
+            self.atts['last_response'] = response
 
             def _print_response():
-                self.last_displayed = response
+                self.atts['last_displayed'] = response
                 print(response)
 
             _if_display = {
@@ -253,12 +265,9 @@ class Controller:
                 False: _none,
             }
             _if_display.get(display)()
-            #if display:
-                #self.last_displayed = response
-                #print(response)
             def _log_it1():
-                self.last_logged = response
-                self.cmd_err_file.write(format_it(response)[0])
+                self.atts['last_logged'] = response
+                self.atts['cmd_err_file'].write(format_it(response)[0])
 
             if_selective_log = {
                 True: _log_it1,
@@ -276,17 +285,18 @@ class Controller:
         """
         if self.sp.isOpen():
             self.sp.close()
-        self.isOpen = False
-        if self.is_files_open:
+        #self.isOpen = False
+        self.atts['isOpen'] = False
+        if self.atts['is_files_open']:
             try:
-                self.cmd_log_file.close()
+                self.atts['cmd_log_file'].close()
             except IOError:
                 pass
             try:
-                self.cmd_err_file.close()
+                self.atts['cmd_err_file'].close()
             except IOError:
                 pass
-            self.is_files_open = False
+            self.atts['is_files_open'] = False
 
 if __name__ == '__main__':
     UII = userinput.UserInput()

@@ -15,10 +15,10 @@ def _pop_test_data(queue, ignore):
 def _inputg(ignore, _a):
     return input(_a)
 
-_close_ifd = {True: lambda a: a.close(),
+_CLOSE_IFD = {True: lambda a: a.close(),
               False: _ignore,}
 
-_userInput_ifd = {
+_USER_INPUT_IFD = {
     True: _pop_test_data,
     False: _inputg,}
 
@@ -41,7 +41,7 @@ class UserInput:
     """
 
     def _inputa(self, query):
-        return _userInput_ifd.get(isinstance(self._td, list))(self._td, query)
+        return _USER_INPUT_IFD.get(isinstance(self._td, list))(self._td, query)
 
     def __init__(self, ctype=None, testdata=None):
         self.comm_port = ""
@@ -110,7 +110,7 @@ class UserInput:
 
         Closes the serial port if it is open
         """
-        _close_ifd.get(self.serial_port.isOpen())(self.serial_port)
+        _CLOSE_IFD.get(self.serial_port.isOpen())(self.serial_port)
 
 
     def open(self, detect_br=True):
@@ -137,7 +137,7 @@ class UserInput:
             sport.port = self.comm_port  # '/dev/ttyACM0'
             sport.timeout = .2
             sport.baudrate = 9600
-            _close_ifd.get(self.serial_port.isOpen())(self.serial_port)
+            _CLOSE_IFD.get(self.serial_port.isOpen())(self.serial_port)
             sport.open()
 
         except myserial.serial.SerialException as sex:

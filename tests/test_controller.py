@@ -93,22 +93,24 @@ class TestController(unittest.TestCase):
         mySPortclass._debugreturns = [b'ok\nDTMF>', b'ok\nDTMF>']
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
-        self.assertTrue(c.isOpen)
-        self.assertTrue(c.is_files_open)
+        #self.assertTrue(c.isOpen)
+        self.assertTrue(c.atts['isOpen'])
+        self.assertTrue(c.atts['is_files_open'])
         self.assertTrue(c.sp.isOpen())
-        self.assertEqual('testcontroller.cmdlog.txt', c.cmd_log_file.name)
-        self.assertEqual('testcontroller.exelog.txt', c.cmd_err_file.name)
+        self.assertEqual('testcontroller.cmdlog.txt', c.atts['cmd_log_file'].name)
+        self.assertEqual('testcontroller.exelog.txt', c.atts['cmd_err_file'].name)
         c.close()
 
         c = controller.Controller(TestController.ui1)
         mySPortclass._debugreturns = [b'ok\nDTMF>', b'ok\nDTMF>']
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
-        self.assertTrue(c.isOpen)
-        self.assertTrue(c.is_files_open)
+        #self.assertTrue(c.isOpen)
+        self.assertTrue(c.atts['isOpen'])
+        self.assertTrue(c.atts['is_files_open'])
         self.assertTrue(c.sp.isOpen())
-        self.assertEqual('test.cmdlog.txt', c.cmd_log_file.name)
-        self.assertEqual('test.exelog.txt', c.cmd_err_file.name)
+        self.assertEqual('test.cmdlog.txt', c.atts['cmd_log_file'].name)
+        self.assertEqual('test.exelog.txt', c.atts['cmd_err_file'].name)
         c.close()
 
 
@@ -118,11 +120,13 @@ class TestController(unittest.TestCase):
         mySPortclass._debugreturns = [b'ok\nDTMF>', b'ok\nDTMF>']
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
-        self.assertTrue(c.isOpen)
-        self.assertTrue(c.is_files_open)
+        #self.assertTrue(c.isOpen)
+        self.assertTrue(c.atts['isOpen'])
+        self.assertTrue(c.atts['is_files_open'])
         c.close()
-        self.assertFalse(c.isOpen)
-        self.assertFalse(c.is_files_open)
+        #self.assertFalse(c.isOpen)
+        self.assertFalse(c.atts['isOpen'])
+        self.assertFalse(c.atts['is_files_open'])
         self.assertFalse(c.sp.isOpen())
 
     def testcvntcmd(self):
@@ -146,17 +150,17 @@ class TestController(unittest.TestCase):
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
         c.sendcmd("")
-        self.assertFalse(c.last_cmd)
+        self.assertFalse(c.atts['last_cmd'])
         c.sendcmd("; this is a comment that ends up blank \n")
-        self.assertFalse(c.last_cmd)
+        self.assertFalse(c.atts['last_cmd'])
         c.sendcmd("009")
-        self.assertEqual("009\r", c.last_cmd)
+        self.assertEqual("009\r", c.atts['last_cmd'])
         c.sendcmd("009;this is a comment")
-        self.assertEqual("009\r", c.last_cmd)
+        self.assertEqual("009\r", c.atts['last_cmd'])
         c.sendcmd("010 ;this is a comment")
-        self.assertEqual("010\r", c.last_cmd)
+        self.assertEqual("010\r", c.atts['last_cmd'])
         c.sendcmd("  0  0 9  ")
-        self.assertEqual("009\r", c.last_cmd)
+        self.assertEqual("009\r", c.atts['last_cmd'])
 
         mySPortclass._debugreturns = [
             b'Error: test\n'
@@ -164,11 +168,11 @@ class TestController(unittest.TestCase):
 
         mySPortclass._dbidx = 0
         self.assertFalse(c.sendcmd("  0  0 9  "))
-        self.assertTrue(c.last_response.find("E R R O R") > 0)
+        self.assertTrue(c.atts['last_response'].find("E R R O R") > 0)
         c.close()
         fct = os.path.getmtime('test.exelog.txt')
         ofct = fct
-        self.assertTrue(abs((fct) - (c.open_time)) < 1.0)
+        self.assertTrue(abs((fct) - (c.atts['open_time'])) < 1.0)
 
         _file = open('test.exelog.txt', 'r', encoding='utf-8')
         lines = _file.readlines(999)
@@ -179,7 +183,7 @@ class TestController(unittest.TestCase):
         self.assertTrue(fid[0].startswith('; File:'))
         self.assertTrue(fid[1].startswith('Created on:'))
         self.assertTrue(fid[2].endswith('UTC\n'))
-        lastOpened = c.when_opened
+        lastOpened = c.atts['when_opened']
         lol = lastOpened.split(', ')
         self.assertTrue(fid[1].endswith(lol[0]))
         self.assertTrue(fid[2].startswith(lol[1]))
@@ -206,9 +210,9 @@ class TestController(unittest.TestCase):
         #response = c.last_response
         c.close()
         fct = os.path.getmtime('test.exelog.txt')
-        self.assertTrue(abs((fct) - (c.open_time)) < 1.0)
+        self.assertTrue(abs((fct) - (c.atts['open_time'])) < 1.0)
         self.assertTrue(abs((fct) - (ofct)) < 4.0)
-        nf = open(c.cmd_errfile_name, 'r', encoding='utf-8')
+        nf = open(c.atts['cmd_errfile_name'], 'r', encoding='utf-8')
         lines = nf.readlines(99999)
         nf.close()
         #  by here pretty sure the standard operations are working ok
@@ -241,13 +245,13 @@ class TestController(unittest.TestCase):
         self.assertEqual(10, len(lines))
 
     def testB2S(self):
-        b2s = controller.Controller.Byte_2_String
+        b2s = controller.BYTE_2_STRING
         tests = 'this is a test\n'
         _ = b2s(b'this is a test\n')
         self.assertEqual(tests, _)
 
     def testS2B(self):
-        s2b = controller.Controller.String_2_Byte
+        s2b = controller.STRING_2_BYTE
         _ = 'this is a test\n'
         testb = b'this is a test\n'
         _ = s2b(_)

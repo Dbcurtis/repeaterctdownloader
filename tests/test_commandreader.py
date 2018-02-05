@@ -12,7 +12,7 @@ import dlxii
 
 def eprint(*args, **kwargs):
     """eprint(*args, **kwards)
-    
+
     force a print to sys.stderr
     """
     print(*args, file=sys.stderr, **kwargs)
@@ -42,11 +42,11 @@ class TestCommandreader(unittest.TestCase):
         _cr = commandreader.CommandReader(TestCommandreader.ui)
         _fcr = None
         try:
-            self.assertTrue(_cr.is_closed)
+            self.assertTrue(_cr.atts['is_closed'])
             self.assertEqual("", _cr.get())
             _cr.close()
             self.assertTrue(_cr.open())
-            self.assertFalse(_cr.is_closed)
+            self.assertFalse(_cr.atts['is_closed'])
             try:
                 _cr.open()
                 assert "did not detect multiple attempts to open"
@@ -54,14 +54,14 @@ class TestCommandreader(unittest.TestCase):
                 pass
 
             _cr.close()
-            self.assertTrue(_cr.is_closed)
+            self.assertTrue(_cr.atts['is_closed'])
             fakeui = userinput.UserInput(dlxii.Device())
             fakeui.inputfn = 'totaljunk.txt'
             _fcr = commandreader.CommandReader(fakeui)
             self.assertFalse(_fcr.open())
             self.assertEqual("[Errno 2] No such file or directory: 'totaljunk.txt'",
-                             str(_fcr.lasterror))
-            self.assertTrue(_fcr.is_closed)
+                             str(_fcr.atts['lasterror']))
+            self.assertTrue(_fcr.atts['is_closed'])
         finally:
             if _fcr:
                 _fcr.close()

@@ -181,7 +181,7 @@ def _doit(_ui, debug_time=None):
             sdtpl = ctrl.newcmd_dict['sdate']
             cmd = None
             if _c.sendcmd(gdtpl[INST]):  #get date info from controller
-                _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.last_response))
+                _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
                 systime = _the_time.get(debug_time is None)
                 cmd = check_date(_res, sdtpl, systime)
                 if cmd and not _c.sendcmd(cmd):
@@ -200,7 +200,7 @@ def _doit(_ui, debug_time=None):
             gttpl = ctrl.newcmd_dict['gtime']
             sttpl = ctrl.newcmd_dict['stime']
             if _c.sendcmd(gttpl[INST]):
-                _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.last_response))
+                _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.atts['last_response']))
                 systime = _the_time.get(debug_time is None)
                 cmd = check_time(_res, sttpl, systime)
                 if cmd and not _c.sendcmd(cmd):

@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
-"""Module DocString TBD"""
+"""Module commandreader.py
+
+
+"""
 
 import userinput
+
+def _donothing():
+    pass
 
 class CommandReader:
     """CommandReader
@@ -13,35 +19,31 @@ class CommandReader:
     Those commands can be sent to Controller.sendcmd for execution
     """
 
-    def _donothing(self):
-        pass
     def _setclosed(self):
-        self.is_closed = True
+        #self.is_closed = True
+        self.atts['is_closed'] = True
         try:
-            self.file_in.close()
+            self.atts['file_in'].close()
             self.loc = -1
         except IOError:
             pass
 
-
     def __init__(self, _ui):
+        self.atts = {'lasterror': None, "file_in": None,
+                     'file_name': _ui.inputfn, 'line': "", 'is_closed': True,}
+
         self.ui = _ui
-        self.line = ""
-        self.is_closed = True
         self.loc = -1  # loc is used to keep track of when the read is done
-        self.file_name = self.ui.inputfn
-        self.lasterror = None
-        self.file_in = None
         self._set_closed_ifd = {
-            True: self._donothing,
+            True: _donothing,
             False: self._setclosed,
         }
 
     def __str__(self):
-        return '[CommandReader closed: {}, {}]'.format(str(self.is_closed), str(self.ui))
+        return '[CommandReader closed: {}, {}]'.format(str(self.atts['is_closed']), str(self.ui))
 
     def __repr__(self):
-        return '[CommandReader closed: {}, {}]'.format(str(self.is_closed), str(self.ui))
+        return '[CommandReader closed: {}, {}]'.format(str(self.atts['is_closed']), str(self.ui))
 
     def open(self):
         """open()
@@ -53,20 +55,21 @@ class CommandReader:
         """
 
         result = False
-        if not self.is_closed:
+        if not self.atts['is_closed']:
             raise AssertionError('Commandreader already open, aborting...')
         #assert(self.closed,'Commandreader already open, aborting...')
         try:
-            self.file_in = open(self.file_name, "r")  # assuming file exists and is readable
-            self.is_closed = False
-            self.lasterror = None
+            self.atts['file_in'] = open(
+                self.atts['file_name'], "r")  # assuming file exists and is readable
+            self.atts['is_closed'] = False
+            self.atts['lasterror'] = None
             result = True
             self.loc = -1
 
         except FileNotFoundError as _e:
             print(_e)
-            self.lasterror = _e
-            self.is_closed = True
+            self.atts['lasterror'] = _e
+            self.atts['is_closed'] = True
 
         return result
 
@@ -77,20 +80,20 @@ class CommandReader:
         if the file is closed or EOF, the returned line is ""
         """
 
-        if self.is_closed:
+        if self.atts['is_closed']:
             return ""
 
         try:
-            self.line = self.file_in.readline()
-            idx = self.file_in.tell()
+            self.atts['line'] = self.atts['file_in'].readline()
+            idx = self.atts['file_in'].tell()
             if idx == self.loc:
-                self.is_closed = True
+                self.atts['is_closed'] = True
                 return ""
             self.loc = idx
-            return self.line
+            return self.atts['line']
 
         except EOFError:
-            self.is_closed = True
+            self.atts['is_closed'] = True
             return ""
 
 
@@ -100,7 +103,7 @@ class CommandReader:
         Closes the input file and the reader
         Can be called multiple times.
         """
-        self._set_closed_ifd.get(self.is_closed)()
+        self._set_closed_ifd.get(self.atts['is_closed'])()
 
 
 def __main():

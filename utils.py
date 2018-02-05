@@ -201,46 +201,49 @@ class Utils:
         print('Entering apply_command_to_range module')
         #notcmdttup = self.contInfo.newcmd_dict.get('notcmd')
         notcmdlst = _range_2_list(self.cont_info.newcmd_dict.get('notcmd'))
-        _x = self.cont_info.newcmd_dict.get('ecn')
-        if _x:
-            notcmdlst.append(_x)  #do not apply to execute command by number command
+        _ = self.cont_info.newcmd_dict.get('ecn')
+        if _:
+            notcmdlst.append(_)  #do not apply to execute command by number command
         lstcmd = self.cont_info.newcmd_dict.get('lstcmd')
-        dtmfpat = self.cont_info.newcmd_dict.get('dtmf')
+        #dtmfpat = self.cont_info.newcmd_dict.get('dtmf')
         testargs = ['n123 456 458', 'N123 456 458', '123 456 458', '123 456 458 a2#*0']
 
         testidx = 0
         while testidx < len(testargs):
             if self.testing:
-                userinput = testargs[testidx]
+                _ = testargs[testidx]
                 testidx += 1
             else:
-                userinput = input(
+                _ = input(
                     'specify the command and range of argument '\
                                 '(for example, 003 {} {}) cr to exit >'
                     .format(str(lstcmd-50), str(lstcmd)))
 
-            if not userinput.strip():
+            if not _.strip():
                 print("exiting apply_command_to_range module")
                 break
-            args = userinput.split(' ')
+            args = _.split(' ')
             if len(args) not in (3, 4):
                 continue
             #cmdtxt = args[0]
-            _1st = args[0][0:1].upper()
-            leadingn = _1st == 'N'
+            _ = args[0][0:1].upper()
+            leadingn = _ == 'N'
             cmdnum = 0
 
             cmdnum = IF_N.get(leadingn)(args[0])
-            start = int(args[1])
-            end = int(args[2])
+            startend = (int(args[1]), int(args[2]), range(int(args[1]), int(args[2])))
             pram = ''
             if len(args) == 4:
                 pram = args[3]
-                if not dtmfpat.match(pram):
+                if not self.cont_info.newcmd_dict.get('dtmf').match(pram):
                     print("{} must be only DTMF characters".format(pram))
                     continue
 
-            _ = (cmdnum < 0, start < 0, end < 0, cmdnum > lstcmd, start > end, end > lstcmd)
+            _ = (cmdnum < 0, startend[0] < 0,
+                 startend[1] < 0,
+                 cmdnum > lstcmd,
+                 startend[0] > startend[1],
+                 startend[1] > lstcmd)
             tst = False
             for _t in _:
                 if _t:
@@ -255,10 +258,10 @@ class Utils:
                 _.append('N')
             _.append(_3D.format(num=cmdnum))
             cmd = "".join(_)
-            for _i in range(start, end):
-                if _i in notcmdlst:
+            for _ in startend[2]:
+                if _ in notcmdlst:
                     continue
-                command = " ".join([cmd, _3D.format(num=_i), pram])
+                command = " ".join([cmd, _3D.format(num=_), pram])
                 if self.testing:
                     print('sending {}'.format(command))
                     continue
