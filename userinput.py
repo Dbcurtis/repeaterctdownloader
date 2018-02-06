@@ -82,6 +82,7 @@ class UserInput:
                 useri = self._inputa("Comm Port for repeater?>").strip()
             elif available:
                 tups = [(_.strip(), _.strip().lower()) for _ in available]
+                useri = tups[0][1]
             else:
                 print('No available ports')
                 self.close()
