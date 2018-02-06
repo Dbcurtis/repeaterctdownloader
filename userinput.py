@@ -47,8 +47,12 @@ class UserInput:
         self.comm_port = ""
         self.inputfn = ""
         self.controller_type = ctype
-        if_cnd = {False:  myserial.MySerial(self.controller_type), True: None,}
-        self.serial_port = if_cnd.get(self.controller_type is None)
+        #if_cnd = {False:  myserial.MySerial(self.controller_type), True: None,}
+        #self.serial_port = if_cnd.get(self.controller_type is None)
+        if self.controller_type is None:
+            self.serial_port = None
+        else:
+            self.serial_port = myserial.MySerial(self.controller_type)
 
         self._td = None
         if testdata:

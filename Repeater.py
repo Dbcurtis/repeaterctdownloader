@@ -124,7 +124,7 @@ def main():
     """
 
     _available_ports = getports.GetPorts().get()
-    print("Available serial ports are: {}".format(_available_ports))
+    #print("Available serial ports are: {}".format(_available_ports))
 
     _ui = userinput.UserInput()
     _ui.request()
