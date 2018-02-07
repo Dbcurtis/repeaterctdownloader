@@ -43,7 +43,8 @@ class UserInput:
     def _inputa(self, query):
         return _USER_INPUT_IFD.get(isinstance(self._td, list))(self._td, query)
 
-    def __init__(self, ctype=None, testdata=None):
+    def __init__(self, ctype=None, testdata=None, testing=False):
+        self.testing = testing
         self.comm_port = ""
         self.inputfn = ""
         self.controller_type = ctype
@@ -133,6 +134,7 @@ class UserInput:
 
         thows exception if no baud rate is found
         """
+        
         if not self.comm_port:
             raise AttributeError('comport not specified')
         sport = self.serial_port
@@ -147,8 +149,8 @@ class UserInput:
             self.comm_port = ""
             print(sex)
             return False
-
-        if detect_br and not sport.find_baud_rate():
+        _detect_br = detect_br or self.testing
+        if _detect_br and not sport.find_baud_rate():
             raise OSError('Unable to match controller baud rate')
         return True
 

@@ -1,34 +1,14 @@
 
 ;-------------
-; File: k:\RepeaterControlerDownloaderP34\updatetest.exelog.txt, Created on: 20180204, 23:16:04 UTC
+; File: k:\RepeaterControlerDownloaderP34\updatetest.exelog.txt, Created on: 20180206, 16:47:12 UTC
 ;-----------------
 N029
-DTMF>N029
-This is Tuesday, 01-02-2018
-OK
-DTMF>N0280103184
-DTMF>N0280103184
-This is Wednesday, 01-03-2018
-OK
-DTMF>N029
-DTMF>N029
-This is Wednesday, 01-03-2018
-OK
-DTMF>N027
-DTMF>N027
-The time is 12:23 P.M.
-OK
-DTMF>N02512021
-DTMF>N02507071
-Time set to 12:02 P.M.
-OK
-OK
-DTMF>N029
-DTMF>N029
-This is Wednesday, 01-03-2018
-OK
-DTMF>N027
-DTMF>N027
-The time is 12:02 P.M.
-OK
-DTMF>
+N029
+N029
+N029
+N029
+N029
+N029
+N029
+N029
+N029
