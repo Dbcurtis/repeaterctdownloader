@@ -152,7 +152,7 @@ def main():
                               "Type 'M' for manual commands\n"
                               "type 'U' for Utility operations\n"
                               "Type 'F' for file transfer (Q/F/M/U)?>").strip().lower()[0:1]
-            _loop_ctl = cmddisptch.get(_response, _errmsg)(_response)
+            _loop_ctl = cmddisptch.get(_response, _errmsg)(_ui)
     finally:
         _ui.close()
 
