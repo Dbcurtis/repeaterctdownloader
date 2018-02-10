@@ -55,9 +55,9 @@ def send_file(_ui):
 
 
 def _cmdloop(_c):
-    """_cmdloop(c)
+    """_cmdloop(_c)
 
-    c is a controller.
+    _c is a controller.
     prints the exit command info,
     Accepts a command from the user, sends it to the controller and displays the result.
 
@@ -65,7 +65,7 @@ def _cmdloop(_c):
     """
     print("Quit or Exit to exit command mode")
     while 1:
-        cmd = input("input>").cmd.strip().upper()
+        cmd = input("input>").strip().upper()
         _f = cmd[0:1]
         if _f == 'Q' or _f == 'E':
             print("Exiting command input mode...")
