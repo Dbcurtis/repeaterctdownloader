@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """ TBD """
+import sys
 import argparse
 import re
 
@@ -112,6 +113,7 @@ class Utils:
                     (self.args.reset_all_comd_names, self.reset_cmd_names),
                 )
                 #print(self.args)
+                print("Command Complete")
             except SystemExit:
                 pass
             else:
@@ -166,10 +168,10 @@ class Utils:
 
             if self.c.sendcmd(
                 self.cont_info.newcmd_dict.get('rcn')[0] + cmd,
-                display=False,
+                display=True,
                 log_it=True,
-                select_it=lambda a: not _sit(a)): print('.', end='')
-            else: print('-', end='')
+                select_it=lambda a: not _sit(a)): sys.stdout.write('.')
+            else: sys.stdout.write('-')
 
 
     def recall_macro_names(self):
@@ -266,7 +268,7 @@ class Utils:
                     print('sending {}'.format(command))
                     continue
                 if self.c.sendcmd(command, display=True, log_it=True):
-                    print('.', end='')
+                    sys.stdout.write('.')
                 else:
                     print('Command error')
                     break #break the for
@@ -300,7 +302,7 @@ class Utils:
             if self.c.sendcmd('{}{}{}'
                               .format(self.cont_info.newcmd_dict.get('rpcmdn')[0], cmd, cmd),
                               display=False):
-                print('.', end='')
+                sys.stdout.write('.')
 
     def recall_macro_deffinitions(self):
         """recallMacroDeffinitions()
@@ -334,7 +336,7 @@ class Utils:
                               log_it=True,
                               select_it=lambda a: _sit(a),
                               format_it=lambda a: self.cont_info.fmtRCM(a)):
-                print('.', end='')
+                sys.stdout.write('.')
 
 
 if __name__ == '__main__':
