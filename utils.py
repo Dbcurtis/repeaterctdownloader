@@ -2,8 +2,6 @@
 """ TBD """
 import sys
 import argparse
-import re
-
 
 IF_N = {True: lambda a: int(a[1:]), False: lambda a: int(a),}
 IF_TUP = {True: lambda a: [a], False: lambda a: a,}
@@ -200,6 +198,8 @@ class Utils:
 
 
         """
+        # pylint: disable=R0912
+        # pylint: disable=R0915
         print('Entering apply_command_to_range module')
         #notcmdttup = self.contInfo.newcmd_dict.get('notcmd')
         notcmdlst = _range_2_list(self.cont_info.newcmd_dict.get('notcmd'))
@@ -227,7 +227,6 @@ class Utils:
             args = _.split(' ')
             if len(args) not in (3, 4):
                 continue
-            #cmdtxt = args[0]
             _ = args[0][0:1].upper()
             leadingn = _ == 'N'
             cmdnum = 0
@@ -293,7 +292,7 @@ class Utils:
             print('Command not supported for this controller')
             return
 
-        for i in self.cont_info.safe2resetName:
+        for i in self.cont_info.safe2reset_name:
             cmd = _3D.format(num=i)
             if self.testing:
                 print('sending {}{}{}'

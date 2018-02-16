@@ -32,10 +32,11 @@ _PARSER.add_argument('Controller', nargs='?', default='dlx2',
 _PARSER.add_argument('Port',
                      help='Port id if required, if only one open port, that one will be used'
                     )
-def _NOOP(ignore):
+def _no_op(ignore):
+    # pylint: disable=W0613
     pass
 
-CLOSER = {False: lambda a: a.close(), True: lambda a: _NOOP(a)}
+CLOSER = {False: lambda a: a.close(), True: lambda a: _no_op(a)}
 
 def _delay(debug=False, testtime=None):
     """_delay()
@@ -75,6 +76,7 @@ def check_date(_res, _sdtpl, _os_time):
     return None if the repeater date and the computer date match
     otherwise returns the command to set the repeater date.
     """
+    # pylint: disable=C0103
     cmd = None
     dow = _res['A'].lower()
     _m = _res['m']
@@ -105,6 +107,7 @@ def check_time(_res, _sttpl, _os_time):
     return None if the repeater time and the computer time match
     otherwise returns the command to set the repeater time.
     """
+    # pylint: disable=C0103
     cmd = None
 
     _I = _res['I']

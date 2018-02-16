@@ -10,9 +10,11 @@ def _ignore(_ignoreme):
     return
 
 def _pop_test_data(queue, ignore):
+    # pylint: disable=W0613
     return queue.pop()
 
 def _inputg(ignore, _a):
+    # pylint: disable=W0613
     return input(_a)
 
 _CLOSE_IFD = {True: lambda a: a.close(),
@@ -134,7 +136,7 @@ class UserInput:
 
         thows exception if no baud rate is found
         """
-        
+
         if not self.comm_port:
             raise AttributeError('comport not specified')
         sport = self.serial_port

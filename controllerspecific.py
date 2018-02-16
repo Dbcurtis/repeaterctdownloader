@@ -13,12 +13,15 @@ class ControllerSpecific:
 
     TBD
     """
+    # pylint: disable=R0902
+    # pylint: disable=R0903
     get_Ctr_type = 'Abstract Controller'
 
     class SerialSpeedinfo:
         """SerialSpeedinfo
 
         """
+
         def __init__(self, bps, cpsDelay):
             self.bps = 0
             self.cpsDelay = 0.0
@@ -65,7 +68,7 @@ class ControllerSpecific:
         self.commandsR = range(0, 0)
         self.systemMacrosR = range(0, 0)
         _ = self.systemMacrosR
-        self.safe2resetName = [i for i in self.commandsR if i < _.start or i > _.stop]
+        self.safe2reset_name = [i for i in self.commandsR if i < _.start or i > _.stop]
         self.cps_data = [
             self.SerialSpeedinfo(9600, 0.2),
             self.SerialSpeedinfo(19200, 0.1),
@@ -75,7 +78,7 @@ class ControllerSpecific:
             self.SerialSpeedinfo(600, 3),
             self.SerialSpeedinfo(300, 6)
         ]
-
+#newcmd_dict is a dict that assocates commands, reply patterns, and reply formatters
         self.newcmd_dict = {'rpcmdn': (None, None, None, ),
                             'rcn': (None, None, None, ),
                             'rmc': (None, None, None, ),

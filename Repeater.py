@@ -133,9 +133,11 @@ def main():
         _send_specified_file(_ui)
 
         def _nodop(ignore):
+            # pylint: disable=W0613
             return False
 
         def _errmsg(ignore):
+            # pylint: disable=W0613
             print("only type one of Q, M, U, or F")
             return True
 

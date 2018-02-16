@@ -34,7 +34,7 @@ class Device(controllerspecific.ControllerSpecific):
         self.userMacrosR = range(500, 1000)  # goes from 500 to 999
         self.systemMacrosR = range(200, 500)
         _sm = self.systemMacrosR
-        self.safe2resetName = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
+        self.safe2reset_name = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
 
         __N029pat = re.compile(
@@ -63,10 +63,7 @@ class Device(controllerspecific.ControllerSpecific):
                 'prompt': 'DTMF>',
             }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
             )
-        """newcmd_dict
 
-        a dict that assocates commands, reply patterns, and reply formatters
-        """
     def __fmt_cmd(self, _arg):
         cmd = "".join(_arg)
         return cmd

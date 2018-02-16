@@ -114,13 +114,12 @@ class Device(controllerspecific.ControllerSpecific):
     def __init__(self):
         """__init__()
 
-        
-        
+
         """
         super().__init__()
 
         _sm = self.systemMacrosR
-        self.safe2resetName = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
+        self.safe2reset_name = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
 
         __N029pat = re.compile(
@@ -148,11 +147,7 @@ class Device(controllerspecific.ControllerSpecific):
              'prompt': 'DTMF>',
             }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
         )
-        """newcmd_dict
 
-        a dict that assocates commands, reply patterns, and reply formatters
-
-        """
         #the following three should be deprecated <<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>
         self.commandsR = range(0, self.newcmd_dict.get('lstcmd') + 1)
         self.userMacrosR = range(self.newcmd_dict.get('umacro')[0],

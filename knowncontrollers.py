@@ -56,7 +56,7 @@ def select_controller(_str):
 class KnownControllers:
     """ TBD
     """
-
+    # pylint: disable=R0903
     def __init__(self):
         self._jj = copy.copy(CTRL_DICT_A)
 

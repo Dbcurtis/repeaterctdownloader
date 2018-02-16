@@ -166,7 +166,6 @@ class Controller:
         return self._byte_string_ifd.get(isinstance(cmdin, bytes))(cmdin)
 
 
-        
     def sendcmd(self, \
                 cmdin,  \
                 display=True, \
@@ -200,7 +199,8 @@ class Controller:
 
         returns a True if command executed ok, false otherwise
         """
-
+        # pylint: disable=R0914
+        # pylint: disable=R0913
         result = True
         cmd = self._cnvtcmd(cmdin)
 

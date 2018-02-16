@@ -3,14 +3,13 @@
 Test file for updatetime
 """
 
-
 import unittest
 import time
 import dlxii
+import getports
 import updatetime
 import myserial
 import userinput
-
 
 class Testupdatetime(unittest.TestCase):
     def setUp(self):
@@ -246,6 +245,13 @@ DTMF"""
         
     def testdoit(self):
         msclass = myserial.MySerial
+        devs = getports.GetPorts().get()
+        port =  'COM3'
+        if devs:
+            port = devs[0]
+        else:
+            self.fail('no ports available')
+            
         msclass._debugging = True
         msclass._dbidx = 0  #test same date and time
         msclass._debugreturns = [
@@ -256,7 +262,7 @@ DTMF"""
         
         ui = userinput.UserInput(ctype=dlxii.Device())     
         ui.controller_type = dlxii.Device()
-        ui.comm_port = 'COM3'
+        ui.comm_port = port
         ui.inputfn = 'updatetest.txt'
         matchtime =  time.strptime("03 Jan 2018 12 23 00", "%d %b %Y %H %M %S")  
         res = updatetime._doit(ui, debug_time=matchtime)
@@ -296,7 +302,10 @@ DTMF"""
         res = updatetime._doit(ui, debug_time=matchtime)
         self.assertTrue(res[1])
         self.assertEqual(12, res[0])
-        self.assertFalse(res[2])          
+        self.assertFalse(res[2])
+        msclass._debugging = False
+        
+        
 
     
 if __name__ == '__main__':
