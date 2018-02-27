@@ -305,8 +305,84 @@ DTMF"""
         self.assertFalse(res[2])
         msclass._debugging = False
         
+    def testprocess_cmdline(self):
+        try:
+            updatetime.process_cmdline(['COM1'], _testcmdline=[ "-h", ])
+            self.fail(msg="should have exited")
+        except SystemExit as e:
+            jj = 0
         
+        kk = 0
+        try:
+            self.assertFalse(updatetime.cmdl_debug)
+            
+            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['', ])
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('dlxii', ui.controller_type[0])
+            self.assertFalse(updatetime.cmdl_debug)
+        except Exception as e:
+            self.fail(msg="should not have exited {}".format(str(e)))
+            
+        try:
+            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['COM1', ])
+            self.fail(msg='should have raised an exception 1')
+        except Exception:
+            pass
+            
+            
+        try:
 
+            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', ])
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('dlxii', ui.controller_type[0])
+            self.assertFalse(updatetime.cmdl_debug)
+            
+            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', 'COM1', ])
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('dlxii', ui.controller_type[0])
+            self.assertFalse(updatetime.cmdl_debug)
+            
+            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlxii', 'COM1', ])
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('dlxii', ui.controller_type[0])
+            self.assertFalse(updatetime.cmdl_debug)            
+           
+            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlxii', '-dbg', ])
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('dlxii', ui.controller_type[0])
+            self.assertTrue(updatetime.cmdl_debug)
+            updatetime.cmdl_debug = False
+
+            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', 'COM1',  '-dbg'])
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('dlxii', ui.controller_type[0])
+            self.assertTrue(updatetime.cmdl_debug)
+            updatetime.cmdl_debug = False            
+            
+        except Exception as e:
+            self.fail(msg="should not have exited {}".format(str(e)))
+
+
+        try:
+            ui = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['', ])
+            self.fail(msg='should have raised an exception 2')       
+        except Exception as e:
+            pass
+        try:
+            ui = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['dlxii', ])
+            self.fail(msg='should have raised an exception 3')
+        except Exception as e:
+            pass            
+      
+        try:
+            ui = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['dlxii', 'COM2' ])
+            self.assertEqual('COM2', ui.comm_port)
+            self.assertEqual('dlxii', ui.controller_type[0])
+        except Exception as ee:
+            self.fail(msg="should not have exited {}".format(str(ee)))
+        
+        a = 2
+still need to test the debug option in the affected code
     
 if __name__ == '__main__':
     unittest.main()

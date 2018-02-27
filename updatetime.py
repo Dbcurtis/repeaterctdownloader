@@ -23,20 +23,26 @@ INST = controllerspecific.INST
 PAT = controllerspecific.PAT
 REPL_FMT = controllerspecific.REPL_FMT
 
-_PARSER = argparse.ArgumentParser(description="Sets a controller's date and time if needed",
+_PARSER = argparse.ArgumentParser(description="Sets a controller's date and time if \
+needed: a blank argument assumes dlx2 and one available com port",
                                   epilog="Useful for running in a cron job"
                                  )
-_PARSER.add_argument('Controller', nargs='?', default='dlx2',
-                     help='Controller type, one of [dlx2, rlc1+] dlx2 is default'
+_PARSER.add_argument('Controller', default=None,
+                     help='Controller type, one of [dlx2, rlc1+] required unless no arguments'
                     )
-_PARSER.add_argument('Port',
+_PARSER.add_argument('Port', nargs='?', default=None,
                      help='Port id if required, if only one open port, that one will be used'
                     )
+_PARSER.add_argument('-dbg', '--cldebug',
+                     help='turns off setting the new time',
+                     action="store_true")
 def _no_op(ignore):
     # pylint: disable=W0613
     pass
 
 CLOSER = {False: lambda a: a.close(), True: lambda a: _no_op(a)}
+
+cmdl_debug = False
 
 def _delay(debug=False, testtime=None):
     """_delay()
@@ -135,28 +141,50 @@ def check_time(_res, _sttpl, _os_time):
 
     return cmd
 
-def process_cmdline():
-    """process_cmdline()
+def process_cmdline(_available_ports, _testcmdline=None):
+    """process_cmdline(_available_ports, _testcmdline="")
+
+    _available_ports is a list? of port names
+    _testcmdline can be list of strings that can be used to fake a command line.
+    If None, the default
+    command line processing is performed, otherwise,
+    the list of strings in the argument is used.
 
     processes the command line arguments
     returns a UserInput if arguments are ok, Otherwise raises an exception
     """
-    _available_ports = getports.GetPorts().get()
-    args = _PARSER.parse_args()
-    if not args.Port.upper() in _available_ports:
-        msg = 'Port {} not available: available ports are: {}, aborting' \
-            .format(args.Port, _available_ports)
-        raise Exception(msg)
+    global cmdl_debug
+    #_available_ports = getports.GetPorts().get()
+    if _testcmdline:
+        args = _PARSER.parse_args(_testcmdline)
+    else:
+        args = _PARSER.parse_args()
 
-    ctrl = knowncontrollers.select_controller(args.Controller)
+    possible_port = args.Port
+    if args.Controller:
+        possible_ctrl = args.Controller
+    else:
+        possible_ctrl = 'dlxii'
+
+    if len(_available_ports) != 1:
+        if not args.Port.upper() in _available_ports:
+            msg = 'Port {} not available: available ports are: {}, aborting' \
+                .format(args.Port, _available_ports)
+            raise Exception(msg)
+    else:
+        possible_port = _available_ports[0]
+
+    ctrl = knowncontrollers.select_controller(possible_ctrl)
     if not ctrl:
         msg = 'Controller {} not available: available controlers are: {}, aborting' \
             .format(args.Controller, knowncontrollers.get_controller_ids())
         raise Exception(msg)
 
+
+    cmdl_debug = args.cldebug
     _ui = userinput.UserInput()
     _ui.controller_type = ctrl
-    _ui.serial_port = args.Port
+    _ui.comm_port = possible_port
     return _ui
 
 def _doit(_ui, debug_time=None):
@@ -180,6 +208,7 @@ def _doit(_ui, debug_time=None):
 
             returns with the command if a command was needed, or None if no date change was required
             """
+            global cmdl_debug
             gdtpl = ctrl.newcmd_dict['gdate']
             sdtpl = ctrl.newcmd_dict['sdate']
             cmd = None
@@ -187,8 +216,11 @@ def _doit(_ui, debug_time=None):
                 _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
                 systime = _the_time.get(debug_time is None)
                 cmd = check_date(_res, sdtpl, systime)
-                if cmd and not _c.sendcmd(cmd):
-                    raise ValueError("retry date command send error")
+                if not cmdl_debug:
+                    if cmd and not _c.sendcmd(cmd):
+                        raise ValueError("retry date command send error")
+                else:
+                    print("debugging, would have set date with {}".format(cmd))
             return cmd
 
         def settime():
@@ -262,7 +294,7 @@ def main():
     _ui = None
     _c = None
 
-    _ui = process_cmdline()
+    _ui = process_cmdline(getports.GetPorts().get())
     _delay()
     _doit(_ui)
 

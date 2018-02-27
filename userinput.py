@@ -39,7 +39,10 @@ class UserInput:
     Obtains user input for the selected port and file (the file info is ignored)
     Attempts to open the port, and if able prints "Requested Port can be opened"
     May also generate an OSError if unable to match the controller baud rate
-
+    
+    comm_port vs serial_port: comm_port is the text name of the port, serial_port
+    is a MySerial object.  You should do an open to setup the serial_port Using
+    the comm_port value
     """
 
     def _inputa(self, query):
