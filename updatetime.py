@@ -36,6 +36,9 @@ _PARSER.add_argument('Port', nargs='?', default=None,
 _PARSER.add_argument('-dbg', '--cldebug',
                      help='turns off setting the new time',
                      action="store_true")
+_PARSER.add_argument('-v', '--verbose',
+                     help='display detailed messages',
+                     action="store_true")
 def _no_op(ignore):
     # pylint: disable=W0613
     pass
@@ -43,6 +46,7 @@ def _no_op(ignore):
 CLOSER = {False: lambda a: a.close(), True: lambda a: _no_op(a)}
 
 cmdl_debug = False
+verbose = False
 
 def _delay(debug=False, testtime=None):
     """_delay()
@@ -66,6 +70,7 @@ def _delay(debug=False, testtime=None):
             msg = 'debug wait for {} min and 2 seconds' .format(delymin)
             break
         else:
+            
             time.sleep(delymin*60+2)
     return (time.localtime(time.time()), msg)
 
@@ -154,6 +159,7 @@ def process_cmdline(_available_ports, _testcmdline=None):
     returns a UserInput if arguments are ok, Otherwise raises an exception
     """
     global cmdl_debug
+    global verbose
     #_available_ports = getports.GetPorts().get()
     if _testcmdline:
         args = _PARSER.parse_args(_testcmdline)
@@ -180,12 +186,22 @@ def process_cmdline(_available_ports, _testcmdline=None):
             .format(args.Controller, knowncontrollers.get_controller_ids())
         raise Exception(msg)
 
-
+    verbose = args.verbose
     cmdl_debug = args.cldebug
     _ui = userinput.UserInput()
     _ui.controller_type = ctrl
     _ui.comm_port = possible_port
+    if verbose:
+        msg = '[verbose] ctrl:{}, port:{}, dbg:{}, verbose: True'.format(ctrl)
     return _ui
+
+def _helper1(cmd):
+    if not cmdl_debug:
+        if cmd and not _c.sendcmd(cmd):
+            raise ValueError("retry date command send error")
+    else:
+        print("debugging, would have set date with {}".format(cmd))    
+    
 
 def _doit(_ui, debug_time=None):
     """doit(_ui)
@@ -216,11 +232,12 @@ def _doit(_ui, debug_time=None):
                 _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
                 systime = _the_time.get(debug_time is None)
                 cmd = check_date(_res, sdtpl, systime)
-                if not cmdl_debug:
-                    if cmd and not _c.sendcmd(cmd):
-                        raise ValueError("retry date command send error")
-                else:
-                    print("debugging, would have set date with {}".format(cmd))
+                helper1(cmd)
+                #if not cmdl_debug:
+                    #if cmd and not _c.sendcmd(cmd):
+                        #raise ValueError("retry date command send error")
+                #else:
+                    #print("debugging, would have set date with {}".format(cmd))
             return cmd
 
         def settime():

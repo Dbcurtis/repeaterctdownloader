@@ -303,7 +303,9 @@ DTMF"""
         self.assertTrue(res[1])
         self.assertEqual(12, res[0])
         self.assertFalse(res[2])
+#still need to test the debug option in the affected code to make sure the time change is not sent to the controler
         msclass._debugging = False
+        
         
     def testprocess_cmdline(self):
         try:
@@ -328,10 +330,8 @@ DTMF"""
             self.fail(msg='should have raised an exception 1')
         except Exception:
             pass
-            
-            
+  
         try:
-
             ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', ])
             self.assertEqual('COM1', ui.comm_port)
             self.assertEqual('dlxii', ui.controller_type[0])
@@ -362,12 +362,12 @@ DTMF"""
         except Exception as e:
             self.fail(msg="should not have exited {}".format(str(e)))
 
-
         try:
             ui = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['', ])
             self.fail(msg='should have raised an exception 2')       
         except Exception as e:
             pass
+        
         try:
             ui = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['dlxii', ])
             self.fail(msg='should have raised an exception 3')
@@ -382,7 +382,7 @@ DTMF"""
             self.fail(msg="should not have exited {}".format(str(ee)))
         
         a = 2
-still need to test the debug option in the affected code
+
     
 if __name__ == '__main__':
     unittest.main()
