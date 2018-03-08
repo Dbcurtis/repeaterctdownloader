@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""This script updates the repeaters time"""
+"""This script updates the repeater's time and date"""
 import sys
 import argparse
 import time
+import datetime
 
 import knowncontrollers
 import controller
@@ -45,8 +46,8 @@ def _no_op(ignore):
 
 CLOSER = {False: lambda a: a.close(), True: lambda a: _no_op(a)}
 
-cmdl_debug = False
-verbose = False
+#cmdl_debug = False
+#verbose = False
 
 def _delay(debug=False, testtime=None):
     """_delay()
@@ -70,7 +71,7 @@ def _delay(debug=False, testtime=None):
             msg = 'debug wait for {} min and 2 seconds' .format(delymin)
             break
         else:
-            
+
             time.sleep(delymin*60+2)
     return (time.localtime(time.time()), msg)
 
@@ -105,6 +106,7 @@ def check_date(_res, _sdtpl, _os_time):
         cmd = _sdtpl[3](arg)
     return cmd
 
+
 def check_time(_res, _sttpl, _os_time):
     """check_time(_res,_sttpl,_os_time)
 
@@ -113,7 +115,7 @@ def check_time(_res, _sttpl, _os_time):
 
     _sttpl is the set time tuple
 
-    _os_time is the current computer time
+    _os_time is a time.struct_time with the current computer time
 
     return None if the repeater time and the computer time match
     otherwise returns the command to set the repeater time.
@@ -127,23 +129,31 @@ def check_time(_res, _sttpl, _os_time):
     _pm = '0'
     if _p[0:1] == 'P':
         _pm = '1'
+    _seconds = int(_M) * 60
+    if _pm == '0':
+        if int(_I) != 12:
+            _seconds += int(_I) * 3600
+    else:
+        j = int(_I)
+        if j != 12:
+            j += 12
+        _seconds += j * 3600
 
-    _cp = '0'
-    if _os_time.tm_hour > 11:
-        _cp = '1'
+    _H = time.strftime("%H", time.gmtime(_seconds))
+    _sysI = time.strftime("%I", _os_time)
+    _sysH = TWO_CHAR.format(num=_os_time.tm_hour)
+    _sysM = TWO_CHAR.format(num=_os_time.tm_min)
+    _sysPM = '0'
+    if int(_sysH) > 11:
+        _sysPM = '1'
 
-    _adjhour = _os_time.tm_hour
-    if _adjhour == 0 and _cp == '0':
-        _adjhour = 12
-    oH = TWO_CHAR.format(num=_adjhour)
-    oM = TWO_CHAR.format(num=_os_time.tm_min)
-    if _os_time.tm_hour >= 13:
-        oH = TWO_CHAR.format(num=_os_time.tm_hour-12)
-        _cp = '1'
-    if not (_I == oH and _M == oM and _pm == _cp):
-        arg = (_sttpl[0], oH, oM, _cp)
-        cmd = _sttpl[3](arg)
+    if _H == _sysH and _M == _sysM and _pm == _sysPM:
+        return cmd
 
+    #now need to adjust
+
+    arg = (_sttpl[0], _sysI, _sysM, _sysPM)
+    cmd = _sttpl[3](arg)
     return cmd
 
 def process_cmdline(_available_ports, _testcmdline=None):
@@ -156,10 +166,9 @@ def process_cmdline(_available_ports, _testcmdline=None):
     the list of strings in the argument is used.
 
     processes the command line arguments
-    returns a UserInput if arguments are ok, Otherwise raises an exception
+    returns a tuple of (ui, verbose, cmdl_debug) if arguments are ok, Otherwise raises an exception
     """
-    global cmdl_debug
-    global verbose
+
     #_available_ports = getports.GetPorts().get()
     if _testcmdline:
         args = _PARSER.parse_args(_testcmdline)
@@ -188,115 +197,156 @@ def process_cmdline(_available_ports, _testcmdline=None):
 
     verbose = args.verbose
     cmdl_debug = args.cldebug
-    _ui = userinput.UserInput()
-    _ui.controller_type = ctrl
+    _ui = userinput.UserInput(ctrl[1])
     _ui.comm_port = possible_port
     if verbose:
-        msg = '[verbose] ctrl:{}, port:{}, dbg:{}, verbose: True'.format(ctrl)
-    return _ui
+        msg = '[verbose] ctrl:{}, port:{}, dbg:{}, verbose: True'\
+            .format(ctrl, _ui.comm_port, cmdl_debug)
+    return (_ui, verbose, cmdl_debug)
 
-def _helper1(cmd):
-    if not cmdl_debug:
-        if cmd and not _c.sendcmd(cmd):
-            raise ValueError("retry date command send error")
-    else:
-        print("debugging, would have set date with {}".format(cmd))    
-    
 
-def _doit(_ui, debug_time=None):
-    """doit(_ui)
-
-    does all the work
-    _ui is the UserInput
-
-    returns    cntdown, succ, noneed which is the countdown, if successful, if not needed
+class Stuff:
+    """Stuff
 
     """
-    result = ()
-    _the_time = {False:  debug_time, True:time.localtime(time.time()),}
-    try:
+    def __init__(self, uiintuple):
+        self._ui = uiintuple[0]
+        self.verbose = uiintuple[1]
+        self.cmdl_debug = uiintuple[2]
+        self._ct = None
+        _delay()
 
-        def setdate():
-            """setdate()
+    def _helper1(self, cmd, msg):
 
-            checks to see if the dates are different, and if so, generates and executes a command
-            to the controller
+        if not self.cmdl_debug:
+            if cmd and not self._ct.sendcmd(cmd):
+                raise ValueError("retry {} command send error".format(msg))
+        else:
+            print("debugging, would have set {} with {}".format(msg, cmd))
 
-            returns with the command if a command was needed, or None if no date change was required
-            """
-            global cmdl_debug
-            gdtpl = ctrl.newcmd_dict['gdate']
-            sdtpl = ctrl.newcmd_dict['sdate']
-            cmd = None
-            if _c.sendcmd(gdtpl[INST]):  #get date info from controller
-                _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
-                systime = _the_time.get(debug_time is None)
-                cmd = check_date(_res, sdtpl, systime)
-                helper1(cmd)
-                #if not cmdl_debug:
-                    #if cmd and not _c.sendcmd(cmd):
-                        #raise ValueError("retry date command send error")
-                #else:
-                    #print("debugging, would have set date with {}".format(cmd))
-            return cmd
+    def doit(self, debug_time=None):
+        """doit(_debug_time=)
 
-        def settime():
-            """settime()
+        does all the work
+        _ui is the UserInput
 
-            checks to see if the times are different, and if so, generates and executes a command
-            to the controller
+        returns    (cntdown, succ, noneed) which is the countdown, if successful, if not needed
 
-            returns with the command if a command was needed, or None if no time change was required
-            """
-            cmd = None
-            gttpl = ctrl.newcmd_dict['gtime']
-            sttpl = ctrl.newcmd_dict['stime']
-            if _c.sendcmd(gttpl[INST]):
-                _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.atts['last_response']))
-                systime = _the_time.get(debug_time is None)
-                cmd = check_time(_res, sttpl, systime)
-                if cmd and not _c.sendcmd(cmd):
-                    raise ValueError("retry time command send error")
-            return cmd
+        """
 
-        _ui.open()
-        _c = controller.Controller(_ui)
-        _c.open()
-        ctrl = _c.ui.controller_type
-        cntdown = SET_ATTEMPT_MAX  #fifteen attempts max
-        while cntdown > 0:
-            cntdown -= 1
-            try:
+        verbose = self.verbose
+        cmdl_debug = self.cmdl_debug
+        result = ()
+        _the_time = {False:  debug_time, True:time.localtime(time.time()),}
+        try:
 
-                #check the dates are the same and if not make them so
-                if setdate():
-                    continue  #made a change, try again
+            def setdate():
+                """setdate()
 
-                if not settime():
-                    break
-                   # continue  #made a change try again
+                checks to see if the dates are different, and if so,
+                generates and executes a command
+                to the controller
 
-            except Exception as _ve:  #do not really know what I am trying to catch here
-                # shurly ValueError, but what others?
-                time.sleep(10)  #10 sec sleep
-                print(_ve.args)
+                returns with the command if a command was needed,
+                or None if no date change was required
 
-        succ = cntdown > 0
-        noneed = cntdown == SET_ATTEMPT_MAX - 1
-        result = (cntdown, succ, noneed)
-        ifa = {True: 'Controller date-time was current',
-               False:"Controller time sucessfully set: {}" .format(succ),}
-        print(ifa.get(noneed))
+                if command error, raises ValueError("retry date command send error")
+                """
 
-        _c.close()
-        _ui.close()
+                gdtpl = ctrl.newcmd_dict['gdate']
+                sdtpl = ctrl.newcmd_dict['sdate']
+                cmd = None
+                _the_time[True] = time.localtime(time.time())
+                if self._ct.sendcmd(gdtpl[INST], cmdl_debug):  #get date info from controller
+                    _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
+                    if verbose:
+                        print(_c.atts['last_response'])
+                    systime = _the_time.get(debug_time is None)
+                    cmd = check_date(_res, sdtpl, systime)
+                    self._helper1(cmd, 'date')
+                    if verbose:
+                        print(time.localtime(time.time()))
 
-    finally:
+                return cmd
 
-        CLOSER.get(_c is None)(_c)
-        CLOSER.get(_ui is None)(_ui)
+            def settime():
+                """settime()
 
-    return result
+                checks to see if the times are different,
+                and if so, generates and executes a command
+                to the controller
+
+                returns with the command if a command was needed,
+                or None if no time change was required
+                if command error raises ValueError("retry date command send error")
+                """
+                cmd = None
+                gttpl = ctrl.newcmd_dict['gtime']
+                sttpl = ctrl.newcmd_dict['stime']
+                _the_time[True] = time.localtime(time.time())
+                if _c.sendcmd(gttpl[INST], cmdl_debug):
+                    _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.atts['last_response']))
+                    systime = _the_time.get(debug_time is None)
+                    if verbose:
+                        print(_c.atts['last_response'])
+                    cmd = check_time(_res, sttpl, systime)
+                    self._helper1(cmd, 'time')
+                return cmd
+
+            _ui = self._ui
+            _ui.open()
+            self._ct = controller.Controller(_ui)
+            _c = self._ct
+            _c.open()
+
+            ctrl = _c.ui.controller_type
+            cntdown = SET_ATTEMPT_MAX  #fifteen attempts max
+            while cntdown > 0:
+                cntdown -= 1
+                try:
+
+                    #check the dates are the same and if not make them so
+                    if setdate():
+                        if verbose:
+                            print('date change, try again')
+                        continue  #made a change, try again
+
+                    if not settime():
+                        break
+                    #continue  #made a change try again
+                    if verbose:
+                        print('time change, try again')
+
+
+                except Exception as _ve:  #do not really know what I am trying to catch here
+                    # shurly ValueError, but what others?
+                    time.sleep(10)  #10 sec sleep
+                    print(_ve.args)
+
+            succ = cntdown > 0
+            if verbose:
+                print('cntdown: {}'.format(cntdown))
+            noneed = cntdown == SET_ATTEMPT_MAX - 1
+            result = (cntdown, succ, noneed)
+            if self.verbose:
+                ifa = {True: 'Controller date-time was current',}
+                ifa[False] = "Controller time sucessfully set: {}" .format(succ)
+                _jjj = []
+                _jjj.append(str(datetime.datetime.now()))
+                _jjj.append(ifa.get(noneed))
+                print(' '.join(_jjj))
+
+            _c.close()
+            self._ui.close()
+
+        finally:
+            CLOSER.get(self._ct is None)(self._ct)
+            CLOSER.get(self._ui is None)(self._ui)
+
+        return result
+
+
+
 
 def main():
     """main()
@@ -309,11 +359,10 @@ def main():
     compares them and if more than 60 seconds difference updates the time on the controller
     """
     _ui = None
-    _c = None
-
-    _ui = process_cmdline(getports.GetPorts().get())
-    _delay()
-    _doit(_ui)
+    print(time.asctime(time.localtime(time.time())))
+    stuff = Stuff(process_cmdline(getports.GetPorts().get()))
+    result = stuff.doit()
+    print(result)
 
 if __name__ == '__main__':
 

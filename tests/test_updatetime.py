@@ -136,6 +136,7 @@ DTMF"""
         matchtime =  time.strptime("03 Jan 2018 00 30 30", "%d %b %Y %H %M %S")  
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))        
         self.assertEqual('N02512300', cd)
+             
 
         matchtime =  time.strptime("03 Feb 2018 13 30 30", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))        
@@ -241,7 +242,25 @@ DTMF"""
         self.assertEqual('N02512001', cd)
         matchtime =  time.strptime("03 Jan 2018 11 58 00", "%d %b %Y %H %M %S")  
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
-        self.assertEqual('N02511580', cd)          
+        self.assertEqual('N02511580', cd)
+        
+        mdf = """DTMF>N027
+The time is 1:05 A.M.
+OK
+DTMF"""    
+        tup = cs.newcmd_dict['gtime']
+        self.assertEqual('N027', tup[0])
+        _res = tup[2](tup[1].search(mdf))  
+        sttpl = cs.newcmd_dict['stime']
+        matchtime =  time.strptime("03 Jan 2018 01 05 00", "%d %b %Y %H %M %S")  
+        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
+        self.assertFalse(cd)
+        matchtime =  time.strptime("03 Jan 2018 00 00 00", "%d %b %Y %H %M %S")  
+        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
+        self.assertEqual('N02512000', cd)
+        matchtime =  time.strptime("03 Jan 2018 01 58 00", "%d %b %Y %H %M %S")  
+        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
+        self.assertEqual('N02501580', cd)        
         
     def testdoit(self):
         msclass = myserial.MySerial
@@ -260,12 +279,13 @@ DTMF"""
             b'DTMF>N027\r', b'\nThe time is 12:23 P.M.\r', b'\nOK\r', b'\nDTMF>',
                                  ]
         
-        ui = userinput.UserInput(ctype=dlxii.Device())     
+        ui = userinput.UserInput(ctype=dlxii.Device()) 
         ui.controller_type = dlxii.Device()
         ui.comm_port = port
         ui.inputfn = 'updatetest.txt'
-        matchtime =  time.strptime("03 Jan 2018 12 23 00", "%d %b %Y %H %M %S")  
-        res = updatetime._doit(ui, debug_time=matchtime)
+        matchtime =  time.strptime("03 Jan 2018 12 23 00", "%d %b %Y %H %M %S")
+        stuff = updatetime.Stuff((ui, False, False))
+        res = stuff.doit( debug_time=matchtime)
         self.assertTrue(res[2])
         self.assertEqual(14, res[0])
         self.assertTrue(14, res[1])
@@ -281,7 +301,7 @@ DTMF"""
             b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', 
                                  ]        
         matchtime =  time.strptime("03 Jan 2018 12 02 00", "%d %b %Y %H %M %S")  
-        res = updatetime._doit(ui, debug_time=matchtime)
+        res = stuff.doit(debug_time=matchtime)
         self.assertTrue(res[1])
         self.assertEqual(13, res[0])
         self.assertFalse(res[2])
@@ -299,7 +319,7 @@ DTMF"""
             b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', 
                                  ]        
         matchtime =  time.strptime("03 Jan 2018 12 02 00", "%d %b %Y %H %M %S")  
-        res = updatetime._doit(ui, debug_time=matchtime)
+        res = stuff.doit(debug_time=matchtime)
         self.assertTrue(res[1])
         self.assertEqual(12, res[0])
         self.assertFalse(res[2])
@@ -309,80 +329,88 @@ DTMF"""
         
     def testprocess_cmdline(self):
         try:
-            updatetime.process_cmdline(['COM1'], _testcmdline=[ "-h", ])
+            updatetime.process_cmdline(['COM1'], _testcmdline=["-h", ])
             self.fail(msg="should have exited")
         except SystemExit as e:
             jj = 0
-        
+
         kk = 0
         try:
-            self.assertFalse(updatetime.cmdl_debug)
-            
-            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['', ])
+
+            tup = updatetime.process_cmdline(['COM1',], _testcmdline=['', ])
+            ui = tup[0]
             self.assertEqual('COM1', ui.comm_port)
-            self.assertEqual('dlxii', ui.controller_type[0])
-            self.assertFalse(updatetime.cmdl_debug)
+            self.assertEqual('RLC-Club Deluxe II v2.15', str(ui.controller_type))
+            self.assertFalse(tup[2])
         except Exception as e:
             self.fail(msg="should not have exited {}".format(str(e)))
-            
+
         try:
-            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['COM1', ])
+            tup = updatetime.process_cmdline(['COM1',], _testcmdline=['COM1', ])
+            ui = tup[0]
             self.fail(msg='should have raised an exception 1')
         except Exception:
             pass
-  
-        try:
-            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', ])
-            self.assertEqual('COM1', ui.comm_port)
-            self.assertEqual('dlxii', ui.controller_type[0])
-            self.assertFalse(updatetime.cmdl_debug)
-            
-            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', 'COM1', ])
-            self.assertEqual('COM1', ui.comm_port)
-            self.assertEqual('dlxii', ui.controller_type[0])
-            self.assertFalse(updatetime.cmdl_debug)
-            
-            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlxii', 'COM1', ])
-            self.assertEqual('COM1', ui.comm_port)
-            self.assertEqual('dlxii', ui.controller_type[0])
-            self.assertFalse(updatetime.cmdl_debug)            
-           
-            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlxii', '-dbg', ])
-            self.assertEqual('COM1', ui.comm_port)
-            self.assertEqual('dlxii', ui.controller_type[0])
-            self.assertTrue(updatetime.cmdl_debug)
-            updatetime.cmdl_debug = False
 
-            ui = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', 'COM1',  '-dbg'])
+        try:
+            tup = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', ])
+            ui = tup[0]
             self.assertEqual('COM1', ui.comm_port)
-            self.assertEqual('dlxii', ui.controller_type[0])
-            self.assertTrue(updatetime.cmdl_debug)
-            updatetime.cmdl_debug = False            
-            
+            self.assertEqual('RLC-Club Deluxe II v2.15', str(ui.controller_type))
+            self.assertFalse(tup[2])
+
+            tup = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', 'COM1', ])
+            ui = tup[0]
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('RLC-Club Deluxe II v2.15', str(ui.controller_type))
+            self.assertFalse(tup[2])
+
+            tup = updatetime.process_cmdline(['COM1',], _testcmdline=['dlxii', 'COM1', ])
+            ui = tup[0]
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('RLC-Club Deluxe II v2.15', str(ui.controller_type))
+            self.assertFalse(tup[2])
+
+            tup = updatetime.process_cmdline(['COM1',], _testcmdline=['dlxii', '-dbg', ])
+            ui = tup[0]
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('RLC-Club Deluxe II v2.15', str(ui.controller_type))
+            self.assertTrue(tup[2])
+
+
+            tup = updatetime.process_cmdline(['COM1',], _testcmdline=['dlx2', 'COM1', '-dbg'])
+            ui = tup[0]
+            self.assertEqual('COM1', ui.comm_port)
+            self.assertEqual('RLC-Club Deluxe II v2.15', str(ui.controller_type))
+
         except Exception as e:
             self.fail(msg="should not have exited {}".format(str(e)))
 
         try:
-            ui = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['', ])
-            self.fail(msg='should have raised an exception 2')       
+            tup = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['', ])
+            ui = tup[0]
+            self.fail(msg='should have raised an exception 2')
         except Exception as e:
             pass
-        
+
         try:
-            ui = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['dlxii', ])
+
+            tup = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['dlxii', ])
+            ui = tup[0]
             self.fail(msg='should have raised an exception 3')
         except Exception as e:
-            pass            
-      
+            pass
+
         try:
-            ui = updatetime.process_cmdline(['COM1', 'COM2', ], _testcmdline=['dlxii', 'COM2' ])
+            tup = updatetime.process_cmdline(['COM1', 'COM2',], _testcmdline=['dlxii', 'COM2', ])
+            ui = tup[0]
             self.assertEqual('COM2', ui.comm_port)
-            self.assertEqual('dlxii', ui.controller_type[0])
+            self.assertEqual('RLC-Club Deluxe II v2.15', str(ui.controller_type))
         except Exception as ee:
             self.fail(msg="should not have exited {}".format(str(ee)))
-        
+
         a = 2
 
-    
+
 if __name__ == '__main__':
     unittest.main()

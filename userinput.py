@@ -25,7 +25,7 @@ _USER_INPUT_IFD = {
     False: _inputg,}
 
 class UserInput:
-    """UserInput()
+    """UserInput( ctype=controller, testdata=string, testing=TF)
 
     obtains user input for which serial port to use and a path for
     an input file to be read.
@@ -132,7 +132,7 @@ class UserInput:
         If the serial port is opened and if detectBR: the baud rate of the controller is
         found and the serial port so set.
 
-        If detectBR is True, the baud rate will be detected by establishing
+        If detect_br is True, the baud rate will be detected by establishing
         communication with the controller
 
         If the serial port is opened, returns True, False otherwise
