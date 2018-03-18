@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """This script updates the repeater's time and date"""
 import sys
+import os
 import argparse
 import time
 import datetime
-
+import logging
+import logging.handlers
 import knowncontrollers
 import controller
 import userinput
@@ -40,6 +42,13 @@ _PARSER.add_argument('-dbg', '--cldebug',
 _PARSER.add_argument('-v', '--verbose',
                      help='display detailed messages',
                      action="store_true")
+_PARSER.add_argument('-li', '--loginfo',
+                     help='enable INFO logging',
+                     action="store_true")
+_PARSER.add_argument('-ld', '--logdebug',
+                     help='enable DEBUG logging',
+                     action="store_true")
+
 def _no_op(ignore):
     # pylint: disable=W0613
     pass
@@ -49,6 +58,11 @@ CLOSER = {False: lambda a: a.close(), True: lambda a: _no_op(a)}
 #cmdl_debug = False
 #verbose = False
 
+LOGGER = logging.getLogger(__name__)
+LOG_DIR = '../logs'
+LOG_FILE = '/updatetime'
+
+
 def _delay(debug=False, testtime=None):
     """_delay()
 
@@ -57,6 +71,7 @@ def _delay(debug=False, testtime=None):
     after the delay, returns a tuple with the then current time and a debug message. if
     debugging is false the debugging message is None
     """
+
     while 1:
         msg = None
 
@@ -67,6 +82,7 @@ def _delay(debug=False, testtime=None):
             break
 
         delymin = 60 - os_time.tm_min  #- MINLIM
+        LOGGER.debug("debug wait for %s min and 2 seconds", str(delymin))
         if debug:
             msg = 'debug wait for {} min and 2 seconds' .format(delymin)
             break
@@ -104,6 +120,7 @@ def check_date(_res, _sdtpl, _os_time):
     if not (_Y == _oY and _d == _od and _m == _m and textdow == dow):
         arg = (_sdtpl[0], _om, _od, _oY[2:4], M_DOW[_owd], )
         cmd = _sdtpl[3](arg)
+    LOGGER.debug("returned %s", cmd)
     return cmd
 
 
@@ -148,12 +165,14 @@ def check_time(_res, _sttpl, _os_time):
         _sysPM = '1'
 
     if _H == _sysH and _M == _sysM and _pm == _sysPM:
+        LOGGER.debug("returned %s", cmd)
         return cmd
 
     #now need to adjust
 
     arg = (_sttpl[0], _sysI, _sysM, _sysPM)
     cmd = _sttpl[3](arg)
+    LOGGER.debug("returned %s", cmd)
     return cmd
 
 def process_cmdline(_available_ports, _testcmdline=None):
@@ -168,12 +187,27 @@ def process_cmdline(_available_ports, _testcmdline=None):
     processes the command line arguments
     returns a tuple of (ui, verbose, cmdl_debug) if arguments are ok, Otherwise raises an exception
     """
+    _tcl = []
+    if _testcmdline:
+        _tcl = _testcmdline
+    tempargs = sys.argv[1:] + _tcl
+    if not ('-h' in tempargs or '--help' in tempargs):
+        if len(_available_ports) < 1:
+            msg = 'no available communication port: aborting'
+            raise SystemExit(msg)
+    if '-h' in tempargs or '--help' in tempargs:
+        _PARSER.print_help()
+        raise SystemExit()
 
-    #_available_ports = getports.GetPorts().get()
     if _testcmdline:
         args = _PARSER.parse_args(_testcmdline)
     else:
         args = _PARSER.parse_args()
+
+    if args.logdebug:
+        LOGGER.setLevel(logging.DEBUG)
+    elif args.loginfo:
+        LOGGER.setLevel(logging.INFO)
 
     possible_port = args.Port
     if args.Controller:
@@ -219,7 +253,7 @@ class Stuff:
     def _helper1(self, cmd, msg):
 
         if not self.cmdl_debug:
-            if cmd and not self._ct.sendcmd(cmd):
+            if cmd and not self._ct.sendcmd(cmd, display=self.verbose or self.cmdl_debug):
                 raise ValueError("retry {} command send error".format(msg))
         else:
             print("debugging, would have set {} with {}".format(msg, cmd))
@@ -257,7 +291,8 @@ class Stuff:
                 sdtpl = ctrl.newcmd_dict['sdate']
                 cmd = None
                 _the_time[True] = time.localtime(time.time())
-                if self._ct.sendcmd(gdtpl[INST], cmdl_debug):  #get date info from controller
+                if self._ct.sendcmd(gdtpl[INST], cmdl_debug or verbose):
+                    #get date info from controller
                     _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
                     if verbose:
                         print(_c.atts['last_response'])
@@ -284,7 +319,7 @@ class Stuff:
                 gttpl = ctrl.newcmd_dict['gtime']
                 sttpl = ctrl.newcmd_dict['stime']
                 _the_time[True] = time.localtime(time.time())
-                if _c.sendcmd(gttpl[INST], cmdl_debug):
+                if _c.sendcmd(gttpl[INST], cmdl_debug or verbose):
                     _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.atts['last_response']))
                     systime = _the_time.get(debug_time is None)
                     if verbose:
@@ -307,6 +342,7 @@ class Stuff:
 
                     #check the dates are the same and if not make them so
                     if setdate():
+                        LOGGER.info("date changed")
                         if verbose:
                             print('date change, try again')
                         continue  #made a change, try again
@@ -314,12 +350,14 @@ class Stuff:
                     if not settime():
                         break
                     #continue  #made a change try again
+                    LOGGER.info("time changed")
                     if verbose:
                         print('time change, try again')
 
 
                 except Exception as _ve:  #do not really know what I am trying to catch here
                     # shurly ValueError, but what others?
+                    LOGGER.debug("10 second sleep")
                     time.sleep(10)  #10 sec sleep
                     print(_ve.args)
 
@@ -331,10 +369,10 @@ class Stuff:
             if self.verbose:
                 ifa = {True: 'Controller date-time was current',}
                 ifa[False] = "Controller time sucessfully set: {}" .format(succ)
-                _jjj = []
-                _jjj.append(str(datetime.datetime.now()))
-                _jjj.append(ifa.get(noneed))
-                print(' '.join(_jjj))
+                #_jjj = []
+                #_jjj.append(str(datetime.datetime.now()))
+                #_jjj.append(ifa.get(noneed))
+                print(' '.join([str(datetime.datetime.now()), ifa.get(noneed), ]))
 
             _c.close()
             self._ui.close()
@@ -344,9 +382,6 @@ class Stuff:
             CLOSER.get(self._ui is None)(self._ui)
 
         return result
-
-
-
 
 def main():
     """main()
@@ -358,7 +393,7 @@ def main():
 
     compares them and if more than 60 seconds difference updates the time on the controller
     """
-    _ui = None
+
     print(time.asctime(time.localtime(time.time())))
     stuff = Stuff(process_cmdline(getports.GetPorts().get()))
     result = stuff.doit()
@@ -366,7 +401,32 @@ def main():
 
 if __name__ == '__main__':
 
+    if not os.path.isdir(LOG_DIR):
+        os.mkdir(LOG_DIR)
+    LF_HANDLER = logging.handlers.RotatingFileHandler(
+        ''.join([LOG_DIR, LOG_FILE, ]),
+        maxBytes=10000,
+        backupCount=5,
+        )
+    LF_HANDLER.setLevel(logging.DEBUG)
+    LC_HANDLER = logging.StreamHandler()
+    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LF_FORMATTER = logging.Formatter(
+        '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+    LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+    LC_HANDLER.setFormatter(LC_FORMATTER)
+    LF_HANDLER.setFormatter(LF_FORMATTER)
+    THE_LOGGER = logging.getLogger()
+    THE_LOGGER.setLevel(logging.DEBUG)
+    THE_LOGGER.addHandler(LF_HANDLER)
+    THE_LOGGER.addHandler(LC_HANDLER)
+    THE_LOGGER.info('updatetime executed as main')
+    #LOGGER.setLevel(logging.DEBUG)
+
     try:
         main()
+    except SystemExit as sex:
+        print(sex)
     except(Exception, KeyboardInterrupt) as exc:
+        print(str(exc))
         sys.exit(str(exc))

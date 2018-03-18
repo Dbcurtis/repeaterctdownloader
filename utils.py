@@ -2,6 +2,10 @@
 """ TBD """
 import sys
 import argparse
+import logging
+import logging.handlers
+
+LOGGER = logging.getLogger(__name__)
 
 IF_N = {True: lambda a: int(a[1:]), False: lambda a: int(a),}
 IF_TUP = {True: lambda a: [a], False: lambda a: a,}

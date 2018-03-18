@@ -2,9 +2,11 @@
 """ to be done
 """
 import re
+import logging
+import logging.handlers
 import controllerspecific
 
-
+LOGGER = logging.getLogger(__name__)
 
 def _fmt_cmd(_arg):
     cmd = "".join(_arg)

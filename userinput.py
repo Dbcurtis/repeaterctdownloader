@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """This script prompts for user input for serial port etc."""
 import sys
+import os
+import logging
+import logging.handlers
 import myserial
 import getports
 import knowncontrollers
 
+LOG_DIR = '../logs'
+LOG_FILE = '/userinput'
+LOGGER = logging.getLogger(__name__)
 
 def _ignore(_ignoreme):
     return
@@ -39,7 +45,7 @@ class UserInput:
     Obtains user input for the selected port and file (the file info is ignored)
     Attempts to open the port, and if able prints "Requested Port can be opened"
     May also generate an OSError if unable to match the controller baud rate
-    
+
     comm_port vs serial_port: comm_port is the text name of the port, serial_port
     is a MySerial object.  You should do an open to setup the serial_port Using
     the comm_port value
@@ -160,6 +166,27 @@ class UserInput:
         return True
 
 if __name__ == '__main__':
+    if not os.path.isdir(LOG_DIR):
+        os.mkdir(LOG_DIR)
+    LF_HANDLER = logging.handlers.RotatingFileHandler(
+        ''.join([LOG_DIR, LOG_FILE, ]),
+        maxBytes=10000,
+        backupCount=5,
+        )
+    LF_HANDLER.setLevel(logging.DEBUG)
+    LC_HANDLER = logging.StreamHandler()
+    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LF_FORMATTER = logging.Formatter(
+        '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+    LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+    LC_HANDLER.setFormatter(LC_FORMATTER)
+    LF_HANDLER.setFormatter(LF_FORMATTER)
+    THE_LOGGER = logging.getLogger()
+    THE_LOGGER.setLevel(logging.DEBUG)
+    THE_LOGGER.addHandler(LF_HANDLER)
+    THE_LOGGER.addHandler(LC_HANDLER)
+    THE_LOGGER.info('userinput executed as main')
+    #LOGGER.setLevel(logging.DEBUG)
     UI = UserInput()
     try:
         UI.request()

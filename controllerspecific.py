@@ -2,6 +2,11 @@
 """  TBD  """
 
 import re
+import logging
+import logging.handlers
+
+LOGGER = logging.getLogger(__name__)
+
 
 #offsets into the newcmd_dict
 INST = 0

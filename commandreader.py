@@ -3,8 +3,14 @@
 
 
 """
-
+import os
+import logging
+import logging.handlers
 import userinput
+
+LOG_DIR = '../logs'
+LOG_FILE = '/commandreader'
+LOGGER = logging.getLogger(__name__)
 
 def _donothing():
     pass
@@ -112,6 +118,27 @@ def __main():
     gets user input, opens port to the repeater, sends the contents of the specified file
     to the repeater controller, closes down
     """
+    if not os.path.isdir(LOG_DIR):
+        os.mkdir(LOG_DIR)
+    LF_HANDLER = logging.handlers.RotatingFileHandler(
+        ''.join([LOG_DIR, LOG_FILE, ]),
+        maxBytes=10000,
+        backupCount=5,
+        )
+    LF_HANDLER.setLevel(logging.DEBUG)
+    LC_HANDLER = logging.StreamHandler()
+    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LF_FORMATTER = logging.Formatter(
+        '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+    LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+    LC_HANDLER.setFormatter(LC_FORMATTER)
+    LF_HANDLER.setFormatter(LF_FORMATTER)
+    THE_LOGGER = logging.getLogger()
+    THE_LOGGER.setLevel(logging.DEBUG)
+    THE_LOGGER.addHandler(LF_HANDLER)
+    THE_LOGGER.addHandler(LC_HANDLER)
+    THE_LOGGER.info('commandreader executed as main')
+    #LOGGER.setLevel(logging.DEBUG)
     _ui = userinput.UserInput()
     _ui.request()
     _ui.open(detect_br=False)

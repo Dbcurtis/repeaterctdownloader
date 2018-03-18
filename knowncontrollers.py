@@ -4,6 +4,10 @@
 import re
 import importlib
 import copy
+import logging
+import logging.handlers
+
+LOGGER = logging.getLogger(__name__)
 #import dlxii
 #import rlc1plus
 

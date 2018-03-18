@@ -332,9 +332,14 @@ DTMF"""
             updatetime.process_cmdline(['COM1'], _testcmdline=["-h", ])
             self.fail(msg="should have exited")
         except SystemExit as e:
-            jj = 0
+            pass
 
-        kk = 0
+        try:
+            updatetime.process_cmdline([], _testcmdline=[ ])
+            self.fail(msg="should have exited")
+        except SystemExit as e:
+            pass
+            
         try:
 
             tup = updatetime.process_cmdline(['COM1',], _testcmdline=['', ])

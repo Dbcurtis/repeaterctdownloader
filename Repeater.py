@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """ To Be Done """
 import sys
+import os
+import logging
+import logging.handlers
 import userinput
 import getports
 import commandreader
@@ -9,6 +12,9 @@ import utils
 
 _DEBUGGING = False
 
+LOGGER = logging.getLogger(__name__)
+LOG_DIR = '../logs'
+LOG_FILE = '/repeater'
 
 def _send_specified_file(_ui):
     """_send_specified_file()
@@ -159,6 +165,28 @@ def main():
         _ui.close()
 
 if __name__ == '__main__':
+    
+    if not os.path.isdir(LOG_DIR):
+        os.mkdir(LOG_DIR)
+    LF_HANDLER = logging.handlers.RotatingFileHandler(
+        ''.join([LOG_DIR, LOG_FILE, ]),
+        maxBytes=10000,
+        backupCount=5,
+        )
+    LF_HANDLER.setLevel(logging.DEBUG)
+    LC_HANDLER = logging.StreamHandler()
+    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LF_FORMATTER = logging.Formatter(
+        '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+    LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+    LC_HANDLER.setFormatter(LC_FORMATTER)
+    LF_HANDLER.setFormatter(LF_FORMATTER)
+    THE_LOGGER = logging.getLogger()
+    THE_LOGGER.setLevel(logging.DEBUG)
+    THE_LOGGER.addHandler(LF_HANDLER)
+    THE_LOGGER.addHandler(LC_HANDLER)
+    THE_LOGGER.info('repeater executed as main')
+    #LOGGER.setLevel(logging.DEBUG)
 
     try:
         main()

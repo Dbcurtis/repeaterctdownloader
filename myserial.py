@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """ To Be Done """
+
+import logging
+import logging.handlers
 import serial
+
+LOGGER = logging.getLogger(__name__)
 
 class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
     """MySerial

@@ -5,9 +5,11 @@ A subclass of controllerspecific with deffinitions for the Club Deluxe II repeat
 
 """
 import re
+import logging
+import logging.handlers
 import controllerspecific
 
-
+LOGGER = logging.getLogger(__name__)
 
 def _fmt_cmd(_arg):
     """_fmt_cmd(_arg)

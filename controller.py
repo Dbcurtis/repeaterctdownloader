@@ -7,12 +7,18 @@ Module to send commands to a repeater controller over a serial line.
 """
 
 import sys
+import os
+from os import path
+import logging
+import logging.handlers
 import re
 from datetime import datetime
-from os import path
 from time import time
 import userinput
 
+LOG_DIR = '../logs'
+LOG_FILE = '/controller'
+LOGGER = logging.getLogger(__name__)
 
 STRING_2_BYTE = lambda a: bytearray([ord(s) for s in a])
 BYTE_2_STRING = lambda a: "".join([chr(i) for i in a if i != 13])
@@ -299,6 +305,28 @@ class Controller:
             self.atts['is_files_open'] = False
 
 if __name__ == '__main__':
+    if not os.path.isdir(LOG_DIR):
+        os.mkdir(LOG_DIR)
+    LF_HANDLER = logging.handlers.RotatingFileHandler(
+        ''.join([LOG_DIR, LOG_FILE, ]),
+        maxBytes=10000,
+        backupCount=5,
+        )
+    LF_HANDLER.setLevel(logging.DEBUG)
+    LC_HANDLER = logging.StreamHandler()
+    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LF_FORMATTER = logging.Formatter(
+        '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+    LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+    LC_HANDLER.setFormatter(LC_FORMATTER)
+    LF_HANDLER.setFormatter(LF_FORMATTER)
+    THE_LOGGER = logging.getLogger()
+    THE_LOGGER.setLevel(logging.DEBUG)
+    THE_LOGGER.addHandler(LF_HANDLER)
+    THE_LOGGER.addHandler(LC_HANDLER)
+    THE_LOGGER.info('controller executed as main')
+    #LOGGER.setLevel(logging.DEBUG)
+
     UII = userinput.UserInput()
 
     try:
