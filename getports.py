@@ -7,7 +7,8 @@ import serial
 import serial.tools.list_ports
 
 LOGGER = logging.getLogger(__name__)
-LOG_DIR = '../logs'
+
+LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/getports'
 
 
@@ -64,6 +65,7 @@ if __name__ == '__main__':
 
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
+        
     LF_HANDLER = logging.handlers.RotatingFileHandler(
         ''.join([LOG_DIR, LOG_FILE, ]),
         maxBytes=10000,

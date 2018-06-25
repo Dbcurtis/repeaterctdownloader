@@ -16,9 +16,12 @@ from datetime import datetime
 from time import time
 import userinput
 
-LOG_DIR = '../logs'
-LOG_FILE = '/controller'
+
 LOGGER = logging.getLogger(__name__)
+
+LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
+LOG_FILE = '/controller'
+
 
 STRING_2_BYTE = lambda a: bytearray([ord(s) for s in a])
 BYTE_2_STRING = lambda a: "".join([chr(i) for i in a if i != 13])
@@ -307,6 +310,7 @@ class Controller:
 if __name__ == '__main__':
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
+
     LF_HANDLER = logging.handlers.RotatingFileHandler(
         ''.join([LOG_DIR, LOG_FILE, ]),
         maxBytes=10000,

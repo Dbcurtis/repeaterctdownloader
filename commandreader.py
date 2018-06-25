@@ -8,9 +8,11 @@ import logging
 import logging.handlers
 import userinput
 
-LOG_DIR = '../logs'
-LOG_FILE = '/commandreader'
 LOGGER = logging.getLogger(__name__)
+
+LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
+LOG_FILE = '/commandreader'
+
 
 def _donothing():
     pass

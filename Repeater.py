@@ -13,7 +13,8 @@ import utils
 _DEBUGGING = False
 
 LOGGER = logging.getLogger(__name__)
-LOG_DIR = '../logs'
+
+LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/repeater'
 
 def _send_specified_file(_ui):
@@ -165,7 +166,6 @@ def main():
         _ui.close()
 
 if __name__ == '__main__':
-    
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
     LF_HANDLER = logging.handlers.RotatingFileHandler(

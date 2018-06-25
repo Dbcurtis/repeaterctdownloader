@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """ To Be Done """
 
+import os
 import logging
 import logging.handlers
 import serial
 
 LOGGER = logging.getLogger(__name__)
+
+LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
+LOG_FILE = '/myserial'
 
 class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
     """MySerial

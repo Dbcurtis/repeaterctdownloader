@@ -8,9 +8,10 @@ import myserial
 import getports
 import knowncontrollers
 
-LOG_DIR = '../logs'
-LOG_FILE = '/userinput'
 LOGGER = logging.getLogger(__name__)
+
+LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
+LOG_FILE = '/userinput'
 
 def _ignore(_ignoreme):
     return
