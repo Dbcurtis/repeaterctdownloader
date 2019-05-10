@@ -275,6 +275,69 @@ class Stuff:
         else:
             print("debugging, would have set {} with {}".format(msg, cmd))
 
+# -----------------------------
+    def settime(self, _the_time, debug_time):
+        """settime()
+
+        checks to see if the times are different,
+        and if so, generates and executes a command
+        to the controller
+
+        returns with the command if a command was needed,
+        or None if no time change was required
+        if command error raises ValueError("retry date command send error")
+        """
+        cmd = None
+        ctrl = self._ct.ui.controller_type
+        gttpl = ctrl.newcmd_dict['gtime']
+        sttpl = ctrl.newcmd_dict['stime']
+        _the_time[True] = time.localtime(time.time())
+        if self._ct.sendcmd(gttpl[INST], self.cmdl_debug or self.verbose):
+            _res = gttpl[REPL_FMT](gttpl[PAT].search(self._ct.atts['last_response']))
+            systime = _the_time.get(debug_time is None)
+            if self.verbose:
+                print(self._ct.atts['last_response'])
+            cmd = check_time(_res, sttpl, systime)
+            self._helper1(cmd, 'time')
+        return cmd
+
+# -------------------------
+
+    def setdate(self, _the_time, debug_time):
+        """setdate()
+
+        checks to see if the dates are different, and if so,
+        generates and executes a command
+        to the controller
+
+        returns with the command if a command was needed,
+        or None if no date change was required
+
+        if command error, raises ValueError("retry date command send error")
+        """
+
+        ctrl = self._ct.ui.controller_type
+        gdtpl = ctrl.newcmd_dict['gdate']
+        sdtpl = ctrl.newcmd_dict['sdate']
+        cmd = None
+        _the_time[True] = time.localtime(time.time())
+        if self._ct.sendcmd(gdtpl[INST], self.cmdl_debug or self.verbose):
+            # get date info from controller
+            # _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
+            # if self.verbose:
+                # print(_c.atts['last_response'])
+            systime = _the_time.get(debug_time is None)
+            # cmd = check_date(_res, sdtpl, systime)
+            cmd = check_date(gdtpl[REPL_FMT](gdtpl[PAT].search(self._ct.atts['last_response'])),
+                             sdtpl, systime)
+            self._helper1(cmd, 'date')
+            if self.verbose:
+                print(self._ct.atts['last_response'])
+                print(time.localtime(time.time()))
+
+        return cmd
+
+
     def doit(self, debug_time=None):
         """doit(_debug_time=)
 
@@ -290,83 +353,87 @@ class Stuff:
         _the_time = {False:  debug_time, True:time.localtime(time.time()),}
         try:
 
-            def setdate():
-                """setdate()
+            #def setdate():
+                #"""setdate()
 
-                checks to see if the dates are different, and if so,
-                generates and executes a command
-                to the controller
+                #checks to see if the dates are different, and if so,
+                #generates and executes a command
+                #to the controller
 
-                returns with the command if a command was needed,
-                or None if no date change was required
+                #returns with the command if a command was needed,
+                #or None if no date change was required
 
-                if command error, raises ValueError("retry date command send error")
-                """
+                #if command error, raises ValueError("retry date command send error")
+                #"""
 
-                gdtpl = ctrl.newcmd_dict['gdate']
-                sdtpl = ctrl.newcmd_dict['sdate']
-                cmd = None
-                _the_time[True] = time.localtime(time.time())
-                if self._ct.sendcmd(gdtpl[INST], self.cmdl_debug or self.verbose):
-                    #get date info from controller
-                    # _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
+                #ctrl = _c.ui.controller_type
+                #gdtpl = ctrl.newcmd_dict['gdate']
+                #sdtpl = ctrl.newcmd_dict['sdate']
+                #cmd = None
+                #_the_time[True] = time.localtime(time.time())
+                #if self._ct.sendcmd(gdtpl[INST], self.cmdl_debug or self.verbose):
+                    ##get date info from controller
+                    ## _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
+                    ##if self.verbose:
+                        ##print(_c.atts['last_response'])
+                    #systime = _the_time.get(debug_time is None)
+                    ## cmd = check_date(_res, sdtpl, systime)
+                    # cmd = check_date(gdtpl[REPL_FMT](gdtpl[PAT]. \
+                        # search(_c.atts['last_response'])), \
+                                     #sdtpl, systime)
+                    #self._helper1(cmd, 'date')
                     #if self.verbose:
                         #print(_c.atts['last_response'])
-                    systime = _the_time.get(debug_time is None)
-                    # cmd = check_date(_res, sdtpl, systime)
-                    cmd = check_date(gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response'])), \
-                                     sdtpl, systime)
-                    self._helper1(cmd, 'date')
-                    if self.verbose:
-                        print(_c.atts['last_response'])
-                        print(time.localtime(time.time()))
+                        #print(time.localtime(time.time()))
 
-                return cmd
+                #return cmd
 
-            def settime():
-                """settime()
+            #def settime(_the_time, debug_time):
+                #"""settime()
 
-                checks to see if the times are different,
-                and if so, generates and executes a command
-                to the controller
+                #checks to see if the times are different,
+                #and if so, generates and executes a command
+                #to the controller
 
-                returns with the command if a command was needed,
-                or None if no time change was required
-                if command error raises ValueError("retry date command send error")
-                """
-                cmd = None
-                gttpl = ctrl.newcmd_dict['gtime']
-                sttpl = ctrl.newcmd_dict['stime']
-                _the_time[True] = time.localtime(time.time())
-                if _c.sendcmd(gttpl[INST], self.cmdl_debug or self.verbose):
-                    _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.atts['last_response']))
-                    systime = _the_time.get(debug_time is None)
-                    if self.verbose:
-                        print(_c.atts['last_response'])
-                    cmd = check_time(_res, sttpl, systime)
-                    self._helper1(cmd, 'time')
-                return cmd
+                #returns with the command if a command was needed,
+                #or None if no time change was required
+                #if command error raises ValueError("retry date command send error")
+                #"""
+                #cmd = None
+                #ctrl = self._ct.ui.controller_type
+                #gttpl = ctrl.newcmd_dict['gtime']
+                #sttpl = ctrl.newcmd_dict['stime']
+                #_the_time[True] = time.localtime(time.time())
+                #if self._ct.sendcmd(gttpl[INST], self.cmdl_debug or self.verbose):
+                    #_res = gttpl[REPL_FMT](gttpl[PAT].search(self._ct.atts['last_response']))
+                    #systime = _the_time.get(debug_time is None)
+                    #if self.verbose:
+                        #print(self._ct.atts['last_response'])
+                    #cmd = check_time(_res, sttpl, systime)
+                    #self._helper1(cmd, 'time')
+                #return cmd
 
             _ui = self._ui
             _ui.open()
             self._ct = controller.Controller(_ui)
-            _c = self._ct
-            _c.open()
+            # _c = self._ct
+            # _c.open()
+            self._ct.open()
 
-            ctrl = _c.ui.controller_type
+            # ctrl = self._ct.ui.controller_type
             cntdown = SET_ATTEMPT_MAX  #fifteen attempts max
             while cntdown > 0:
                 cntdown -= 1
                 try:
 
                     #check the dates are the same and if not make them so
-                    if setdate():
+                    if self.setdate(_the_time, debug_time):
                         LOGGER.info("date changed")
                         if self.verbose:
                             print('date change, try again')
                         continue  #made a change, try again
 
-                    if not settime():
+                    if not self.settime(_the_time, debug_time):
                         break
                     #continue  #made a change try again
                     LOGGER.info("time changed")
@@ -383,6 +450,7 @@ class Stuff:
             succ = cntdown > 0
             if self.verbose:
                 print('cntdown: {}'.format(cntdown))
+
             noneed = cntdown == SET_ATTEMPT_MAX - 1
             result = (cntdown, succ, noneed)
             if self.verbose:
@@ -390,7 +458,7 @@ class Stuff:
                 ifa[False] = "Controller time sucessfully set: {}" .format(succ)
                 print(' '.join([str(datetime.datetime.now()), ifa.get(noneed), ]))
 
-            _c.close()
+            self._ct.close()
             self._ui.close()
 
         finally:
