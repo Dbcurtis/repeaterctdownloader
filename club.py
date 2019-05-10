@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+
 """ to be done
 """
 import re
 import controllerspecific
+
 
 class Device(controllerspecific.ControllerSpecific):
     """ to be done """
@@ -21,8 +23,17 @@ class Device(controllerspecific.ControllerSpecific):
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     N011Fmt_pat = re.compile(
-        r'Command number\s*(?P<cmdno>\d{3,3})\s*' + \
+        r'Command number\s*(?P<cmdno>\d{3,3})\s*' +
         r'is named (?P<name>.*?)\.\s+It takes (?P<digs>\d{1,3}) digits of data\.',
+        re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+
+    _N029_PAT = re.compile(
+        r'This\s+is\s+(?P<A>\w+),\s*(?P<m>\d\d)-(?P<d>\d\d)-(?P<Y>\d{4,4})\s*\nOK\n',
+        re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+    _N027_PAT = re.compile(
+        r'The\s+time\s+is\s+(?P<I>\d{1,2}):(?P<M>\d\d)\s*(?P<p>[ap].m.)\nOK\n',
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     get_Ctr_type = 'RLC-Club v2.15'
@@ -30,28 +41,29 @@ class Device(controllerspecific.ControllerSpecific):
 
     def __init__(self):
         super().__init__()
-        self.commandsR = range(0, 1000)
-        self.userMacrosR = range(500, 1000)  # goes from 500 to 999
-        self.systemMacrosR = range(200, 500)
-        _sm = self.systemMacrosR
-        self.safe2reset_name = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
+        _s = self
+        _s.commandsR = range(0, 1000)
+        _s.userMacrosR = range(500, 1000)  # goes from 500 to 999
+        _s.systemMacrosR = range(200, 500)
+        _sm = _s.systemMacrosR
+        _s.safe2reset_name = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
 
-        __N029pat = re.compile(
-            r'This\s+is\s+(?P<A>\w+),\s*(?P<m>\d\d)-(?P<d>\d\d)-(?P<Y>\d{4,4})\s*\nOK\n',
-            re.MULTILINE | re.IGNORECASE | re.DOTALL)
+        #_N029_PAT = re.compile(
+            #r'This\s+is\s+(?P<A>\w+),\s*(?P<m>\d\d)-(?P<d>\d\d)-(?P<Y>\d{4,4})\s*\nOK\n',
+            #re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
-        __N027pat = re.compile(
-            r'The\s+time\s+is\s+(?P<I>\d{1,2}):(?P<M>\d\d)\s*(?P<p>[ap].m.)\nOK\n',
-            re.MULTILINE | re.IGNORECASE | re.DOTALL)
+        #_N027_PAT = re.compile(
+            #r'The\s+time\s+is\s+(?P<I>\d{1,2}):(?P<M>\d\d)\s*(?P<p>[ap].m.)\nOK\n',
+            #re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
-        self.newcmd_dict.update(
+        _s.newcmd_dict.update(
             {
-                'rpcmdn': ('N010', ),  #this dict is not used yet
+                'rpcmdn': ('N010', ),  # this dict is not used yet
                 'rcn': ('N011', Device.N011Fmt_pat, self.__fmt_proc, None, ),
                 'rmc': ('N054', Device.N054Fmt_pat, self.__fmt_proc_one, None, ),
-                'gdate': ('N029', __N029pat, self.__fmt_proc, None,),
-                'gtime': ('N027', __N027pat, self.__fmt_proc, None, ),
+                'gdate': ('N029', Device._N029_PAT, self.__fmt_proc, None,),
+                'gtime': ('N027', Device._N027_PAT, self.__fmt_proc, None, ),
                 'sdate': ('N028', None, None, self.__fmt_cmd, ),
                 'stime': ('N025', None, None, self.__fmt_cmd, ),
                 'smacro': (200, 399),
@@ -61,8 +73,8 @@ class Device(controllerspecific.ControllerSpecific):
                            (140, 140), (153, 154), (168, 168), (193, 194), ],
                 'ecn': 80,
                 'prompt': 'DTMF>',
-            }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
-            )
+                }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
+        )
 
     def __fmt_cmd(self, _arg):
         cmd = "".join(_arg)
@@ -83,7 +95,7 @@ class Device(controllerspecific.ControllerSpecific):
         result['cmds'] = lst
         return result
 
-    def __fmtN054(self, _str):  #fmt macro contents
+    def __fmt_n054(self, _str):  # fmt macro contents
         """__fmtN054(s)
 
         runs a regex on string s. If unsuccessful, return an empty dict.
@@ -99,11 +111,11 @@ class Device(controllerspecific.ControllerSpecific):
                       "numins": _mx.group(2),
                       "cmds": lst,
                       "full": _mx.group(4),
-                     }
+                      }
             return result
         return {}
 
-    def __fmtN011(self, _str):
+    def __fmt_n011(self, _str):
         """__fmtN011(s)
 
         Performs a regex, and if successful, returns a dict with keys:
@@ -116,7 +128,7 @@ class Device(controllerspecific.ControllerSpecific):
             result = {'cmdno': _mx.group(1),
                       'name': _mx.group(2),
                       'digs': _mx.group(3),
-                     }
+                      }
             return result
         return {}
 
@@ -132,7 +144,7 @@ class Device(controllerspecific.ControllerSpecific):
         If unable to parse the input s, just returns the input s and empty dict.
         """
         result = (_str, {})
-        _d = self.__fmtN054(_str)
+        _d = self.__fmt_n054(_str)
 
         if _d:
             if  _d.get("numins") != "0":
@@ -160,7 +172,7 @@ class Device(controllerspecific.ControllerSpecific):
 
         """
         result = (_str, {})
-        _d = self.__fmtN011(_str)
+        _d = self.__fmt_n011(_str)
         if _d:
             _ll = ['Command number']
             _ll.append(_d.get('cmdno'))

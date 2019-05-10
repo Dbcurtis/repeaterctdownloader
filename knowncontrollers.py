@@ -87,7 +87,7 @@ if __name__ == '__main__':
         ''.join([LOG_DIR, LOG_FILE, ]),
         maxBytes=10000,
         backupCount=5,
-        )
+    )
     LF_HANDLER.setLevel(logging.DEBUG)
     LC_HANDLER = logging.StreamHandler()
     LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
@@ -104,4 +104,3 @@ if __name__ == '__main__':
     #LOGGER.setLevel(logging.DEBUG)
     print(get_known())
     print(get_controller_ids())
-    

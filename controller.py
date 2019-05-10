@@ -97,7 +97,7 @@ class Controller:
             print("Filename must end in txt, using 'test.txt'")
             _filename = 'test.txt'
         self.ui = uiIn
-        self.sp = uiIn.serial_port
+        self.s_port = uiIn.serial_port
         self.cmd = ""
         self.atts = {}
         self.atts['cmd_logfile_name'] = _filename + '.cmdlog.txt'
@@ -126,7 +126,7 @@ class Controller:
 
     def __repr__(self):
         return '[Controller:  {}, {}, {}, {}]'.format(
-            str(self.sp.isOpen()),
+            str(self.s_port.isOpen()),
             str(self.atts['is_files_open']),
             str(self.atts['isOpen']),
             str(self.ui))
@@ -143,8 +143,8 @@ class Controller:
         otherwise
         """
 
-        if self.sp.isOpen():
-            self.sp.close()
+        if self.s_port.isOpen():
+            self.s_port.close()
         self.atts['is_files_open'] = False
         result = False
         try:
@@ -159,10 +159,10 @@ class Controller:
             self.atts['cmd_err_file'].write(Controller._introMsg.format(
                 cmd_err_paths, self.atts['when_opened']))
             self.atts['is_files_open'] = True
-            self.sp.open()
+            self.s_port.open()
             self.atts['isOpen'] = True
             result = True
-        except:
+        except IOError:
             _e = sys.exc_info()[0]
             result = False
             #self.isOpen = False
@@ -230,60 +230,59 @@ class Controller:
             self.atts['last_cmd'] = ""
             return result
 
-        else:
+        # else:
             #print(''.join(necmd)+"\n")
-            _new_cmd_list.append('\r')  # add a new line character
-            newcmd = ''.join(_new_cmd_list)
-            self.atts['last_cmd'] = newcmd
+        _new_cmd_list.append('\r')  # add a new line character
+        newcmd = ''.join(_new_cmd_list)
+        self.atts['last_cmd'] = newcmd
 
-            if not echoit:
-                self.sp.flushInput()  # deprecated, use reset_input_buffer()
-                #print(newcmd)
-                _saved_to = self.sp.timeout  # speed up the reads
-                self.sp.timeout = 0.2
-                self.sp.write(STRING_2_BYTE(newcmd))
-                _in_list = []
-                _cnt = 100
-                while _cnt > 0:  # keep reading input until the controller
-                    # prompt (i.e. DTMF>) is seen.
-                    # Remember the timeout changes with baud rate
-                    # should get data atleast every timeout seconds
-                    _in_list.append(BYTE_2_STRING(self.sp.dread(9999)))
-                    _cnt += -1
-                    if ''.join(_in_list).endswith(self.ctrl_prompt):
-                        break
+        if not echoit:
+            self.s_port.flushInput()  # deprecated, use reset_input_buffer()
+            # print(newcmd)
+            _saved_to = self.s_port.timeout  # speed up the reads
+            self.s_port.timeout = 0.2
+            self.s_port.write(STRING_2_BYTE(newcmd))
+            _in_list = []
+            _cnt = 100
+            while _cnt > 0:  # keep reading input until the controller
+                # prompt (i.e. DTMF>) is seen.
+                # Remember the timeout changes with baud rate
+                # should get data atleast every timeout seconds
+                _in_list.append(BYTE_2_STRING(self.s_port.dread(9999)))
+                _cnt += -1
+                if ''.join(_in_list).endswith(self.ctrl_prompt):
+                    break
 
-                self.sp.timeout = _saved_to
-                #rnok = Controller._errPat.search(''.join(inList))
-                if Controller._errPat.search(''.join(_in_list)): #rnok:
-                    _in_list.append("******************E R R O R" + \
-                    "****************\n"+self.ctrl_prompt)
-                    result = False
-                response = ''.join(_in_list)
-            else:
-                response = newcmd
+            self.s_port.timeout = _saved_to
+            #rnok = Controller._errPat.search(''.join(inList))
+            if Controller._errPat.search(''.join(_in_list)):  # rnok:
+                _in_list.append("******************E R R O R" +
+                                "****************\n" + self.ctrl_prompt)
+                result = False
+            response = ''.join(_in_list)
+        else:
+            response = newcmd
 
-            self.atts['last_response'] = response
+        self.atts['last_response'] = response
 
-            def _print_response():
-                self.atts['last_displayed'] = response
-                print(response)
+        def _print_response():
+            self.atts['last_displayed'] = response
+            print(response)
 
-            _if_display = {
-                True: _print_response,
-                False: _none,
-            }
-            _if_display.get(display)()
-            def _log_it1():
-                self.atts['last_logged'] = response
-                self.atts['cmd_err_file'].write(format_it(response)[0])
+        _if_display = {
+            True: _print_response,
+            False: _none,
+        }
+        _if_display.get(display)()
+        def _log_it1():
+            self.atts['last_logged'] = response
+            self.atts['cmd_err_file'].write(format_it(response)[0])
 
-            if_selective_log = {
-                True: _log_it1,
-                False: _none,
-            }
-            if_selective_log.get(log_it and select_it(response))()
-
+        if_selective_log = {
+            True: _log_it1,
+            False: _none,
+        }
+        if_selective_log.get(log_it and select_it(response))()
 
         return result
 
@@ -292,8 +291,8 @@ class Controller:
 
         Closes the controller, the logging files, and the serial port
         """
-        if self.sp.isOpen():
-            self.sp.close()
+        if self.s_port.isOpen():
+            self.s_port.close()
         #self.isOpen = False
         self.atts['isOpen'] = False
         if self.atts['is_files_open']:
@@ -315,7 +314,7 @@ if __name__ == '__main__':
         ''.join([LOG_DIR, LOG_FILE, ]),
         maxBytes=10000,
         backupCount=5,
-        )
+    )
     LF_HANDLER.setLevel(logging.DEBUG)
     LC_HANDLER = logging.StreamHandler()
     LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)

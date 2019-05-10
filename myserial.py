@@ -51,12 +51,12 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
         """
         if not MySerial._debugging:
             return self.read(numchar)
-        else:
-            if MySerial._dbidx < 0:
-                return  [b'OK\nDTMF>']
-            result = MySerial._debugreturns[MySerial._dbidx]
-            MySerial._dbidx += 1
-            return result
+
+        if MySerial._dbidx < 0:
+            return  [b'OK\nDTMF>']
+        result = MySerial._debugreturns[MySerial._dbidx]
+        MySerial._dbidx += 1
+        return result
 
     def sp_ok(self):  # assume the sp is open
         """spOK()
@@ -114,7 +114,7 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
         if not is_open:
             _sp.open()
 
-      #  if spOpen:  # if open port, and it is communicating just return the baudrate
+    #  if spOpen:  # if open port, and it is communicating just return the baudrate
         if self.sp_ok():
             if not is_open:
                 _sp.close()
@@ -134,7 +134,7 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
             cnt = 2
             print("trying " + str(cpsd.bps) + " baud")
             while cnt > 0:
-              #  print("acnt: "+str(cnt)+", "+str(sp))
+                #  print("acnt: "+str(cnt)+", "+str(sp))
                 _sp.open()  # try these settings
                 if not self.sp_ok():
                     cnt = cnt - 1

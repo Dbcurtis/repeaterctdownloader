@@ -61,7 +61,7 @@ class Utils:
 
 
 
-    def __init__(self, _ui, _c, testing=False, showhelp=True):
+    def __init__(self, _uii, _c, testing=False, showhelp=True):
         """__init__(ui,testing=False, showhelp=True)
 
         ui is the current UserInput
@@ -69,9 +69,9 @@ class Utils:
         and instead just prints them.
         showhelp True -> prints the help message
         """
-        self.ui = _ui
-        self.sp = _ui.serial_port
-        self.cont_info = self.sp.controller_info
+        self._ui = _uii
+        self.s_port = _uii.serial_port
+        self.cont_info = self.s_port.controller_info
         self.testing = testing
         self.c = _c
         self.args = None
@@ -146,7 +146,7 @@ class Utils:
 
             """
 
-            _px = self.ui.controller_type.rename_pat.search(_a)
+            _px = self._ui.controller_type.rename_pat.search(_a)
             result = False
             def _aa(_a):
                 _g1 = _a.group(1)
@@ -185,7 +185,7 @@ class Utils:
 
         Scans the user macros to get the macro names.
 
-       """
+        """
         if self.cont_info.newcmd_dict.get('rcn')[0]:
             self._get_cmd_names(self.cont_info.userMacrosR)
 
@@ -226,7 +226,7 @@ class Utils:
             else:
                 _ = input(
                     'specify the command and range of argument '\
-                                '(for example, 003 {} {}) cr to exit >'
+                    '(for example, 003 {} {}) cr to exit >'
                     .format(str(lstcmd-50), str(lstcmd)))
 
             if not _.strip():
@@ -303,11 +303,11 @@ class Utils:
         for i in self.cont_info.safe2reset_name:
             cmd = _3D.format(num=i)
             if self.testing:
-                print('sending {}{}{}'
-                      .format(self.cont_info.newcmd_dict.get('rpcmdn')[0], cmd, cmd))
+                print('sending {0}{1}{1}'
+                      .format(self.cont_info.newcmd_dict.get('rpcmdn')[0], cmd, ))
                 continue
-            if self.c.sendcmd('{}{}{}'
-                              .format(self.cont_info.newcmd_dict.get('rpcmdn')[0], cmd, cmd),
+            if self.c.sendcmd('{0}{1}{1}'
+                              .format(self.cont_info.newcmd_dict.get('rpcmdn')[0], cmd, ),
                               display=False):
                 sys.stdout.write('.')
 
@@ -327,7 +327,7 @@ class Utils:
             tests if the response is a macro deffinition
             """
 
-            return not self.ui.controller_type.macro_def_pat.match(_a) is None
+            return not self._ui.controller_type.macro_def_pat.match(_a) is None
         valid = isinstance(self.cont_info.newcmd_dict.get('umacro'), tuple)
         if not (self.cont_info.newcmd_dict.get('rmc')[0] or valid):
             print('Command not supported for this controller')

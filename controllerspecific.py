@@ -100,7 +100,7 @@ class ControllerSpecific:
                                 r'^[0-9ABCD#*]+$',
                                 re.IGNORECASE),
                             'prompt': '\n',
-                           }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
+                            }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
 
         for ssi in self.cps_data:
             ssi.cpsDelay = round(0.1 + (1100.0 / ssi.bps), 3)

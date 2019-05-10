@@ -55,22 +55,17 @@ class GetPorts:
         LOGGER.debug('exited get with %s', self.devs)
         return self.devs
 
-    #def get_last(self):
-        #"""get_last()
-        #TBD
-        #"""
-        #return self.devs
 
 if __name__ == '__main__':
 
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
-        
+
     LF_HANDLER = logging.handlers.RotatingFileHandler(
         ''.join([LOG_DIR, LOG_FILE, ]),
         maxBytes=10000,
         backupCount=5,
-        )
+    )
     LF_HANDLER.setLevel(logging.DEBUG)
     LC_HANDLER = logging.StreamHandler()
     LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)

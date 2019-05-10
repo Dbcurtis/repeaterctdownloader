@@ -96,7 +96,7 @@ class TestController(unittest.TestCase):
         #self.assertTrue(c.isOpen)
         self.assertTrue(c.atts['isOpen'])
         self.assertTrue(c.atts['is_files_open'])
-        self.assertTrue(c.sp.isOpen())
+        self.assertTrue(c.s_port.isOpen())
         self.assertEqual('testcontroller.cmdlog.txt', c.atts['cmd_log_file'].name)
         self.assertEqual('testcontroller.exelog.txt', c.atts['cmd_err_file'].name)
         c.close()
@@ -108,7 +108,7 @@ class TestController(unittest.TestCase):
         #self.assertTrue(c.isOpen)
         self.assertTrue(c.atts['isOpen'])
         self.assertTrue(c.atts['is_files_open'])
-        self.assertTrue(c.sp.isOpen())
+        self.assertTrue(c.s_port.isOpen())
         self.assertEqual('test.cmdlog.txt', c.atts['cmd_log_file'].name)
         self.assertEqual('test.exelog.txt', c.atts['cmd_err_file'].name)
         c.close()
@@ -127,7 +127,7 @@ class TestController(unittest.TestCase):
         #self.assertFalse(c.isOpen)
         self.assertFalse(c.atts['isOpen'])
         self.assertFalse(c.atts['is_files_open'])
-        self.assertFalse(c.sp.isOpen())
+        self.assertFalse(c.s_port.isOpen())
 
     def testcvntcmd(self):
         mySPortclass = myserial.MySerial

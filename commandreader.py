@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """Module commandreader.py
 
 
@@ -8,10 +9,23 @@ import logging
 import logging.handlers
 import userinput
 
-LOGGER = logging.getLogger(__name__)
+THE_LOGGER = logging.getLogger(__name__)
 
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/commandreader'
+
+_LF_HANDLER = logging.handlers.RotatingFileHandler(
+    ''.join([LOG_DIR, LOG_FILE, ]),
+    maxBytes=10000,
+    backupCount=5,
+)
+_LC_HANDLER = logging.StreamHandler()
+_LF_FORMATTER = logging.Formatter(
+    '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+
+_LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+
+
 
 
 def _donothing():
@@ -122,24 +136,24 @@ def __main():
     """
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
-    LF_HANDLER = logging.handlers.RotatingFileHandler(
-        ''.join([LOG_DIR, LOG_FILE, ]),
-        maxBytes=10000,
-        backupCount=5,
-        )
-    LF_HANDLER.setLevel(logging.DEBUG)
-    LC_HANDLER = logging.StreamHandler()
-    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
-    LF_FORMATTER = logging.Formatter(
-        '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
-    LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
-    LC_HANDLER.setFormatter(LC_FORMATTER)
-    LF_HANDLER.setFormatter(LF_FORMATTER)
-    THE_LOGGER = logging.getLogger()
-    THE_LOGGER.setLevel(logging.DEBUG)
-    THE_LOGGER.addHandler(LF_HANDLER)
-    THE_LOGGER.addHandler(LC_HANDLER)
-    THE_LOGGER.info('commandreader executed as main')
+    #_LF_HANDLER = logging.handlers.RotatingFileHandler(
+        #''.join([LOG_DIR, LOG_FILE, ]),
+        #maxBytes=10000,
+        #backupCount=5,
+    #)
+    _LF_HANDLER.setLevel(logging.DEBUG)
+    # _LC_HANDLER = logging.StreamHandler()
+    _LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    #_LF_FORMATTER = logging.Formatter(
+        #'%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+    #_LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+    _LC_HANDLER.setFormatter(_LC_FORMATTER)
+    _LF_HANDLER.setFormatter(_LF_FORMATTER)
+    _THE_LOGGER = logging.getLogger()
+    _THE_LOGGER.setLevel(logging.DEBUG)
+    _THE_LOGGER.addHandler(_LF_HANDLER)
+    _THE_LOGGER.addHandler(_LC_HANDLER)
+    _THE_LOGGER.info('commandreader executed as main')
     #LOGGER.setLevel(logging.DEBUG)
     _ui = userinput.UserInput()
     _ui.request()
