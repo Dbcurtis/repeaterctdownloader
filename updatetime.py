@@ -180,6 +180,16 @@ LOG_FILE = '/updatetime'
     #LOGGER.debug("returned %s", cmd)
     #return cmd
 
+def help_processing(_available_ports, tempargs):
+    """tbd"""
+    if not ('-h' in tempargs or '--help' in tempargs):
+        if _available_ports.isEmpty():
+            msg = 'no available communication port: aborting'
+            raise SystemExit(msg)
+    if '-h' in tempargs or '--help' in tempargs:
+        _PARSER.print_help()
+        raise SystemExit()
+
 def process_cmdline(_available_ports, _testcmdline=None):
     """process_cmdline(_available_ports, _testcmdline="")
 
@@ -196,13 +206,15 @@ def process_cmdline(_available_ports, _testcmdline=None):
     if _testcmdline:
         _tcl = _testcmdline
     tempargs = sys.argv[1:] + _tcl
-    if not ('-h' in tempargs or '--help' in tempargs):
-        if len(_available_ports) < 1:
-            msg = 'no available communication port: aborting'
-            raise SystemExit(msg)
-    if '-h' in tempargs or '--help' in tempargs:
-        _PARSER.print_help()
-        raise SystemExit()
+    help_processing(_available_ports, tempargs)
+    #if not ('-h' in tempargs or '--help' in tempargs):
+        #if _available_ports.isEmpty():
+            #msg = 'no available communication port: aborting'
+            #raise SystemExit(msg)
+    #if '-h' in tempargs or '--help' in tempargs:
+        #_PARSER.print_help()
+        #raise SystemExit()
+
 
     if _testcmdline:
         args = _PARSER.parse_args(_testcmdline)
@@ -273,8 +285,7 @@ class Stuff:
 
         """
 
-        verbose = self.verbose
-        cmdl_debug = self.cmdl_debug
+        # cmdl_debug = self.cmdl_debug
         result = ()
         _the_time = {False:  debug_time, True:time.localtime(time.time()),}
         try:
@@ -296,15 +307,18 @@ class Stuff:
                 sdtpl = ctrl.newcmd_dict['sdate']
                 cmd = None
                 _the_time[True] = time.localtime(time.time())
-                if self._ct.sendcmd(gdtpl[INST], cmdl_debug or verbose):
+                if self._ct.sendcmd(gdtpl[INST], self.cmdl_debug or self.verbose):
                     #get date info from controller
-                    _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
-                    if verbose:
-                        print(_c.atts['last_response'])
+                    # _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
+                    #if self.verbose:
+                        #print(_c.atts['last_response'])
                     systime = _the_time.get(debug_time is None)
-                    cmd = check_date(_res, sdtpl, systime)
+                    # cmd = check_date(_res, sdtpl, systime)
+                    cmd = check_date(gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response'])), \
+                                     sdtpl, systime)
                     self._helper1(cmd, 'date')
-                    if verbose:
+                    if self.verbose:
+                        print(_c.atts['last_response'])
                         print(time.localtime(time.time()))
 
                 return cmd
@@ -324,10 +338,10 @@ class Stuff:
                 gttpl = ctrl.newcmd_dict['gtime']
                 sttpl = ctrl.newcmd_dict['stime']
                 _the_time[True] = time.localtime(time.time())
-                if _c.sendcmd(gttpl[INST], cmdl_debug or verbose):
+                if _c.sendcmd(gttpl[INST], self.cmdl_debug or self.verbose):
                     _res = gttpl[REPL_FMT](gttpl[PAT].search(_c.atts['last_response']))
                     systime = _the_time.get(debug_time is None)
-                    if verbose:
+                    if self.verbose:
                         print(_c.atts['last_response'])
                     cmd = check_time(_res, sttpl, systime)
                     self._helper1(cmd, 'time')
@@ -348,7 +362,7 @@ class Stuff:
                     #check the dates are the same and if not make them so
                     if setdate():
                         LOGGER.info("date changed")
-                        if verbose:
+                        if self.verbose:
                             print('date change, try again')
                         continue  #made a change, try again
 
@@ -356,7 +370,7 @@ class Stuff:
                         break
                     #continue  #made a change try again
                     LOGGER.info("time changed")
-                    if verbose:
+                    if self.verbose:
                         print('time change, try again')
 
 
@@ -367,16 +381,13 @@ class Stuff:
                     print(_ve.args)
 
             succ = cntdown > 0
-            if verbose:
+            if self.verbose:
                 print('cntdown: {}'.format(cntdown))
             noneed = cntdown == SET_ATTEMPT_MAX - 1
             result = (cntdown, succ, noneed)
             if self.verbose:
                 ifa = {True: 'Controller date-time was current',}
                 ifa[False] = "Controller time sucessfully set: {}" .format(succ)
-                #_jjj = []
-                #_jjj.append(str(datetime.datetime.now()))
-                #_jjj.append(ifa.get(noneed))
                 print(' '.join([str(datetime.datetime.now()), ifa.get(noneed), ]))
 
             _c.close()
