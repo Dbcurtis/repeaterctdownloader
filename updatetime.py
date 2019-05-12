@@ -183,7 +183,7 @@ LOG_FILE = '/updatetime'
 def help_processing(_available_ports, tempargs):
     """tbd"""
     if not ('-h' in tempargs or '--help' in tempargs):
-        if _available_ports.isEmpty():
+        if not _available_ports:
             msg = 'no available communication port: aborting'
             raise SystemExit(msg)
     if '-h' in tempargs or '--help' in tempargs:
@@ -208,7 +208,7 @@ def process_cmdline(_available_ports, _testcmdline=None):
     tempargs = sys.argv[1:] + _tcl
     help_processing(_available_ports, tempargs)
     #if not ('-h' in tempargs or '--help' in tempargs):
-        #if _available_ports.isEmpty():
+        #if not _available_ports:
             #msg = 'no available communication port: aborting'
             #raise SystemExit(msg)
     #if '-h' in tempargs or '--help' in tempargs:

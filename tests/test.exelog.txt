@@ -1,10 +1,10 @@
 
 ;-------------
-; File: K:\RepeaterControlerDownloaderP34\tests\test.exelog.txt, Created on: 20171014, 19:08:26 UTC
+; File: k:\Python3_packages\repeaterControlerDownloader\tests\test.exelog.txt, Created on: 20190511, 15:45:47 UTC
 ;-----------------
 009 ;no filter
 ok no filter -- DTMF>010 ;no display but log
 ok no display but log -- DTMF>013 ;no display but log selected
 ok no display but log selected -- DTMF>014 ;display but log deselected
 015 ;display log, format
-fmt ok format -- DTMF>
+f

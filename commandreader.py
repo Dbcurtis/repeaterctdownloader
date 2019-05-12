@@ -14,16 +14,16 @@ THE_LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/commandreader'
 
-_LF_HANDLER = logging.handlers.RotatingFileHandler(
-    ''.join([LOG_DIR, LOG_FILE, ]),
-    maxBytes=10000,
-    backupCount=5,
-)
-_LC_HANDLER = logging.StreamHandler()
-_LF_FORMATTER = logging.Formatter(
-    '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+#_LF_HANDLER = logging.handlers.RotatingFileHandler(
+    #''.join([LOG_DIR, LOG_FILE, ]),
+    #maxBytes=10000,
+    #backupCount=5,
+#)
+#_LC_HANDLER = logging.StreamHandler()
+#_LF_FORMATTER = logging.Formatter(
+    #'%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
 
-_LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+#_LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
 
 
 
@@ -136,17 +136,17 @@ def __main():
     """
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
-    #_LF_HANDLER = logging.handlers.RotatingFileHandler(
-        #''.join([LOG_DIR, LOG_FILE, ]),
-        #maxBytes=10000,
-        #backupCount=5,
-    #)
+    _LF_HANDLER = logging.handlers.RotatingFileHandler(
+        ''.join([LOG_DIR, LOG_FILE, ]),
+        maxBytes=10000,
+        backupCount=5,
+    )
     _LF_HANDLER.setLevel(logging.DEBUG)
-    # _LC_HANDLER = logging.StreamHandler()
+    _LC_HANDLER = logging.StreamHandler()
     _LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
-    #_LF_FORMATTER = logging.Formatter(
-        #'%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
-    #_LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+    _LF_FORMATTER = logging.Formatter(
+        '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+    _LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
     _LC_HANDLER.setFormatter(_LC_FORMATTER)
     _LF_HANDLER.setFormatter(_LF_FORMATTER)
     _THE_LOGGER = logging.getLogger()

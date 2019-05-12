@@ -25,7 +25,7 @@ class Testupdatetime(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
-    
+
     def testdelay(self):
         matchtime = time.strptime("03 Jan 2018 11 30 30", "%d %b %Y %H %M %S")
         result = updatetime._delay(debug=True, testtime=matchtime)
@@ -68,13 +68,13 @@ class Testupdatetime(unittest.TestCase):
         result = updatetime._delay(debug=True, testtime=matchtime)
         curtime =  time.localtime(time.time())
         self.assertFalse(result[1])
-        
+
         matchtime = time.strptime("03 Jan 2018 23 00 00", "%d %b %Y %H %M %S")
         result = updatetime._delay(debug=True, testtime=matchtime)
         curtime =  time.localtime(time.time())
         self.assertFalse(result[1])
- 
-        
+
+
     def testcheckdate(self):
 
         cs = dlxii.Device()
@@ -84,15 +84,15 @@ class Testupdatetime(unittest.TestCase):
         mdf = """total crap >"""
         mx = pat.search(mdf)
         self.assertFalse(mx)
-         
+
         mdf = """DTMF>N029
 This is Wednesday, 01-03-2018
 OK
-DTMF>"""        
+DTMF>"""
         mx = pat.search(mdf)
         _res = tup[2](mx)
         sdtpl = cs.newcmd_dict['sdate']
-        matchtime =  time.strptime("03 Jan 2018 11 30 30", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 11 30 30", "%d %b %Y %H %M %S")
         cd = updatetime.check_date(_res, sdtpl, matchtime) #time.localtime(time.time()))
         self.assertFalse(cd)
 
@@ -100,20 +100,20 @@ DTMF>"""
         cd = updatetime.check_date(_res, sdtpl, matchtime)
         self.assertEqual('N0280103173', cd)
 
-        matchtime =  time.strptime("01 Jan 2018 11 30 30", "%d %b %Y %H %M %S")  
-        cd = updatetime.check_date(_res, sdtpl, matchtime) #time.localtime(time.time()))        
+        matchtime =  time.strptime("01 Jan 2018 11 30 30", "%d %b %Y %H %M %S")
+        cd = updatetime.check_date(_res, sdtpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N0280101182', cd)
 
         matchtime =  time.strptime("01 Feb 2018 11 30 30", "%d %b %Y %H %M %S")
-        cd = updatetime.check_date(_res, sdtpl, matchtime) #time.localtime(time.time()))        
+        cd = updatetime.check_date(_res, sdtpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N0280201185', cd)
 
         matchtime =  time.strptime("01 Jan 2018 11 30 30", "%d %b %Y %H %M %S")
-        cd = updatetime.check_date(_res, sdtpl, matchtime) #time.localtime(time.time()))        
-        self.assertEqual('N0280101182', cd)        
+        cd = updatetime.check_date(_res, sdtpl, matchtime) #time.localtime(time.time()))
+        self.assertEqual('N0280101182', cd)
 
     def testchecktime(self):
-        
+
         mdf = """DTMF>N027
 The time is 12:23 P.M.
 OK
@@ -125,7 +125,7 @@ DTMF"""
         mx = pat.search(mdf)
         _res = tup[2](mx)
         sttpl = cs.newcmd_dict['stime']
-        matchtime =  time.strptime("03 Jan 2018 12 23 30", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 12 23 30", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertFalse(cd)
 
@@ -133,135 +133,135 @@ DTMF"""
         cd = updatetime.check_time(_res, sttpl, matchtime)
         self.assertEqual('N02511300', cd)
 
-        matchtime =  time.strptime("03 Jan 2018 00 30 30", "%d %b %Y %H %M %S")  
-        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))        
+        matchtime =  time.strptime("03 Jan 2018 00 30 30", "%d %b %Y %H %M %S")
+        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02512300', cd)
-             
+
 
         matchtime =  time.strptime("03 Feb 2018 13 30 30", "%d %b %Y %H %M %S")
-        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))        
+        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02501301', cd)
 
         matchtime =  time.strptime("03 Jan 2018 23 30 30", "%d %b %Y %H %M %S")
-        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))        
-        self.assertEqual('N02511301', cd)        
-    
+        cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
+        self.assertEqual('N02511301', cd)
+
         mdf = """DTMF>N027
 The time is 12:23 A.M.
 OK
-DTMF"""    
+DTMF"""
         tup = cs.newcmd_dict['gtime']
         self.assertEqual('N027', tup[0])
         _res = tup[2](tup[1].search(mdf))
         sttpl = cs.newcmd_dict['stime']
-        matchtime =  time.strptime("03 Jan 2018 00 23 30", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 00 23 30", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertFalse(cd)
 
         matchtime =  time.strptime("03 Jan 2018 11 30 30", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime)
-        self.assertEqual('N02511300', cd)        
-        
+        self.assertEqual('N02511300', cd)
+
         matchtime =  time.strptime("03 Jan 2018 11 30 30", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime)
-        self.assertEqual('N02511300', cd)           
-        
+        self.assertEqual('N02511300', cd)
+
         mdf = """DTMF>N027
 The time is 12:00 A.M.
 OK
-DTMF"""    
+DTMF"""
         tup = cs.newcmd_dict['gtime']
         self.assertEqual('N027', tup[0])
-        _res = tup[2](tup[1].search(mdf))          
+        _res = tup[2](tup[1].search(mdf))
         sttpl = cs.newcmd_dict['stime']
-        matchtime =  time.strptime("03 Jan 2018 00 00 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 00 00 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertFalse(cd)
 
-        matchtime =  time.strptime("03 Jan 2018 00 01 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 00 01 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02512010', cd)
 
-        matchtime =  time.strptime("03 Jan 2018 23 59 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 23 59 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
-        self.assertEqual('N02511591', cd)         
+        self.assertEqual('N02511591', cd)
 
         mdf = """DTMF>N027
 The time is 12:00 P.M.
 OK
-DTMF"""    
+DTMF"""
         tup = cs.newcmd_dict['gtime']
         self.assertEqual('N027', tup[0])
         _res = tup[2](tup[1].search(mdf))
         sttpl = cs.newcmd_dict['stime']
-        matchtime =  time.strptime("03 Jan 2018 12 00 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 12 00 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertFalse(cd)
 
-        matchtime =  time.strptime("03 Jan 2018 12 01 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 12 01 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02512011', cd)
 
-        matchtime =  time.strptime("03 Jan 2018 11 59 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 11 59 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
-        self.assertEqual('N02511590', cd)    
+        self.assertEqual('N02511590', cd)
 
         mdf = """DTMF>N027
 The time is 12:01 P.M.
 OK
-DTMF"""    
+DTMF"""
         tup = cs.newcmd_dict['gtime']
         self.assertEqual('N027', tup[0])
         _res = tup[2](tup[1].search(mdf))
         sttpl = cs.newcmd_dict['stime']
-        matchtime =  time.strptime("03 Jan 2018 12 01 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 12 01 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertFalse(cd)
 
-        matchtime =  time.strptime("03 Jan 2018 12 00 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 12 00 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02512001', cd)
 
-        matchtime =  time.strptime("03 Jan 2018 11 59 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 11 59 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
-        self.assertEqual('N02511590', cd)        
-    
+        self.assertEqual('N02511590', cd)
+
         mdf = """DTMF>N027
 The time is 11:59 A.M.
 OK
-DTMF"""    
+DTMF"""
         tup = cs.newcmd_dict['gtime']
         self.assertEqual('N027', tup[0])
-        _res = tup[2](tup[1].search(mdf))  
+        _res = tup[2](tup[1].search(mdf))
         sttpl = cs.newcmd_dict['stime']
-        matchtime =  time.strptime("03 Jan 2018 11 59 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 11 59 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertFalse(cd)
-        matchtime =  time.strptime("03 Jan 2018 12 00 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 12 00 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02512001', cd)
-        matchtime =  time.strptime("03 Jan 2018 11 58 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 11 58 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02511580', cd)
-        
+
         mdf = """DTMF>N027
 The time is 1:05 A.M.
 OK
-DTMF"""    
+DTMF"""
         tup = cs.newcmd_dict['gtime']
         self.assertEqual('N027', tup[0])
-        _res = tup[2](tup[1].search(mdf))  
+        _res = tup[2](tup[1].search(mdf))
         sttpl = cs.newcmd_dict['stime']
-        matchtime =  time.strptime("03 Jan 2018 01 05 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 01 05 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertFalse(cd)
-        matchtime =  time.strptime("03 Jan 2018 00 00 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 00 00 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
         self.assertEqual('N02512000', cd)
-        matchtime =  time.strptime("03 Jan 2018 01 58 00", "%d %b %Y %H %M %S")  
+        matchtime =  time.strptime("03 Jan 2018 01 58 00", "%d %b %Y %H %M %S")
         cd = updatetime.check_time(_res, sttpl, matchtime) #time.localtime(time.time()))
-        self.assertEqual('N02501580', cd)        
-        
+        self.assertEqual('N02501580', cd)
+
     def testdoit(self):
         msclass = myserial.MySerial
         devs = getports.GetPorts().get()
@@ -270,16 +270,16 @@ DTMF"""
             port = devs[0]
         else:
             self.fail('no ports available')
-            
+
         msclass._debugging = True
         msclass._dbidx = 0  #test same date and time
         msclass._debugreturns = [
             b'preread ignored\r', b'\n9600 open default succeed DTMF>',
             b'DTMF>N029\r', b'\nThis is Wednesday, 01-03-2018\r', b'\nOK\r', b'\nDTMF>',
             b'DTMF>N027\r', b'\nThe time is 12:23 P.M.\r', b'\nOK\r', b'\nDTMF>',
-                                 ]
-        
-        ui = userinput.UserInput(ctype=dlxii.Device()) 
+        ]
+
+        ui = userinput.UserInput(ctype=dlxii.Device())
         ui.controller_type = dlxii.Device()
         ui.comm_port = port
         ui.inputfn = 'updatetest.txt'
@@ -289,23 +289,23 @@ DTMF"""
         self.assertTrue(res[2])
         self.assertEqual(14, res[0])
         self.assertTrue(14, res[1])
-        
+
         msclass._dbidx = 0  # test same date differnt time
         msclass._debugreturns = [
             b'preread ignored\r', b'\n9600 open default succeed DTMF>',
             b'DTMF>N029\r', b'\nThis is Wednesday, 01-03-2018\r', b'\nOK\r', b'\nDTMF>',
             b'DTMF>N027\r', b'\nThe time is 12:23 P.M.\r', b'\nOK\r', b'\nDTMF>',
-            b'DTMF>N02507071\r', b'\nTime set to 12:02 P.M.\r', b'\nOK\r', b'\nOK\r', b'\nDTMF>', 
+            b'DTMF>N02507071\r', b'\nTime set to 12:02 P.M.\r', b'\nOK\r', b'\nOK\r', b'\nDTMF>',
             b'DTMF>N029\r', b'\nThis is Wednesday, 01-03-2018\r', b'\nOK\r', b'\nDTMF>',
             b'DTMF>N027\r', b'\nThe time is 12:02 P.M.\r', b'\nOK\r', b'\nDTMF>',
-            b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', 
-                                 ]        
-        matchtime =  time.strptime("03 Jan 2018 12 02 00", "%d %b %Y %H %M %S")  
+            b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>',
+        ]
+        matchtime =  time.strptime("03 Jan 2018 12 02 00", "%d %b %Y %H %M %S")
         res = stuff.doit(debug_time=matchtime)
         self.assertTrue(res[1])
         self.assertEqual(13, res[0])
         self.assertFalse(res[2])
-        
+
         msclass._dbidx = 0  # test differnt time and different date
         msclass._debugreturns = [
             b'preread ignored\r', b'\n9600 open default succeed DTMF>',
@@ -313,20 +313,20 @@ DTMF"""
             b'DTMF>N0280103184\r', b'\nThis is Wednesday, 01-03-2018\r', b'\nOK\r', b'\nDTMF>',
             b'DTMF>N029\r', b'\nThis is Wednesday, 01-03-2018\r', b'\nOK\r', b'\nDTMF>',
             b'DTMF>N027\r', b'\nThe time is 12:23 P.M.\r', b'\nOK\r', b'\nDTMF>',
-            b'DTMF>N02507071\r', b'\nTime set to 12:02 P.M.\r', b'\nOK\r', b'\nOK\r', b'\nDTMF>', 
+            b'DTMF>N02507071\r', b'\nTime set to 12:02 P.M.\r', b'\nOK\r', b'\nOK\r', b'\nDTMF>',
             b'DTMF>N029\r', b'\nThis is Wednesday, 01-03-2018\r', b'\nOK\r', b'\nDTMF>',
             b'DTMF>N027\r', b'\nThe time is 12:02 P.M.\r', b'\nOK\r', b'\nDTMF>',
-            b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', 
-                                 ]        
-        matchtime =  time.strptime("03 Jan 2018 12 02 00", "%d %b %Y %H %M %S")  
+            b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>', b'\nDTMF>',
+        ]
+        matchtime =  time.strptime("03 Jan 2018 12 02 00", "%d %b %Y %H %M %S")
         res = stuff.doit(debug_time=matchtime)
         self.assertTrue(res[1])
         self.assertEqual(12, res[0])
         self.assertFalse(res[2])
 #still need to test the debug option in the affected code to make sure the time change is not sent to the controler
         msclass._debugging = False
-        
-        
+
+
     def testprocess_cmdline(self):
         try:
             updatetime.process_cmdline(['COM1'], _testcmdline=["-h", ])
@@ -339,7 +339,7 @@ DTMF"""
             self.fail(msg="should have exited")
         except SystemExit as e:
             pass
-            
+
         try:
 
             tup = updatetime.process_cmdline(['COM1',], _testcmdline=['', ])

@@ -48,7 +48,7 @@ def _fmt_proc_one(_mx):
     result['cmds'] = lst
     return result
 
-def _fmtN011(_str):
+def _fmt_n011(_str):
     """_fmtN011(s)
 
     Performs a regex, and if successful, returns a dict with keys:
@@ -66,7 +66,7 @@ def _fmtN011(_str):
     return {}
 
 
-def _fmtN054(_str):  #fmt macro contents
+def _fmt_n054(_str):  # fmt macro contents
     """__fmtN054(s)
 
     runs a regex on string s. If unsuccessful, return an empty dict.
@@ -124,11 +124,11 @@ class Device(controllerspecific.ControllerSpecific):
         self.safe2reset_name = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
 
-        __N029pat = re.compile(
+        _n029_pat = re.compile(
             r'This\s+is\s+(?P<A>\w+),\s*(?P<m>\d\d)-(?P<d>\d\d)-(?P<Y>\d{4,4})\s*\nOK\n',
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
-        __N027pat = re.compile(
+        _n027_pat = re.compile(
             r'The\s+time\s+is\s+(?P<I>\d{1,2}):(?P<M>\d\d)\s*(?P<p>[ap].m.)\nOK\n',
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
@@ -136,8 +136,8 @@ class Device(controllerspecific.ControllerSpecific):
             {'rpcmdn': ('N010', ),
              'rcn': ('N011', Device.N011Fmt_pat, _fmt_proc, None, ),
              'rmc': ('N054', Device.N054Fmt_pat, _fmt_proc_one, None, ),
-             'gdate': ('N029', __N029pat, _fmt_proc, None,),
-             'gtime': ('N027', __N027pat, _fmt_proc, None, ),
+             'gdate': ('N029', _n029_pat, _fmt_proc, None,),
+             'gtime': ('N027', _n027_pat, _fmt_proc, None, ),
              'sdate': ('N028', None, None, _fmt_cmd, ),
              'stime': ('N025', None, None, _fmt_cmd, ),
              'smacro': (200, 499),
@@ -187,7 +187,7 @@ class Device(controllerspecific.ControllerSpecific):
         If unable to parse the input s, just returns the input s and empty dict.
         """
         result = (_str, {})
-        _d = _fmtN054(_str)
+        _d = _fmt_n054(_str)
 
         if _d:
             if  _d.get("numins") != "0":
@@ -215,7 +215,7 @@ class Device(controllerspecific.ControllerSpecific):
 
         """
         result = (_str, {})
-        _d = _fmtN011(_str)
+        _d = _fmt_n011(_str)
         if _d:
             _ll = ['Command number']
             _ll.append(_d.get('cmdno'))

@@ -6,10 +6,10 @@ from __future__ import print_function
 
 import sys
 import unittest
-import dlxii
 import getports
 import serial
 import myserial
+import dlxii
 
 #from serial.tools import list_ports
 
