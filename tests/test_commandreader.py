@@ -19,6 +19,7 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 class TestCommandreader(unittest.TestCase):
+    """command reader test"""
     ctrl = knowncontrollers.select_controller('dlxii')[1]
     ui = userinput.UserInput(ctrl)
 
@@ -69,9 +70,13 @@ class TestCommandreader(unittest.TestCase):
             _cr.close()
 
     def testclose(self):
+        """"donoting fix"""
         pass
 
     def testget(self):
+        """testget
+
+        """
         _cr = commandreader.CommandReader(TestCommandreader.ui)
         try:
             _cr.open()

@@ -136,7 +136,7 @@ class UserInput:
          displays error with reason.
          (if the serial port is already open, closes it and re opens it)
 
-        If the serial port is opened and if detectBR: the baud rate of the controller is
+        If the serial port is opened and if detect_br: the baud rate of the controller is
         found and the serial port so set.
 
         If detect_br is True, the baud rate will be detected by establishing

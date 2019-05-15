@@ -9,7 +9,7 @@ import logging
 import logging.handlers
 import userinput
 
-THE_LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/commandreader'

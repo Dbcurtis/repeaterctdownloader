@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" To Be Done """
+""" Module for interfacing to the serial handlers """
 
 import os
 import logging
@@ -11,10 +11,10 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/myserial'
 
-class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
-    """MySerial
+class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
+    """MySerial(controller_info)
 
-    To Be Done
+    controller_info is ***?
     """
     _debugging = False
 
@@ -23,17 +23,19 @@ class MySerial(serial.Serial): # pylint: disable=too-many-ancestors
     _NO = -1
 
 
-    Byte_2_String = lambda bs: "".join([chr(int(b)) for b in bs if int(b) != 13])
     """Byte_2_String(bs)
 
     Takes a byte array (bs) and returns the corrosponding string
     """
+    def Byte_2_String(bs): return "".join([chr(int(b)) for b in bs if int(b) != 13])
 
     String_2_Byte = lambda st: bytes([ord(s) for s in st])
     """String_2_Byte(st)
 
     Takes a string (st) and returns a corrosponding byte array
     """
+    def String_2_Byte(st): return bytes([ord(s) for s in st])
+
     def __init__(self, controller_info):
         super(MySerial, self).__init__()
         self.controller_info = controller_info
