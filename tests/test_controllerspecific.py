@@ -4,11 +4,14 @@ Test file for controllerspecific
 """
 from __future__ import print_function
 import unittest
+#import context
+
 import controllerspecific
 
 
 class TestControllerspecific(unittest.TestCase):
     """ TBD """
+
     def setUp(self):
         pass
 
@@ -25,7 +28,8 @@ class TestControllerspecific(unittest.TestCase):
 
     def testcreation(self):
         _aa = controllerspecific.ControllerSpecific.get_Ctr_type
-        self.assertEqual('Abstract Controller', controllerspecific.ControllerSpecific.get_Ctr_type)
+        self.assertEqual('Abstract Controller',
+                         controllerspecific.ControllerSpecific.get_Ctr_type)
         _cs = controllerspecific.ControllerSpecific()
         _ = _cs.cps_data
         cps0 = _[0]
@@ -38,7 +42,6 @@ class TestControllerspecific(unittest.TestCase):
         self.assertEqual([9600, 19200, 4800, 2400, 1200, 600, 300], rates)
         css = 'Abstract Controller'
         self.assertEqual(css, str(_cs))
-
 
     def testfmtRMC(self):
         _cs = controllerspecific.ControllerSpecific()

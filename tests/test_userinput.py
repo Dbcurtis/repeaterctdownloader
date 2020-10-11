@@ -6,20 +6,28 @@ Test file for userinput
 from __future__ import print_function
 import sys
 import unittest
+#import context
 import dlxii
 import serial
 import myserial
 import userinput
 import getports
 
+
 def eprint(*args, **kwargs):
+    """eprint(*args, **kwargs)
+    Sends print data to sys
+    """
     print(*args, file=sys.stderr, **kwargs)
 
+
 class Testuserinput(unittest.TestCase):
+    """test class"""
     sdevice = ""
     gsp = serial.Serial()
 
     def setUp(self):
+        """setUp()"""
         mySPortclass = myserial.MySerial
         sp = mySPortclass(dlxii.Device())
         sp.port = Testuserinput.sdevice
@@ -32,6 +40,7 @@ class Testuserinput(unittest.TestCase):
         mySPortclass._debugging = True
 
     def tearDown(self):
+        """tearDown()"""
         if Testuserinput.sdevice:
             sp = Testuserinput.gsp
             if sp.isOpen():
@@ -76,6 +85,8 @@ class Testuserinput(unittest.TestCase):
         myserial.MySerial._dbidx = 0
 
     def testopen(self):
+        """testopen()
+        """
         self.assertTrue(myserial.MySerial._debugging)
         ui = userinput.UserInput(dlxii.Device())
         ui.inputfn = "cmdreadertest.txt"
@@ -102,7 +113,6 @@ class Testuserinput(unittest.TestCase):
         self.assertTrue(sp.isOpen())
         ui.close()
 
-
         myserial.MySerial._debugreturns = [
             b'preread ignored', b'9600 fail try 1 MF>',
             b'preread ignored', b'9600 fail try 2 MF>',
@@ -111,7 +121,7 @@ class Testuserinput(unittest.TestCase):
         myserial.MySerial._dbidx = 0
 
         ui.open(detect_br=False)
-        self.assertEqual(9600, sp.baudrate)  #9600 is the default
+        self.assertEqual(9600, sp.baudrate)  # 9600 is the default
         ui.close()
 
     def testclose(self): pass  # tested other places
@@ -126,12 +136,14 @@ class Testuserinput(unittest.TestCase):
             pass
 
         ports = getports.GetPorts().get()
-        fakeuser += getports.GetPorts().get() + ['junk', 'dlx2', 'mytest.txt']
+        fakeuser += getports.GetPorts().get() + \
+            ['junk', 'dlx2', 'mytest.txt']
         ui = userinput.UserInput(dlxii.Device(), testdata=fakeuser)
         ui.request()
         self.assertEqual(ports[0], ui.comm_port)
         self.assertEqual('mytest.txt', ui.inputfn)
         self.assertTrue(isinstance(ui.controller_type, dlxii.Device))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,6 +3,7 @@
 Test file for knowncontrollers
 """
 from __future__ import print_function
+#import context
 import dlxii
 import unittest
 import knowncontrollers
@@ -30,7 +31,6 @@ class TestKnownControllers(unittest.TestCase):
         objknown = str(kc)
         self.assertEqual(classknown, objknown)
 
-
     def test_getcontrollerids(self):
         aa = knowncontrollers.get_controller_ids()
         exp = ["club", "dlxii", "rlc1plus"]
@@ -41,9 +41,7 @@ class TestKnownControllers(unittest.TestCase):
         self.assertFalse(knowncontrollers.select_controller('junk'))
         ctrltup = knowncontrollers.select_controller('dlx2')
         self.assertEqual('dlxii', ctrltup[0])
-        self.assertTrue(isinstance(ctrltup[1],  dlxii.Device))
-        
-
+        self.assertTrue(isinstance(ctrltup[1], dlxii.Device))
 
 
 if __name__ == '__main__':

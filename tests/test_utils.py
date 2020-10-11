@@ -5,6 +5,7 @@ Test file for utils
 from __future__ import print_function
 import sys
 import unittest
+#import context
 import serial
 import myserial
 import userinput
@@ -16,6 +17,7 @@ import dlxii
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 class Testutils(unittest.TestCase):
     sdevice = ""
@@ -73,12 +75,12 @@ class Testutils(unittest.TestCase):
         utili = utils.Utils(ui, c, testing=True, showhelp=False)
         self.assertTrue(utili.testing)
         utili = utils.Utils(ui, c, testing=True, showhelp=True)
-     
 
     def testprocessLoop(self):
         ui = userinput.UserInput(dlxii.Device())
         ui.comm_port = Testutils.sdevice
-        utili = utils.Utils(ui, controller.Controller(ui), testing=True, showhelp=False)
+        utili = utils.Utils(ui, controller.Controller(ui),
+                            testing=True, showhelp=False)
         utili.process_loop()
 
     def testrecallMacroNames(self):
@@ -90,30 +92,33 @@ class Testutils(unittest.TestCase):
     def testresetCmdNames(self):
         ui = userinput.UserInput(dlxii.Device())
         ui.comm_port = Testutils.sdevice
-        utili = utils.Utils(ui, controller.Controller(ui), testing=True, showhelp=False)
+        utili = utils.Utils(ui, controller.Controller(ui),
+                            testing=True, showhelp=False)
         myserial.MySerial._dbidx = -1
         utili.reset_cmd_names()
 
     def testrecallMacroDeffinitions(self):
         pass
-    
+
     def testacr(self):
         ui = userinput.UserInput(dlxii.Device())
         ui.comm_port = Testutils.sdevice
-        utili = utils.Utils(ui, controller.Controller(ui), testing=True, showhelp=False)
+        utili = utils.Utils(ui, controller.Controller(ui),
+                            testing=True, showhelp=False)
         myserial.MySerial._dbidx = -1
         utili.doacr()
-        
 
     def teststr(self):
         ui = userinput.UserInput(dlxii.Device())
         ui.comm_port = Testutils.sdevice
         c = controller.Controller(ui)
         utili = utils.Utils(ui, c, testing=False, showhelp=False)
-        self.assertEqual('testing:False, cmds: -acr, -rmn, -ran, -rmd, -cacn, -q', str(utili))
+        self.assertEqual(
+            'testing:False, cmds: -acr, -rmn, -ran, -rmd, -cacn, -q', str(utili))
         utili = utils.Utils(ui, c, testing=True, showhelp=False)
-        self.assertEqual('testing:True, cmds: -acr, -rmn, -ran, -rmd, -cacn, -q', str(utili))
-        
+        self.assertEqual(
+            'testing:True, cmds: -acr, -rmn, -ran, -rmd, -cacn, -q', str(utili))
+
     def testrange_2_list(self):
         aa = utils._range_2_list
         jj = aa((0, 0))
@@ -125,10 +130,11 @@ class Testutils(unittest.TestCase):
         jj = aa([(0, 2), (5, 5), (10, 12)])
         self.assertEqual([0, 1, 2, 5, 10, 11, 12], jj)
         jj = aa([(0, 2), (1, 11), (10, 12)])
-        self.assertEqual([0, 1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 10, 11, 12], jj)
+        self.assertEqual([0, 1, 2, 1, 2, 3, 4, 5, 6, 7,
+                          8, 9, 10, 11, 10, 11, 12], jj)
         jj = set(jj)
         self.assertEqual(set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), jj)
-       
+
 
 if __name__ == '__main__':
     unittest.main()

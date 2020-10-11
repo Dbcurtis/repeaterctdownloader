@@ -1,4 +1,4 @@
- #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Test file for MySerial
 """
@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import sys
 import unittest
+#import context
 import getports
 import serial
 import myserial
@@ -16,6 +17,7 @@ import dlxii
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 class TestMySerial(unittest.TestCase):
     sdevice = ""
@@ -82,9 +84,7 @@ class TestMySerial(unittest.TestCase):
         self.assertTrue(sp.sp_ok())
         sp.close()
 
-
     def testfindBaud(self):
-
         """
         1) test that an open correct speed port is detected
         2) test that a closed correct speed port is detected
@@ -95,15 +95,15 @@ class TestMySerial(unittest.TestCase):
 
         """
 
-
         sp = myserial.MySerial(dlxii.Device())
         msclass = myserial.MySerial
         TestMySerial.gsp = sp
         msclass._debugging = True
 
-        #test 1) findBaudRate open, 9600
+        # test 1) findBaudRate open, 9600
         msclass._dbidx = 0
-        msclass._debugreturns = [b'preread ignored', b'9600 open default succeed DTMF>']
+        msclass._debugreturns = [b'preread ignored',
+                                 b'9600 open default succeed DTMF>']
 
         sp.port = TestMySerial.sdevice
         sp.baudrate = 9600
@@ -113,15 +113,16 @@ class TestMySerial(unittest.TestCase):
         self.assertEqual(9600, sp.baudrate)
         self.assertTrue(sp.isOpen())
 
-        #test 2) findBaudRate close, 9600
+        # test 2) findBaudRate close, 9600
         sp.close()
         msclass._dbidx = 0
-        msclass._debugreturns = [b'preread ignored', b'9600 close default succeed DTMF>']
+        msclass._debugreturns = [b'preread ignored',
+                                 b'9600 close default succeed DTMF>']
         self.assertTrue(sp.find_baud_rate())
         self.assertEqual(9600, sp.baudrate)
         self.assertFalse(sp.isOpen())
 
-        #test 3) findBaudRate close bad baud, found 9600 baud
+        # test 3) findBaudRate close bad baud, found 9600 baud
         msclass._dbidx = 0
         msclass._debugreturns = [
             b'preread ignored', b'any fail DMF>',
@@ -131,7 +132,7 @@ class TestMySerial(unittest.TestCase):
         self.assertEqual(9600, sp.baudrate)
         self.assertFalse(sp.isOpen())
 
-        #test 4) findBaudRate open bad baud, found 9600 baud
+        # test 4) findBaudRate open bad baud, found 9600 baud
         msclass._dbidx = 0
         msclass._debugreturns = [
             b'preread ignored', b'kjljjglkjerrl',
@@ -142,7 +143,7 @@ class TestMySerial(unittest.TestCase):
         self.assertEqual(9600, sp.baudrate)
         self.assertTrue(sp.isOpen())
 
-        #test 5) test that a first attempt at 19200 is ok
+        # test 5) test that a first attempt at 19200 is ok
         msclass._dbidx = 0
         msclass._debugreturns = [
             b'preread ignored', b'9600 fail try 1 MF>',
@@ -153,7 +154,7 @@ class TestMySerial(unittest.TestCase):
         self.assertEqual(19200, sp.baudrate)
         self.assertTrue(sp.isOpen())
 
-        #test 6) check that dbidx = -1 does as expected
+        # test 6) check that dbidx = -1 does as expected
         msclass._dbidx = -1
         self.assertEqual(b'OK\nDTMF>', sp.dread(99)[0])
 

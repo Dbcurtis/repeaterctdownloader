@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""This script prompts for user input for serial port etc."""
+"""This script prompts for user input for which serial port to use etc."""
 import sys
 import os
 import logging
@@ -13,23 +13,28 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/userinput'
 
+
 def _ignore(_ignoreme):
     return
+
 
 def _pop_test_data(queue, ignore):
     # pylint: disable=W0613
     return queue.pop()
 
+
 def _inputg(ignore, _a):
     # pylint: disable=W0613
     return input(_a)
 
+
 _CLOSE_IFD = {True: lambda a: a.close(),
-              False: _ignore,}
+              False: _ignore, }
 
 _USER_INPUT_IFD = {
     True: _pop_test_data,
-    False: _inputg,}
+    False: _inputg, }
+
 
 class UserInput:
     """UserInput( ctype=controller, testdata=string, testing=TF)
@@ -53,12 +58,15 @@ class UserInput:
     """
 
     def _inputa(self, query):
+        """_inputa(query)
+        """
         return _USER_INPUT_IFD.get(isinstance(self._td, list))(self._td, query)
 
     def __init__(self, ctype=None, testdata=None, testing=False):
-        self.testing = testing
-        self.comm_port = ""
-        self.inputfn = ""
+        """UserInput(ctype,testdata,testing:bool)"""
+        self.testing: bool = testing
+        self.comm_port: str = ""
+        self.inputfn: str = ""
         self.controller_type = ctype
         if self.controller_type is None:
             self.serial_port = None
@@ -107,7 +115,7 @@ class UserInput:
                 break
 
         print('Known controlers: \n\t'
-              +'\n\t'.join(knowncontrollers.get_controller_ids()))
+              + '\n\t'.join(knowncontrollers.get_controller_ids()))
 
         _msg = 'Controler options: ' + str(knowncontrollers.get_known())
         while 1:
@@ -119,7 +127,8 @@ class UserInput:
                 self.serial_port = myserial.MySerial(self.controller_type)
                 break
 
-        self.inputfn = self._inputa("file name to send to repeater or blank?>")
+        self.inputfn = self._inputa(
+            "file name to send to repeater or blank?>")
 
     def close(self):
         """close()
@@ -128,9 +137,8 @@ class UserInput:
         """
         _CLOSE_IFD.get(self.serial_port.isOpen())(self.serial_port)
 
-
-    def open(self, detect_br=True):
-        """open()
+    def open(self, detect_br: bool = True) -> bool:
+        """open(detect_br:bool)
 
         Configures and opens the serial port if able, otherwise
          displays error with reason.
@@ -166,6 +174,7 @@ class UserInput:
             raise OSError('Unable to match controller baud rate')
         return True
 
+
 if __name__ == '__main__':
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
@@ -176,7 +185,7 @@ if __name__ == '__main__':
     )
     LF_HANDLER.setLevel(logging.DEBUG)
     LC_HANDLER = logging.StreamHandler()
-    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LC_HANDLER.setLevel(logging.DEBUG)  # (logging.ERROR)
     LF_FORMATTER = logging.Formatter(
         '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
     LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
@@ -187,7 +196,7 @@ if __name__ == '__main__':
     THE_LOGGER.addHandler(LF_HANDLER)
     THE_LOGGER.addHandler(LC_HANDLER)
     THE_LOGGER.info('userinput executed as main')
-    #LOGGER.setLevel(logging.DEBUG)
+    # LOGGER.setLevel(logging.DEBUG)
     UI = UserInput()
     try:
         UI.request()

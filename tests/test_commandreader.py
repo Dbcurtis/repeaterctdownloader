@@ -5,11 +5,12 @@ Test file for commandreader
 from __future__ import print_function
 import sys
 import unittest
-
+#import context
 import commandreader
 import userinput
 import knowncontrollers
 import dlxii
+
 
 def eprint(*args, **kwargs):
     """eprint(*args, **kwards)
@@ -17,6 +18,7 @@ def eprint(*args, **kwargs):
     force a print to sys.stderr
     """
     print(*args, file=sys.stderr, **kwargs)
+
 
 class TestCommandreader(unittest.TestCase):
     """command reader test"""
@@ -99,6 +101,7 @@ class TestCommandreader(unittest.TestCase):
 
         finally:
             _cr.close()
+
 
 if __name__ == '__main__':
     unittest.main()

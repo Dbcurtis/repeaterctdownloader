@@ -4,8 +4,9 @@ Test file for dlxii
 """
 from __future__ import print_function
 import unittest
-# import context
+#import context
 import dlxii
+
 
 class TestControllerspecific(unittest.TestCase):
     """test"""
@@ -39,7 +40,6 @@ class TestControllerspecific(unittest.TestCase):
         self.assertEqual([9600, 19200, 4800, 2400, 1200, 600, 300], rates)
         css = 'RLC-Club Deluxe II v2.15'
         self.assertEqual(css, str(cs))
-
 
     def testnewcmd_dict(self):
         cs = dlxii.Device()
@@ -75,7 +75,6 @@ DTMF>"""
         self.assertTrue('#038' in cmdlines[0])
         self.assertTrue('#000' in cmdlines[1])
 
-
         mdf = """OK
 DTMF>N011 521N011521
 Command number 521 is named C47571.  It takes 0 digits of data.
@@ -105,7 +104,6 @@ DTMF>"""
         self.assertEqual('03', res['d'])
         self.assertEqual('2018', res['Y'])
 
-
         mdf = """DTMF>N027
 The time is 12:23 P.M.
 OK
@@ -119,16 +117,12 @@ DTMF"""
         self.assertEqual('23', res['M'])
         self.assertEqual('P.M.', res['p'])
 
-
     def testfmtcmd(self):
         cs = dlxii.Device()
         tup = cs.newcmd_dict['sdate']
         arg = (tup[0], 'arg1', 'arg2', 'arg3', 'arg4')
         cmd = tup[3](arg)
         self.assertEqual('N028arg1arg2arg3arg4', cmd)
-
-
-
 
     def testfmt_rmc(self):
         cs = dlxii.Device()
@@ -144,14 +138,13 @@ OK
 OK
 DTMF>"""
         r = cs.fmtRMC(mdf)
-        self.assertEqual('Macro 501 contains 2 commands\n'\
-                         '#00  Command #038 with 00 digits of data:\n'\
-                         '#01  Command #000 with 02 digits of data: 13\n'\
+        self.assertEqual('Macro 501 contains 2 commands\n'
+                         '#00  Command #038 with 00 digits of data:\n'
+                         '#01  Command #000 with 02 digits of data: 13\n'
                          'This macro is 9 percent full',
                          r[0])
         self.assertEqual(4, len(r[1]))
         self.assertEqual(2, len(r[1].get("cmds")))
-
 
     def testfmt_rcm(self):
         cs = dlxii.Device()
@@ -168,6 +161,7 @@ DTMF>"""
         self.assertEqual('Command number 521 is named C47571.  It takes 0 digits of data.',
                          _[0])
         self.assertEqual(3, len(_[1]))
+
 
 if __name__ == '__main__':
     unittest.main()

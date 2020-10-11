@@ -7,6 +7,7 @@ import os
 import sys
 import time
 import unittest
+#import context
 import userinput
 import controller
 import serial
@@ -18,11 +19,11 @@ import dlxii
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
+
 class TestController(unittest.TestCase):
     ui = userinput.UserInput(dlxii.Device())
     ui1 = userinput.UserInput(dlxii.Device())
     sdevice = ""
-
 
     def setUp(self):
         mySPortclass = myserial.MySerial
@@ -86,26 +87,27 @@ class TestController(unittest.TestCase):
             sp.close()
         mySPortclass._debugging = False
 
-
     def testopen(self):
         mySPortclass = myserial.MySerial
         c = controller.Controller(TestController.ui)
         mySPortclass._debugreturns = [b'ok\nDTMF>', b'ok\nDTMF>']
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
-        #self.assertTrue(c.isOpen)
+        # self.assertTrue(c.isOpen)
         self.assertTrue(c.atts['isOpen'])
         self.assertTrue(c.atts['is_files_open'])
         self.assertTrue(c.s_port.isOpen())
-        self.assertEqual('testcontroller.cmdlog.txt', c.atts['cmd_log_file'].name)
-        self.assertEqual('testcontroller.exelog.txt', c.atts['cmd_err_file'].name)
+        self.assertEqual('testcontroller.cmdlog.txt',
+                         c.atts['cmd_log_file'].name)
+        self.assertEqual('testcontroller.exelog.txt',
+                         c.atts['cmd_err_file'].name)
         c.close()
 
         c = controller.Controller(TestController.ui1)
         mySPortclass._debugreturns = [b'ok\nDTMF>', b'ok\nDTMF>']
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
-        #self.assertTrue(c.isOpen)
+        # self.assertTrue(c.isOpen)
         self.assertTrue(c.atts['isOpen'])
         self.assertTrue(c.atts['is_files_open'])
         self.assertTrue(c.s_port.isOpen())
@@ -113,18 +115,17 @@ class TestController(unittest.TestCase):
         self.assertEqual('test.exelog.txt', c.atts['cmd_err_file'].name)
         c.close()
 
-
     def testclose(self):
         mySPortclass = myserial.MySerial
         c = controller.Controller(TestController.ui)
         mySPortclass._debugreturns = [b'ok\nDTMF>', b'ok\nDTMF>']
         mySPortclass._dbidx = 0
         self.assertTrue(c.open())
-        #self.assertTrue(c.isOpen)
+        # self.assertTrue(c.isOpen)
         self.assertTrue(c.atts['isOpen'])
         self.assertTrue(c.atts['is_files_open'])
         c.close()
-        #self.assertFalse(c.isOpen)
+        # self.assertFalse(c.isOpen)
         self.assertFalse(c.atts['isOpen'])
         self.assertFalse(c.atts['is_files_open'])
         self.assertFalse(c.s_port.isOpen())
@@ -235,12 +236,14 @@ class TestController(unittest.TestCase):
         c.sendcmd('010 ;no display but log', display=False)
         c.sendcmd('011 ;no log but display', log_it=False)
         c.sendcmd('012 ;no log no display', log_it=False, display=False)
-        c.sendcmd('013 ;no display but log selected', display=False, select_it=lambda a: True)
-        c.sendcmd('014 ;display but log deselected', display=True, select_it=lambda a: False)
+        c.sendcmd('013 ;no display but log selected',
+                  display=False, select_it=lambda a: True)
+        c.sendcmd('014 ;display but log deselected',
+                  display=True, select_it=lambda a: False)
         c.sendcmd('015 ;display log, format', format_it=lambda a: 'fmt ' + a)
         c.close()
         lines = []
-        with  open('test.exelog.txt', 'r', encoding='utf-8') as _:
+        with open('test.exelog.txt', 'r', encoding='utf-8') as _:
             lines = _.readlines(999)
         self.assertEqual(10, len(lines))
 
