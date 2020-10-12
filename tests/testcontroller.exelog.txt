@@ -1,4 +1,4 @@
 
 ;-------------
-; File: m:\Python\Python3_packages\repeaterControlerDownloader\tests\testcontroller.exelog.txt, Created on: 20201011, 22:58:35 UTC
+; File: m:\Python\Python3_packages\repeaterControlerDownloader\tests\testcontroller.exelog.txt, Created on: 20201012, 12:36:45 UTC
 ;-----------------

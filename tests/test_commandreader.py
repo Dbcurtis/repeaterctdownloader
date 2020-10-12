@@ -39,6 +39,12 @@ class TestCommandreader(unittest.TestCase):
     def tearDownClass(cls):
         pass
 
+    def test0_inst(self):
+        _cr = CommandReader(TestCommandreader.ui)
+        eres = '[CommandReader closed: True, [UserInput: , cmdreadertest.txt]]'
+        self.assertEqual(eres, str(_cr))
+        self.assertEqual(eres, repr(_cr))
+
     def test1_open(self):
         """testopen()
 
@@ -50,6 +56,11 @@ class TestCommandreader(unittest.TestCase):
             self.assertEqual("", _cr.get())
             _cr.close()
             self.assertTrue(_cr.open())
+
+            eres = '[CommandReader closed: False, [UserInput: , cmdreadertest.txt]]'
+            self.assertEqual(eres, str(_cr))
+            self.assertEqual(eres, repr(_cr))
+
             self.assertFalse(_cr.atts['is_closed'])
             try:
                 _cr.open()

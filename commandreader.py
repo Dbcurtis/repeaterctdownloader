@@ -14,22 +14,21 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/commandreader'
 
-#_LF_HANDLER = logging.handlers.RotatingFileHandler(
-    #''.join([LOG_DIR, LOG_FILE, ]),
-    #maxBytes=10000,
-    #backupCount=5,
-#)
+# _LF_HANDLER = logging.handlers.RotatingFileHandler(
+#''.join([LOG_DIR, LOG_FILE, ]),
+# maxBytes=10000,
+# backupCount=5,
+# )
 #_LC_HANDLER = logging.StreamHandler()
-#_LF_FORMATTER = logging.Formatter(
-    #'%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
+# _LF_FORMATTER = logging.Formatter(
+# '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
 
 #_LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
 
 
-
-
 def _donothing():
     pass
+
 
 class CommandReader:
     """CommandReader
@@ -52,7 +51,7 @@ class CommandReader:
 
     def __init__(self, _ui):
         self.atts = {'lasterror': None, "file_in": None,
-                     'file_name': _ui.inputfn, 'line': "", 'is_closed': True,}
+                     'file_name': _ui.inputfn, 'line': "", 'is_closed': True, }
 
         self.ui = _ui
         self.loc = -1  # loc is used to keep track of when the read is done
@@ -62,10 +61,14 @@ class CommandReader:
         }
 
     def __str__(self):
-        return '[CommandReader closed: {}, {}]'.format(str(self.atts['is_closed']), str(self.ui))
+        # return '[CommandReader closed: {}, {}]'.format(str(self.atts['is_closed']), str(self.ui))
+        # .format(str(self.atts['is_closed']), str(self.ui))
+        return f'[CommandReader closed: {str(self.atts["is_closed"])}, {str(self.ui)}]'
 
     def __repr__(self):
-        return '[CommandReader closed: {}, {}]'.format(str(self.atts['is_closed']), str(self.ui))
+        # return '[CommandReader closed: {}, {}]'.format(str(self.atts['is_closed']), str(self.ui))
+        return f'[CommandReader closed: {str(self.atts["is_closed"])}, { str(self.ui)}]'
+        # .format(str(self.atts['is_closed']), str(self.ui))
 
     def open(self):
         """open()
@@ -118,7 +121,6 @@ class CommandReader:
             self.atts['is_closed'] = True
             return ""
 
-
     def close(self):
         """close()
 
@@ -143,10 +145,11 @@ def __main():
     )
     _LF_HANDLER.setLevel(logging.DEBUG)
     _LC_HANDLER = logging.StreamHandler()
-    _LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    _LC_HANDLER.setLevel(logging.DEBUG)  # (logging.ERROR)
     _LF_FORMATTER = logging.Formatter(
         '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
-    _LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
+    _LC_FORMATTER = logging.Formatter(
+        '%(name)s: %(levelname)s - %(message)s')
     _LC_HANDLER.setFormatter(_LC_FORMATTER)
     _LF_HANDLER.setFormatter(_LF_FORMATTER)
     _THE_LOGGER = logging.getLogger()
@@ -154,7 +157,7 @@ def __main():
     _THE_LOGGER.addHandler(_LF_HANDLER)
     _THE_LOGGER.addHandler(_LC_HANDLER)
     _THE_LOGGER.info('commandreader executed as main')
-    #LOGGER.setLevel(logging.DEBUG)
+    # LOGGER.setLevel(logging.DEBUG)
     _ui = userinput.UserInput()
     _ui.request()
     _ui.open(detect_br=False)
@@ -170,6 +173,7 @@ def __main():
     finally:
         _cr.close()
         _ui.close()
+
 
 if __name__ == '__main__':
     __main()

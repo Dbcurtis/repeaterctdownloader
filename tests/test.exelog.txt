@@ -1,6 +1,6 @@
 
 ;-------------
-; File: m:\Python\Python3_packages\repeaterControlerDownloader\tests\test.exelog.txt, Created on: 20201011, 22:58:38 UTC
+; File: m:\Python\Python3_packages\repeaterControlerDownloader\tests\test.exelog.txt, Created on: 20201012, 12:36:49 UTC
 ;-----------------
 009 ;no filter
 ok no filter -- DTMF>010 ;no display but log

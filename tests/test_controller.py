@@ -88,7 +88,13 @@ class TestController(unittest.TestCase):
         mySPortclass._debugging = False
 
     def test_0inst(self):
-        self.fail("need to test str etc")
+        mySPortclass = myserial.MySerial
+        c = controller.Controller(TestController.ui)
+        #sss = str(c)
+        sexp = '[Controller: False, False, [UserInput: COM4, testcontroller.txt]]'
+        rexp = '[Controller: False, False, False, [UserInput: COM4, testcontroller.txt]]'
+        self.assertEquals(sexp, str(c))
+        self.assertEquals(rexp, repr(c))
 
     def testopen(self):
         mySPortclass = myserial.MySerial

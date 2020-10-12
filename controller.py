@@ -118,18 +118,9 @@ class Controller:
 
     def __str__(self):
         return f'[Controller: {str(self.atts["is_files_open"])}, {str(self.atts["isOpen"])}, {str(self.ui)}]'
-        # .format(
-        #   str(self.atts['is_files_open']),
-        #    str(self.atts['isOpen']),
-        #    str(self.ui))
 
     def __repr__(self):
-        return f'[Controller:  {str(self.s_port.isOpen())}, {str(self.atts["is_files_open"])}, {str(self.atts["is_files_open"])}, {str(self.ui)}]'
-        # .format(
-        # str(self.s_port.isOpen()),
-        # str(self.atts['is_files_open']),
-        # str(self.atts['isOpen']),
-        # str(self.ui))
+        return f'[Controller: {str(self.s_port.isOpen())}, {str(self.atts["is_files_open"])}, {str(self.atts["isOpen"])}, {str(self.ui)}]'
 
     def open(self):
         """open()
@@ -259,8 +250,8 @@ class Controller:
             self.s_port.timeout = _saved_to
             #rnok = Controller._errPat.search(''.join(inList))
             if Controller._errPat.search(''.join(_in_list)):  # rnok:
-                _in_list.append("******************E R R O R"
-                                + "****************\n" + self.ctrl_prompt)
+                _in_list.append("******************E R R O R" +
+                                "****************\n" + self.ctrl_prompt)
                 result = False
             response = ''.join(_in_list)
         else:
