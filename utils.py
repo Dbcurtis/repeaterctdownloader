@@ -11,8 +11,9 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/utils'
 
-IF_N = {True: lambda a: int(a[1:]), False: lambda a: int(a),}
-IF_TUP = {True: lambda a: [a], False: lambda a: a,}
+IF_N = {True: lambda a: int(a[1:]), False: lambda a: int(a), }
+IF_TUP = {True: lambda a: [a], False: lambda a: a, }
+
 
 def _range_2_list(_arg):
     _tlist = IF_TUP.get(isinstance(_arg, tuple))(_arg)
@@ -21,10 +22,12 @@ def _range_2_list(_arg):
         if _[0] == _[1]:
             lst += [_[0]]
             continue
-        lst += list(range(_[0], _[1]+1))
+        lst += list(range(_[0], _[1] + 1))
     return lst
 
-_3D = '{num:03d}'
+
+#_3DA = '{num:03d}'
+
 
 class Utils:
     """Utils Class supports routines to operate on multiple commands.
@@ -59,8 +62,6 @@ class Utils:
                          help='quit the util',
                          action="store_true")
 
-
-
     def __init__(self, _uii, _c, testing=False, showhelp=True):
         """__init__(ui,testing=False, showhelp=True)
 
@@ -77,14 +78,13 @@ class Utils:
         self.args = None
         if showhelp:
             Utils._parser.print_help()
-            #try:
-                #self.args = Utils._parser.parse_args(['-h'])
-            #except SystemExit:
-                #pass
-
+            # try:
+            #self.args = Utils._parser.parse_args(['-h'])
+            # except SystemExit:
+            # pass
 
     def __str__(self):
-        return  ", ".join(['testing:' + str(self.testing)] + Utils._cmds).rstrip()
+        return ", ".join(['testing:' + str(self.testing)] + Utils._cmds).rstrip()
 
     def process_loop(self):
         """ProcessLoop()
@@ -106,7 +106,8 @@ class Utils:
             instr = ""
             if self.testing:
                 instr = "   -q -acr -rmn -ran -rmd -cacn"
-            else: instr = input('select command>')
+            else:
+                instr = input('select command>')
 
             options = instr.split()
             try:
@@ -118,7 +119,7 @@ class Utils:
                     (self.args.recall_macro_names, self.recall_macro_names),
                     (self.args.reset_all_comd_names, self.reset_cmd_names),
                 )
-                #print(self.args)
+                # print(self.args)
                 print("Command Complete")
             except SystemExit:
                 pass
@@ -128,7 +129,6 @@ class Utils:
                         _[1]()
                 if self.args.quit:
                     break
-
 
     def _get_cmd_names(self, rng):
         """_getCmdNames(rng)
@@ -148,28 +148,31 @@ class Utils:
 
             _px = self._ui.controller_type.rename_pat.search(_a)
             result = False
+
             def _aa(_a):
                 _g1 = _a.group(1)
                 _g2 = _a.group(2)
                 return _g1 == _g2
+
             def _rf(_a):
                 return False
 
-            if_px = {True: _aa, False: _rf,}
+            if_px = {True: _aa, False: _rf, }
             result = if_px.get(_px)
-            #if _px:
-                #_g1 = _px.group(1)
-                #_g2 = _px.group(2)
-                #result = _g1 == _g2
-            #else:
-                #result = False
+            # if _px:
+            #_g1 = _px.group(1)
+            #_g2 = _px.group(2)
+            #result = _g1 == _g2
+            # else:
+            #result = False
             #assert result1 == result
             return result
 
         for i in rng:
-            cmd = _3D.format(num=i)
+            cmd = f'{i:03d}'
             if self.testing:
-                print('sending {}{}'.format(self.cont_info.newcmd_dict.get('rcn')[0], cmd))
+                print('sending {}{}'.format(
+                    self.cont_info.newcmd_dict.get('rcn')[0], cmd))
                 continue
 
             if self.c.sendcmd(
@@ -177,8 +180,8 @@ class Utils:
                 display=True,
                 log_it=True,
                 select_it=lambda a: not _sit(a)): sys.stdout.write('.')
-            else: sys.stdout.write('-')
-
+            else:
+                sys.stdout.write('-')
 
     def recall_macro_names(self):
         """recall_macro_names()
@@ -213,10 +216,12 @@ class Utils:
         notcmdlst = _range_2_list(self.cont_info.newcmd_dict.get('notcmd'))
         _ = self.cont_info.newcmd_dict.get('ecn')
         if _:
-            notcmdlst.append(_)  #do not apply to execute command by number command
+            # do not apply to execute command by number command
+            notcmdlst.append(_)
         lstcmd = self.cont_info.newcmd_dict.get('lstcmd')
         #dtmfpat = self.cont_info.newcmd_dict.get('dtmf')
-        testargs = ['n123 456 458', 'N123 456 458', '123 456 458', '123 456 458 a2#*0']
+        testargs = ['n123 456 458', 'N123 456 458',
+                    '123 456 458', '123 456 458 a2#*0']
 
         testidx = 0
         while testidx < len(testargs):
@@ -225,9 +230,9 @@ class Utils:
                 testidx += 1
             else:
                 _ = input(
-                    'specify the command and range of argument '\
+                    'specify the command and range of argument '
                     '(for example, 003 {} {}) cr to exit >'
-                    .format(str(lstcmd-50), str(lstcmd)))
+                    .format(str(lstcmd - 50), str(lstcmd)))
 
             if not _.strip():
                 print("exiting apply_command_to_range module")
@@ -240,7 +245,8 @@ class Utils:
             cmdnum = 0
 
             cmdnum = IF_N.get(leadingn)(args[0])
-            startend = (int(args[1]), int(args[2]), range(int(args[1]), int(args[2])))
+            startend = (int(args[1]), int(args[2]),
+                        range(int(args[1]), int(args[2])))
             pram = ''
             if len(args) == 4:
                 pram = args[3]
@@ -265,12 +271,14 @@ class Utils:
             _ = []
             if leadingn:
                 _.append('N')
-            _.append(_3D.format(num=cmdnum))
+            # _.append(_3D.format(num=cmdnum))
+            _.append(f'{cmdnum:03d}')
             cmd = "".join(_)
             for _ in startend[2]:
                 if _ in notcmdlst:
                     continue
-                command = " ".join([cmd, _3D.format(num=_), pram])
+                #command = " ".join([cmd, _3D.format(num=_), pram])
+                command = " ".join([cmd, f'{_:03d}', pram])
                 if self.testing:
                     print('sending {}'.format(command))
                     continue
@@ -278,7 +286,7 @@ class Utils:
                     sys.stdout.write('.')
                 else:
                     print('Command error')
-                    break #break the for
+                    break  # break the for
 
     def recall_all_names(self):
         """recall_all_names()
@@ -288,7 +296,6 @@ class Utils:
         """
         if self.cont_info.newcmd_dict.get('rcn')[0]:
             self._get_cmd_names(self.cont_info.commandsR)
-
 
     def reset_cmd_names(self):
         """ reset_cmd_names()
@@ -302,6 +309,7 @@ class Utils:
 
         for i in self.cont_info.safe2reset_name:
             cmd = _3D.format(num=i)
+            cmd = f'{i:03d}'
             if self.testing:
                 print('sending {0}{1}{1}'
                       .format(self.cont_info.newcmd_dict.get('rpcmdn')[0], cmd, ))
@@ -334,9 +342,11 @@ class Utils:
             return
 
         for i in self.cont_info.userMacrosR:
-            _ = _3D.format(num=i)
+            #_ = _3D.format(num=i)
+            _ = f'{i:03d}'
             if self.testing:
-                print('sending {}{}'.format(self.cont_info.newcmd_dict.get('rmc')[0], _))
+                print('sending {}{}'.format(
+                    self.cont_info.newcmd_dict.get('rmc')[0], _))
                 continue
             if self.c.sendcmd(self.cont_info.newcmd_dict.get('rmc')[0] + _,
                               display=False,
