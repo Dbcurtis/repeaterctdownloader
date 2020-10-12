@@ -11,6 +11,7 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/myserial'
 
+
 class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
     """MySerial(controller_info)
 
@@ -22,14 +23,14 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
     _dbidx = 0
     _NO = -1
 
-
     """Byte_2_String(bs)
 
     Takes a byte array (bs) and returns the corrosponding string
     """
-    def Byte_2_String(bs): return "".join([chr(int(b)) for b in bs if int(b) != 13])
+    def Byte_2_String(bs): return "".join(
+        [chr(int(b)) for b in bs if int(b) != 13])
 
-    String_2_Byte = lambda st: bytes([ord(s) for s in st])
+    def String_2_Byte(st): return bytes([ord(s) for s in st])
     """String_2_Byte(st)
 
     Takes a string (st) and returns a corrosponding byte array
@@ -45,7 +46,6 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
         #_aa = super(MySerial, self).__str__()
         return "testing:" + str(MySerial._debugging) + ", " + super(MySerial, self).__str__()
 
-
     def dread(self, numchar):
         """dread(numchar)
 
@@ -55,7 +55,7 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
             return self.read(numchar)
 
         if MySerial._dbidx < 0:
-            return  [b'OK\nDTMF>']
+            return [b'OK\nDTMF>']
         result = MySerial._debugreturns[MySerial._dbidx]
         MySerial._dbidx += 1
         return result
@@ -75,12 +75,12 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
         _sp.flushInput()
         _sp.close()
         _to = _sp.timeout
-        _sp.timeout = 0.25 + (110.0/_sp.baudrate)
+        _sp.timeout = 0.25 + (110.0 / _sp.baudrate)
         _sp.open()
         _sp.dread(9999)
         _sp.write(MySerial.String_2_Byte('\r'))
-        #will generate some response
-        #ending in DTMF> if the cps rate is correct (for controllers like the dlxii)
+        # will generate some response
+        # ending in DTMF> if the cps rate is correct (for controllers like the dlxii)
 
         ctrlresult = MySerial.Byte_2_String(_sp.dread(9999))
         _sp.close()
@@ -145,7 +145,7 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
                     scps = cpsd.bps  # setting worked, so save and break the loop
                     sto = cpsd.cpsDelay
                     #print("found one");
-                    #print(str(sp))
+                    # print(str(sp))
                     _sp.close()
                     cnt = -10
                     break
@@ -171,6 +171,7 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
             _sp.open()
             _sp.flushInput()
         return result
+
 
 if __name__ == '__main__':
     pass

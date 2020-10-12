@@ -4,7 +4,6 @@ Test file for dlxii
 """
 from __future__ import print_function
 import unittest
-#import context
 import dlxii
 
 

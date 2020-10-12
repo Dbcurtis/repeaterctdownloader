@@ -11,9 +11,7 @@ import controller
 import userinput
 import getports
 from updatetime_aux import _no_op, _delay, check_date, check_time,  \
-      SET_ATTEMPT_MAX, INST, PAT, REPL_FMT, _PARSER
-
-
+    SET_ATTEMPT_MAX, INST, PAT, REPL_FMT, _PARSER
 
 
 #HOURLIM = 23
@@ -29,32 +27,32 @@ from updatetime_aux import _no_op, _delay, check_date, check_time,  \
 #PAT = controllerspecific.PAT
 #REPL_FMT = controllerspecific.REPL_FMT
 
-#_PARSER = argparse.ArgumentParser(description="Sets a controller's date and time if \
-#needed: a blank argument assumes dlx2 and one available com port",
-                                  #epilog="Useful for running in a cron job"
-                                 #)
-#_PARSER.add_argument('Controller', default=None,
-                     #help='Controller type, one of [dlx2, rlc1+] required unless no arguments'
-                    #)
-#_PARSER.add_argument('Port', nargs='?', default=None,
-                     #help='Port id if required, if only one open port, that one will be used'
-                    #)
-#_PARSER.add_argument('-dbg', '--cldebug',
-                     #help='turns off setting the new time',
-                     #action="store_true")
-#_PARSER.add_argument('-v', '--verbose',
-                     #help='display detailed messages',
-                     #action="store_true")
-#_PARSER.add_argument('-li', '--loginfo',
-                     #help='enable INFO logging',
-                     #action="store_true")
-#_PARSER.add_argument('-ld', '--logdebug',
-                     #help='enable DEBUG logging',
-                     #action="store_true")
+# _PARSER = argparse.ArgumentParser(description="Sets a controller's date and time if \
+# needed: a blank argument assumes dlx2 and one available com port",
+#epilog="Useful for running in a cron job"
+# )
+# _PARSER.add_argument('Controller', default=None,
+#help='Controller type, one of [dlx2, rlc1+] required unless no arguments'
+# )
+# _PARSER.add_argument('Port', nargs='?', default=None,
+#help='Port id if required, if only one open port, that one will be used'
+# )
+# _PARSER.add_argument('-dbg', '--cldebug',
+#help='turns off setting the new time',
+# action="store_true")
+# _PARSER.add_argument('-v', '--verbose',
+#help='display detailed messages',
+# action="store_true")
+# _PARSER.add_argument('-li', '--loginfo',
+#help='enable INFO logging',
+# action="store_true")
+# _PARSER.add_argument('-ld', '--logdebug',
+#help='enable DEBUG logging',
+# action="store_true")
 
-#def _no_op(ignore):
-    ## pylint: disable=W0613
-    #pass
+# def _no_op(ignore):
+## pylint: disable=W0613
+# pass
 
 CLOSER = {False: lambda a: a.close(), True: lambda a: _no_op(a)}
 
@@ -67,118 +65,117 @@ LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/updatetime'
 
 
+# def _delay(debug=False, testtime=None):
+# """_delay()
 
-#def _delay(debug=False, testtime=None):
-    #"""_delay()
+# if the time is >23:50, waits until 2 seconds after the date changes before continuing
 
-    #if the time is >23:50, waits until 2 seconds after the date changes before continuing
+# after the delay, returns a tuple with the then current time and a debug message. if
+# debugging is false the debugging message is None
+# """
 
-    #after the delay, returns a tuple with the then current time and a debug message. if
-    #debugging is false the debugging message is None
-    #"""
+# while 1:
+#msg = None
 
-    #while 1:
-        #msg = None
+#os_time = time.localtime(time.time())
+# if testtime:
+#os_time = testtime
+# if os_time.tm_hour < HOURLIM or os_time.tm_min < MINLIM:
+# break
 
-        #os_time = time.localtime(time.time())
-        #if testtime:
-            #os_time = testtime
-        #if os_time.tm_hour < HOURLIM or os_time.tm_min < MINLIM:
-            #break
+# delymin = 60 - os_time.tm_min  #- MINLIM
+#LOGGER.debug("debug wait for %s min and 2 seconds", str(delymin))
+# if debug:
+#msg = 'debug wait for {} min and 2 seconds' .format(delymin)
+# break
+# else:
 
-        #delymin = 60 - os_time.tm_min  #- MINLIM
-        #LOGGER.debug("debug wait for %s min and 2 seconds", str(delymin))
-        #if debug:
-            #msg = 'debug wait for {} min and 2 seconds' .format(delymin)
-            #break
-        #else:
+# time.sleep(delymin*60+2)
+# return (time.localtime(time.time()), msg)
 
-            #time.sleep(delymin*60+2)
-    #return (time.localtime(time.time()), msg)
+# def check_date(_res, _sdtpl, _os_time):
+# """check_date(_res,_sdtpl,_os_time)
 
-#def check_date(_res, _sdtpl, _os_time):
-    #"""check_date(_res,_sdtpl,_os_time)
+# _res is the dict set by gdtpl[2] that has keys A, m, d, Y
+# with the same meaning as https://docs.python.org/3.0/library/time.html
 
-    #_res is the dict set by gdtpl[2] that has keys A, m, d, Y
-    #with the same meaning as https://docs.python.org/3.0/library/time.html
+# _sdtpl is the set date tuple
 
-    #_sdtpl is the set date tuple
+# _os_time is the current computer time
 
-    #_os_time is the current computer time
+# return None if the repeater date and the computer date match
+# otherwise returns the command to set the repeater date.
+# """
+## pylint: disable=C0103
+#cmd = None
+#dow = _res['A'].lower()
+#_m = _res['m']
+#_d = _res['d']
+#_Y = _res['Y']
 
-    #return None if the repeater date and the computer date match
-    #otherwise returns the command to set the repeater date.
-    #"""
-    ## pylint: disable=C0103
-    #cmd = None
-    #dow = _res['A'].lower()
-    #_m = _res['m']
-    #_d = _res['d']
-    #_Y = _res['Y']
-
-    #_oY = str(_os_time.tm_year)
-    #_om = TWO_CHAR.format(num=_os_time.tm_mon)
-    #_od = TWO_CHAR.format(num=_os_time.tm_mday)
-    #_owd = _os_time.tm_wday
-    #textdow = O_DOW[_owd]
-    ##aa = M_DOW[_owd]
-    #if not (_Y == _oY and _d == _od and _m == _m and textdow == dow):
-        #arg = (_sdtpl[0], _om, _od, _oY[2:4], M_DOW[_owd], )
-        #cmd = _sdtpl[3](arg)
-    #LOGGER.debug("returned %s", cmd)
-    #return cmd
+#_oY = str(_os_time.tm_year)
+#_om = TWO_CHAR.format(num=_os_time.tm_mon)
+#_od = TWO_CHAR.format(num=_os_time.tm_mday)
+#_owd = _os_time.tm_wday
+#textdow = O_DOW[_owd]
+##aa = M_DOW[_owd]
+# if not (_Y == _oY and _d == _od and _m == _m and textdow == dow):
+#arg = (_sdtpl[0], _om, _od, _oY[2:4], M_DOW[_owd], )
+#cmd = _sdtpl[3](arg)
+#LOGGER.debug("returned %s", cmd)
+# return cmd
 
 
-#def check_time(_res, _sttpl, _os_time):
-    #"""check_time(_res,_sttpl,_os_time)
+# def check_time(_res, _sttpl, _os_time):
+# """check_time(_res,_sttpl,_os_time)
 
-    #_res is the dict set by gttpl[2] that has keys I, M, p
-    #with the same meaning as https://docs.python.org/3.0/library/time.html
+# _res is the dict set by gttpl[2] that has keys I, M, p
+# with the same meaning as https://docs.python.org/3.0/library/time.html
 
-    #_sttpl is the set time tuple
+# _sttpl is the set time tuple
 
-    #_os_time is a time.struct_time with the current computer time
+# _os_time is a time.struct_time with the current computer time
 
-    #return None if the repeater time and the computer time match
-    #otherwise returns the command to set the repeater time.
-    #"""
-    ## pylint: disable=C0103
-    #cmd = None
+# return None if the repeater time and the computer time match
+# otherwise returns the command to set the repeater time.
+# """
+## pylint: disable=C0103
+#cmd = None
 
-    #_I = _res['I']
-    #_M = _res['M']
-    #_p = _res['p']
-    #_pm = '0'
-    #if _p[0:1] == 'P':
-        #_pm = '1'
-    #_seconds = int(_M) * 60
-    #if _pm == '0':
-        #if int(_I) != 12:
-            #_seconds += int(_I) * 3600
-    #else:
-        #j = int(_I)
-        #if j != 12:
-            #j += 12
-        #_seconds += j * 3600
+#_I = _res['I']
+#_M = _res['M']
+#_p = _res['p']
+#_pm = '0'
+# if _p[0:1] == 'P':
+#_pm = '1'
+#_seconds = int(_M) * 60
+# if _pm == '0':
+# if int(_I) != 12:
+#_seconds += int(_I) * 3600
+# else:
+#j = int(_I)
+# if j != 12:
+#j += 12
+#_seconds += j * 3600
 
-    #_H = time.strftime("%H", time.gmtime(_seconds))
-    #_sysI = time.strftime("%I", _os_time)
-    #_sysH = TWO_CHAR.format(num=_os_time.tm_hour)
-    #_sysM = TWO_CHAR.format(num=_os_time.tm_min)
-    #_sysPM = '0'
-    #if int(_sysH) > 11:
-        #_sysPM = '1'
+#_H = time.strftime("%H", time.gmtime(_seconds))
+#_sysI = time.strftime("%I", _os_time)
+#_sysH = TWO_CHAR.format(num=_os_time.tm_hour)
+#_sysM = TWO_CHAR.format(num=_os_time.tm_min)
+#_sysPM = '0'
+# if int(_sysH) > 11:
+#_sysPM = '1'
 
-    #if _H == _sysH and _M == _sysM and _pm == _sysPM:
-        #LOGGER.debug("returned %s", cmd)
-        #return cmd
+# if _H == _sysH and _M == _sysM and _pm == _sysPM:
+#LOGGER.debug("returned %s", cmd)
+# return cmd
 
-    ##now need to adjust
+# now need to adjust
 
-    #arg = (_sttpl[0], _sysI, _sysM, _sysPM)
-    #cmd = _sttpl[3](arg)
-    #LOGGER.debug("returned %s", cmd)
-    #return cmd
+#arg = (_sttpl[0], _sysI, _sysM, _sysPM)
+#cmd = _sttpl[3](arg)
+#LOGGER.debug("returned %s", cmd)
+# return cmd
 
 def help_processing(_available_ports, tempargs):
     """tbd"""
@@ -189,6 +186,7 @@ def help_processing(_available_ports, tempargs):
     if '-h' in tempargs or '--help' in tempargs:
         _PARSER.print_help()
         raise SystemExit()
+
 
 def process_cmdline(_available_ports, _testcmdline=None):
     """process_cmdline(_available_ports, _testcmdline="")
@@ -207,14 +205,13 @@ def process_cmdline(_available_ports, _testcmdline=None):
         _tcl = _testcmdline
     tempargs = sys.argv[1:] + _tcl
     help_processing(_available_ports, tempargs)
-    #if not ('-h' in tempargs or '--help' in tempargs):
-        #if not _available_ports:
-            #msg = 'no available communication port: aborting'
-            #raise SystemExit(msg)
-    #if '-h' in tempargs or '--help' in tempargs:
-        #_PARSER.print_help()
-        #raise SystemExit()
-
+    # if not ('-h' in tempargs or '--help' in tempargs):
+    # if not _available_ports:
+    #msg = 'no available communication port: aborting'
+    #raise SystemExit(msg)
+    # if '-h' in tempargs or '--help' in tempargs:
+    # _PARSER.print_help()
+    #raise SystemExit()
 
     if _testcmdline:
         args = _PARSER.parse_args(_testcmdline)
@@ -234,16 +231,16 @@ def process_cmdline(_available_ports, _testcmdline=None):
 
     if len(_available_ports) != 1:
         if not args.Port.upper() in _available_ports:
-            msg = 'Port {} not available: available ports are: {}, aborting' \
-                .format(args.Port, _available_ports)
+            msg = f'Port {args.Port} not available: available ports are: {_available_ports}, aborting'
+            #   .format(args.Port, _available_ports)
             raise Exception(msg)
     else:
         possible_port = _available_ports[0]
 
     ctrl = knowncontrollers.select_controller(possible_ctrl)
     if not ctrl:
-        msg = 'Controller {} not available: available controlers are: {}, aborting' \
-            .format(args.Controller, knowncontrollers.get_controller_ids())
+        msg = f'Controller {args.Controller} not available: available controlers are: {knowncontrollers.get_controller_ids()}, aborting'
+        # .format(args.Controller, knowncontrollers.get_controller_ids())
         raise Exception(msg)
 
     verbose = args.verbose
@@ -251,8 +248,8 @@ def process_cmdline(_available_ports, _testcmdline=None):
     _ui = userinput.UserInput(ctrl[1])
     _ui.comm_port = possible_port
     if verbose:
-        msg = '[verbose] ctrl:{}, port:{}, dbg:{}, verbose: True'\
-            .format(ctrl, _ui.comm_port, cmdl_debug)
+        msg = f'[verbose] ctrl:{ctrl}, port:{_ui.comm_port}, dbg:{cmdl_debug}, verbose: True'
+        # .format(ctrl, _ui.comm_port, cmdl_debug)
     return (_ui, verbose, cmdl_debug)
 
 
@@ -260,6 +257,7 @@ class Stuff:
     """Stuff
 
     """
+
     def __init__(self, uiintuple):
         self._ui = uiintuple[0]
         self.verbose = uiintuple[1]
@@ -271,9 +269,11 @@ class Stuff:
 
         if not self.cmdl_debug:
             if cmd and not self._ct.sendcmd(cmd, display=self.verbose or self.cmdl_debug):
-                raise ValueError("retry {} command send error".format(msg))
+                # .format(msg))
+                raise ValueError(f'retry {msg} command send error')
         else:
-            print("debugging, would have set {} with {}".format(msg, cmd))
+            # .format(msg, cmd))
+            print(f'debugging, would have set {msg} with {cmd}')
 
 # -----------------------------
     def settime(self, _the_time, debug_time):
@@ -293,7 +293,8 @@ class Stuff:
         sttpl = ctrl.newcmd_dict['stime']
         _the_time[True] = time.localtime(time.time())
         if self._ct.sendcmd(gttpl[INST], self.cmdl_debug or self.verbose):
-            _res = gttpl[REPL_FMT](gttpl[PAT].search(self._ct.atts['last_response']))
+            _res = gttpl[REPL_FMT](gttpl[PAT].search(
+                self._ct.atts['last_response']))
             systime = _the_time.get(debug_time is None)
             if self.verbose:
                 print(self._ct.atts['last_response'])
@@ -325,7 +326,7 @@ class Stuff:
             # get date info from controller
             # _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
             # if self.verbose:
-                # print(_c.atts['last_response'])
+            # print(_c.atts['last_response'])
             systime = _the_time.get(debug_time is None)
             # cmd = check_date(_res, sdtpl, systime)
             cmd = check_date(gdtpl[REPL_FMT](gdtpl[PAT].search(self._ct.atts['last_response'])),
@@ -336,7 +337,6 @@ class Stuff:
                 print(time.localtime(time.time()))
 
         return cmd
-
 
     def doit(self, debug_time=None):
         """doit(_debug_time=)
@@ -350,68 +350,68 @@ class Stuff:
 
         # cmdl_debug = self.cmdl_debug
         result = ()
-        _the_time = {False:  debug_time, True:time.localtime(time.time()),}
+        _the_time = {False: debug_time, True: time.localtime(time.time()), }
         try:
 
-            #def setdate():
-                #"""setdate()
+            # def setdate():
+            # """setdate()
 
-                #checks to see if the dates are different, and if so,
-                #generates and executes a command
-                #to the controller
+            # checks to see if the dates are different, and if so,
+            # generates and executes a command
+            # to the controller
 
-                #returns with the command if a command was needed,
-                #or None if no date change was required
+            # returns with the command if a command was needed,
+            # or None if no date change was required
 
-                #if command error, raises ValueError("retry date command send error")
-                #"""
+            # if command error, raises ValueError("retry date command send error")
+            # """
 
-                #ctrl = _c.ui.controller_type
-                #gdtpl = ctrl.newcmd_dict['gdate']
-                #sdtpl = ctrl.newcmd_dict['sdate']
-                #cmd = None
-                #_the_time[True] = time.localtime(time.time())
-                #if self._ct.sendcmd(gdtpl[INST], self.cmdl_debug or self.verbose):
-                    ##get date info from controller
-                    ## _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
-                    ##if self.verbose:
-                        ##print(_c.atts['last_response'])
-                    #systime = _the_time.get(debug_time is None)
-                    ## cmd = check_date(_res, sdtpl, systime)
-                    # cmd = check_date(gdtpl[REPL_FMT](gdtpl[PAT]. \
-                        # search(_c.atts['last_response'])), \
-                                     #sdtpl, systime)
-                    #self._helper1(cmd, 'date')
-                    #if self.verbose:
-                        #print(_c.atts['last_response'])
-                        #print(time.localtime(time.time()))
+            #ctrl = _c.ui.controller_type
+            #gdtpl = ctrl.newcmd_dict['gdate']
+            #sdtpl = ctrl.newcmd_dict['sdate']
+            #cmd = None
+            #_the_time[True] = time.localtime(time.time())
+            # if self._ct.sendcmd(gdtpl[INST], self.cmdl_debug or self.verbose):
+            # get date info from controller
+            ## _res = gdtpl[REPL_FMT](gdtpl[PAT].search(_c.atts['last_response']))
+            # if self.verbose:
+            # print(_c.atts['last_response'])
+            #systime = _the_time.get(debug_time is None)
+            ## cmd = check_date(_res, sdtpl, systime)
+            # cmd = check_date(gdtpl[REPL_FMT](gdtpl[PAT]. \
+            # search(_c.atts['last_response'])), \
+            # sdtpl, systime)
+            #self._helper1(cmd, 'date')
+            # if self.verbose:
+            # print(_c.atts['last_response'])
+            # print(time.localtime(time.time()))
 
-                #return cmd
+            # return cmd
 
-            #def settime(_the_time, debug_time):
-                #"""settime()
+            # def settime(_the_time, debug_time):
+            # """settime()
 
-                #checks to see if the times are different,
-                #and if so, generates and executes a command
-                #to the controller
+            # checks to see if the times are different,
+            # and if so, generates and executes a command
+            # to the controller
 
-                #returns with the command if a command was needed,
-                #or None if no time change was required
-                #if command error raises ValueError("retry date command send error")
-                #"""
-                #cmd = None
-                #ctrl = self._ct.ui.controller_type
-                #gttpl = ctrl.newcmd_dict['gtime']
-                #sttpl = ctrl.newcmd_dict['stime']
-                #_the_time[True] = time.localtime(time.time())
-                #if self._ct.sendcmd(gttpl[INST], self.cmdl_debug or self.verbose):
-                    #_res = gttpl[REPL_FMT](gttpl[PAT].search(self._ct.atts['last_response']))
-                    #systime = _the_time.get(debug_time is None)
-                    #if self.verbose:
-                        #print(self._ct.atts['last_response'])
-                    #cmd = check_time(_res, sttpl, systime)
-                    #self._helper1(cmd, 'time')
-                #return cmd
+            # returns with the command if a command was needed,
+            # or None if no time change was required
+            # if command error raises ValueError("retry date command send error")
+            # """
+            #cmd = None
+            #ctrl = self._ct.ui.controller_type
+            #gttpl = ctrl.newcmd_dict['gtime']
+            #sttpl = ctrl.newcmd_dict['stime']
+            #_the_time[True] = time.localtime(time.time())
+            # if self._ct.sendcmd(gttpl[INST], self.cmdl_debug or self.verbose):
+            #_res = gttpl[REPL_FMT](gttpl[PAT].search(self._ct.atts['last_response']))
+            #systime = _the_time.get(debug_time is None)
+            # if self.verbose:
+            # print(self._ct.atts['last_response'])
+            #cmd = check_time(_res, sttpl, systime)
+            #self._helper1(cmd, 'time')
+            # return cmd
 
             _ui = self._ui
             _ui.open()
@@ -421,42 +421,43 @@ class Stuff:
             self._ct.open()
 
             # ctrl = self._ct.ui.controller_type
-            cntdown = SET_ATTEMPT_MAX  #fifteen attempts max
+            cntdown = SET_ATTEMPT_MAX  # fifteen attempts max
             while cntdown > 0:
                 cntdown -= 1
                 try:
 
-                    #check the dates are the same and if not make them so
+                    # check the dates are the same and if not make them so
                     if self.setdate(_the_time, debug_time):
                         LOGGER.info("date changed")
                         if self.verbose:
                             print('date change, try again')
-                        continue  #made a change, try again
+                        continue  # made a change, try again
 
                     if not self.settime(_the_time, debug_time):
                         break
-                    #continue  #made a change try again
+                    # continue  #made a change try again
                     LOGGER.info("time changed")
                     if self.verbose:
                         print('time change, try again')
 
-
-                except Exception as _ve:  #do not really know what I am trying to catch here
+                except Exception as _ve:  # do not really know what I am trying to catch here
                     # shurly ValueError, but what others?
                     LOGGER.debug("10 second sleep")
-                    time.sleep(10)  #10 sec sleep
+                    time.sleep(10)  # 10 sec sleep
                     print(_ve.args)
 
             succ = cntdown > 0
             if self.verbose:
-                print('cntdown: {}'.format(cntdown))
+                print(f'cntdown: {countdown}')  # .format(cntdown))
 
             noneed = cntdown == SET_ATTEMPT_MAX - 1
             result = (cntdown, succ, noneed)
             if self.verbose:
-                ifa = {True: 'Controller date-time was current',}
-                ifa[False] = "Controller time sucessfully set: {}" .format(succ)
-                print(' '.join([str(datetime.datetime.now()), ifa.get(noneed), ]))
+                ifa = {True: 'Controller date-time was current', }
+                # .format(succ)
+                ifa[False] = f'Controller time sucessfully set: {succ}'
+                print(
+                    ' '.join([str(datetime.datetime.now()), ifa.get(noneed), ]))
 
             self._ct.close()
             self._ui.close()
@@ -466,6 +467,7 @@ class Stuff:
             CLOSER.get(self._ui is None)(self._ui)
 
         return result
+
 
 def main():
     """main()
@@ -483,6 +485,7 @@ def main():
     result = stuff.doit()
     print(result)
 
+
 if __name__ == '__main__':
 
     if not os.path.isdir(LOG_DIR):
@@ -491,10 +494,10 @@ if __name__ == '__main__':
         ''.join([LOG_DIR, LOG_FILE, ]),
         maxBytes=10000,
         backupCount=5,
-        )
+    )
     LF_HANDLER.setLevel(logging.DEBUG)
     LC_HANDLER = logging.StreamHandler()
-    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LC_HANDLER.setLevel(logging.DEBUG)  # (logging.ERROR)
     LF_FORMATTER = logging.Formatter(
         '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
     LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
@@ -505,7 +508,7 @@ if __name__ == '__main__':
     THE_LOGGER.addHandler(LF_HANDLER)
     THE_LOGGER.addHandler(LC_HANDLER)
     THE_LOGGER.info('updatetime executed as main')
-    #LOGGER.setLevel(logging.DEBUG)
+    # LOGGER.setLevel(logging.DEBUG)
 
     try:
         main()

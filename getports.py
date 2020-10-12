@@ -12,7 +12,6 @@ LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/getports'
 
 
-
 class GetPorts:
     """GetPorts Class determines what communication ports exist on the executing computer
 
@@ -24,7 +23,6 @@ class GetPorts:
     every call to get() refreshes the port tuple.
     Thus, you can take out and insert ports at any time.
     """
-
 
     def __init__(self):
         self.devs = []
@@ -68,7 +66,7 @@ if __name__ == '__main__':
     )
     LF_HANDLER.setLevel(logging.DEBUG)
     LC_HANDLER = logging.StreamHandler()
-    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LC_HANDLER.setLevel(logging.DEBUG)  # (logging.ERROR)
     LF_FORMATTER = logging.Formatter(
         '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
     LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
@@ -79,7 +77,7 @@ if __name__ == '__main__':
     THE_LOGGER.addHandler(LF_HANDLER)
     THE_LOGGER.addHandler(LC_HANDLER)
     THE_LOGGER.info('getports executed as main')
-    #LOGGER.setLevel(logging.DEBUG)
+    # LOGGER.setLevel(logging.DEBUG)
     PORTS = GetPorts().get()
     if PORTS:
         print(PORTS)

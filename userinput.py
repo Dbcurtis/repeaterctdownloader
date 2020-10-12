@@ -82,10 +82,12 @@ class UserInput:
                 assert "illegal testdata type"
 
     def __str__(self):
-        return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
+        # return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
+        return f'[UserInput: {self.comm_port}, {self.inputfn}]'
 
     def __repr__(self):
-        return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
+        # return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
+        return f'[UserInput: {self.comm_port}, {self.inputfn}]'
 
     def request(self):
         """request()
@@ -96,7 +98,8 @@ class UserInput:
             tups = []
             available = getports.GetPorts().get()
             if available and len(available) > 1:
-                print('Available comport(s) are: {}'.format(available))
+                # .format(available))
+                print(f'Available comport(s) are: {available}')
                 tups = [(_.strip(), _.strip().lower()) for _ in available]
                 useri = self._inputa("Comm Port for repeater?>").strip()
             elif available:
@@ -111,7 +114,8 @@ class UserInput:
             if hits:
                 [_port] = hits
                 self.comm_port = _port[0]
-                print('Using serial port: {}'.format(self.comm_port))
+                # .format(self.comm_port))
+                print(f'Using serial port: {self.comm_port}')
                 break
 
         print('Known controlers: \n\t'

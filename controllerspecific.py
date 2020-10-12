@@ -7,11 +7,11 @@ import logging.handlers
 
 LOGGER = logging.getLogger(__name__)
 
-
-#offsets into the newcmd_dict
+# offsets into the newcmd_dict
 INST = 0
 PAT = 1
 REPL_FMT = 2
+
 
 class ControllerSpecific:
     """ControllerSpecific
@@ -33,13 +33,11 @@ class ControllerSpecific:
             self.bps = bps
             self.cpsDelay = cpsDelay
 
-
         def __str__(self):
-            return '[CPS: {}]'.format(str(int(self.bps / 10)) + ", " + str(self.cpsDelay))
+            return f'[CPS: {str(int(self.bps / 10))}, {str(self.cpsDelay)}]'
 
         def __repr__(self):
-            return '[CPS: {}]'.format(str(int(self.bps / 10)) + ", " + str(self.cpsDelay))
-
+            return '[CPS: {str(int(self.bps / 10))}, {str(self.cpsDelay)}]'
 
     def fmtRCM(self, _str):
         """fmtRCM(_str)
@@ -48,10 +46,8 @@ class ControllerSpecific:
         _str is a string that includes the response
 
         Returns a tuple with the formatted string and a dictionary for the relevent info
-
         """
         return (_str, {})
-
 
     def fmtRMC(self, _str):
         """fmtRMC(_str)
@@ -66,14 +62,13 @@ class ControllerSpecific:
         """
         return (_str, {})
 
-
     def __init__(self):
-
         self.userMacrosR = range(0, 0)
         self.commandsR = range(0, 0)
         self.systemMacrosR = range(0, 0)
         _ = self.systemMacrosR
-        self.safe2reset_name = [i for i in self.commandsR if i < _.start or i > _.stop]
+        self.safe2reset_name = [
+            i for i in self.commandsR if i < _.start or i > _.stop]
         self.cps_data = [
             self.SerialSpeedinfo(9600, 0.2),
             self.SerialSpeedinfo(19200, 0.1),
@@ -83,7 +78,8 @@ class ControllerSpecific:
             self.SerialSpeedinfo(600, 3),
             self.SerialSpeedinfo(300, 6)
         ]
-#newcmd_dict is a dict that assocates commands, reply patterns, and reply formatters
+
+        # newcmd_dict is a dict that assocates commands, reply patterns, and reply formatters
         self.newcmd_dict = {'rpcmdn': (None, None, None, ),
                             'rcn': (None, None, None, ),
                             'rmc': (None, None, None, ),
@@ -95,7 +91,7 @@ class ControllerSpecific:
                             'umacro': None,
                             'lstcmd': None,
                             'notcmd': None,
-                            'ecn': None,  #execute command by number
+                            'ecn': None,  # execute command by number
                             'dtmf': re.compile(
                                 r'^[0-9ABCD#*]+$',
                                 re.IGNORECASE),
@@ -112,8 +108,6 @@ class ControllerSpecific:
         self.macro_def_pat = re.compile(
             r".*",
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
-
-
 
     def __str__(self):
         return ControllerSpecific.get_Ctr_type

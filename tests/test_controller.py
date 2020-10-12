@@ -87,6 +87,9 @@ class TestController(unittest.TestCase):
             sp.close()
         mySPortclass._debugging = False
 
+    def test_0inst(self):
+        self.fail("need to test str etc")
+
     def testopen(self):
         mySPortclass = myserial.MySerial
         c = controller.Controller(TestController.ui)

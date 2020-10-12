@@ -16,23 +16,24 @@ from datetime import datetime
 from time import time
 import userinput
 
-
 LOGGER = logging.getLogger(__name__)
 
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/controller'
 
+def STRING_2_BYTE(a): return bytearray([ord(s) for s in a])
+def BYTE_2_STRING(a): return "".join([chr(i) for i in a if i != 13])
 
-STRING_2_BYTE = lambda a: bytearray([ord(s) for s in a])
-BYTE_2_STRING = lambda a: "".join([chr(i) for i in a if i != 13])
 
 def _remove_comment(_cmdline):
     _sans_comment = _cmdline.split('\n', 1)  # remove trailing new line
     _sans_comment = _sans_comment[0].split(';', 1)  # remove trailing comment
     return _sans_comment[0].split()
 
+
 def _none():
     pass
+
 
 class Controller:
     """Controller Class supports communication of commands to the controller
@@ -62,8 +63,6 @@ class Controller:
 
     _errPat = re.compile(r".*error:.*", re.I | re.DOTALL)
     _fnPat = re.compile(r'(.+)\.txt$', re.I)
-
-
     #Is_Result_Error = lambda a: Controller._errPat.search(a)
 
     _introMsg = """
@@ -72,7 +71,6 @@ class Controller:
 ;-----------------
 """
     _timeFmt = '%Y%m%d, %H:%M:%S'
-
 
     @staticmethod
     def _returnsame(_a):
@@ -119,18 +117,19 @@ class Controller:
         }
 
     def __str__(self):
-        return '[Controller: {}, {}, {}]'.format(
-            str(self.atts['is_files_open']),
-            str(self.atts['isOpen']),
-            str(self.ui))
+        return f'[Controller: {str(self.atts["is_files_open"])}, {str(self.atts["isOpen"])}, {str(self.ui)}]'
+        # .format(
+        #   str(self.atts['is_files_open']),
+        #    str(self.atts['isOpen']),
+        #    str(self.ui))
 
     def __repr__(self):
-        return '[Controller:  {}, {}, {}, {}]'.format(
-            str(self.s_port.isOpen()),
-            str(self.atts['is_files_open']),
-            str(self.atts['isOpen']),
-            str(self.ui))
-
+        return f'[Controller:  {str(self.s_port.isOpen())}, {str(self.atts["is_files_open"])}, {str(self.atts["is_files_open"])}, {str(self.ui)}]'
+        # .format(
+        # str(self.s_port.isOpen()),
+        # str(self.atts['is_files_open']),
+        # str(self.atts['isOpen']),
+        # str(self.ui))
 
     def open(self):
         """open()
@@ -150,9 +149,12 @@ class Controller:
         try:
             cmd_log_paths = path.abspath(self.atts['cmd_logfile_name'])
             cmd_err_paths = path.abspath(self.atts['cmd_errfile_name'])
-            self.atts['cmd_log_file'] = open(self.atts['cmd_logfile_name'], 'w', encoding='utf-8')
-            self.atts['cmd_err_file'] = open(self.atts['cmd_errfile_name'], 'w', encoding='utf-8')
-            self.atts['when_opened'] = datetime.now().strftime(Controller._timeFmt)
+            self.atts['cmd_log_file'] = open(
+                self.atts['cmd_logfile_name'], 'w', encoding='utf-8')
+            self.atts['cmd_err_file'] = open(
+                self.atts['cmd_errfile_name'], 'w', encoding='utf-8')
+            self.atts['when_opened'] = datetime.now().strftime(
+                Controller._timeFmt)
             self.atts['open_time'] = time()
             self.atts['cmd_log_file'].write(Controller._introMsg.format(
                 cmd_log_paths, self.atts['when_opened']))
@@ -174,13 +176,12 @@ class Controller:
     def _cnvtcmd(self, cmdin):
         return self._byte_string_ifd.get(isinstance(cmdin, bytes))(cmdin)
 
-
-    def sendcmd(self, \
-                cmdin,  \
-                display=True, \
-                log_it=True, \
-                echoit=False, \
-                select_it=lambda a: True, \
+    def sendcmd(self,
+                cmdin,
+                display=True,
+                log_it=True,
+                echoit=False,
+                select_it=lambda a: True,
                 format_it=lambda a: (a, {})):
         """sendcmd(cmdin, display=TF, log_it=TF, echo_it=TF, select_it=TF, format_it=TF)
 
@@ -214,8 +215,10 @@ class Controller:
         cmd = self._cnvtcmd(cmdin)
 
         def _write_logs():
-            self.atts['cmd_log_file'].write(cmd + "\n")  # write to command log file
-            self.atts['cmd_err_file'].write(cmd + "\n")  # write to execution log file
+            self.atts['cmd_log_file'].write(
+                cmd + "\n")  # write to command log file
+            # write to execution log file
+            self.atts['cmd_err_file'].write(cmd + "\n")
 
         _if_log = {
             True: _write_logs,
@@ -231,7 +234,7 @@ class Controller:
             return result
 
         # else:
-            #print(''.join(necmd)+"\n")
+            # print(''.join(necmd)+"\n")
         _new_cmd_list.append('\r')  # add a new line character
         newcmd = ''.join(_new_cmd_list)
         self.atts['last_cmd'] = newcmd
@@ -256,8 +259,8 @@ class Controller:
             self.s_port.timeout = _saved_to
             #rnok = Controller._errPat.search(''.join(inList))
             if Controller._errPat.search(''.join(_in_list)):  # rnok:
-                _in_list.append("******************E R R O R" +
-                                "****************\n" + self.ctrl_prompt)
+                _in_list.append("******************E R R O R"
+                                + "****************\n" + self.ctrl_prompt)
                 result = False
             response = ''.join(_in_list)
         else:
@@ -274,6 +277,7 @@ class Controller:
             False: _none,
         }
         _if_display.get(display)()
+
         def _log_it1():
             self.atts['last_logged'] = response
             self.atts['cmd_err_file'].write(format_it(response)[0])
@@ -306,6 +310,7 @@ class Controller:
                 pass
             self.atts['is_files_open'] = False
 
+
 if __name__ == '__main__':
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
@@ -317,7 +322,7 @@ if __name__ == '__main__':
     )
     LF_HANDLER.setLevel(logging.DEBUG)
     LC_HANDLER = logging.StreamHandler()
-    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LC_HANDLER.setLevel(logging.DEBUG)  # (logging.ERROR)
     LF_FORMATTER = logging.Formatter(
         '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
     LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
@@ -328,7 +333,7 @@ if __name__ == '__main__':
     THE_LOGGER.addHandler(LF_HANDLER)
     THE_LOGGER.addHandler(LC_HANDLER)
     THE_LOGGER.info('controller executed as main')
-    #LOGGER.setLevel(logging.DEBUG)
+    # LOGGER.setLevel(logging.DEBUG)
 
     UII = userinput.UserInput()
 
