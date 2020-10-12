@@ -61,14 +61,10 @@ class CommandReader:
         }
 
     def __str__(self):
-        # return '[CommandReader closed: {}, {}]'.format(str(self.atts['is_closed']), str(self.ui))
-        # .format(str(self.atts['is_closed']), str(self.ui))
         return f'[CommandReader closed: {str(self.atts["is_closed"])}, {str(self.ui)}]'
 
     def __repr__(self):
-        # return '[CommandReader closed: {}, {}]'.format(str(self.atts['is_closed']), str(self.ui))
         return f'[CommandReader closed: {str(self.atts["is_closed"])}, { str(self.ui)}]'
-        # .format(str(self.atts['is_closed']), str(self.ui))
 
     def open(self):
         """open()
