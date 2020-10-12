@@ -5,8 +5,8 @@ Test file for commandreader
 from __future__ import print_function
 import sys
 import unittest
-#import context
-import commandreader
+
+from commandreader import CommandReader
 import userinput
 import knowncontrollers
 import dlxii
@@ -33,17 +33,17 @@ class TestCommandreader(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        TestCommandreader.ui.inputfn = "tests/cmdreadertest.txt"
+        TestCommandreader.ui.inputfn = "cmdreadertest.txt"
 
     @classmethod
     def tearDownClass(cls):
         pass
 
-    def testopen(self):
+    def test1_open(self):
         """testopen()
 
         """
-        _cr = commandreader.CommandReader(TestCommandreader.ui)
+        _cr = CommandReader(TestCommandreader.ui)
         _fcr = None
         try:
             self.assertTrue(_cr.atts['is_closed'])
@@ -61,7 +61,7 @@ class TestCommandreader(unittest.TestCase):
             self.assertTrue(_cr.atts['is_closed'])
             fakeui = userinput.UserInput(dlxii.Device())
             fakeui.inputfn = 'totaljunk.txt'
-            _fcr = commandreader.CommandReader(fakeui)
+            _fcr = CommandReader(fakeui)
             self.assertFalse(_fcr.open())
             self.assertEqual("[Errno 2] No such file or directory: 'totaljunk.txt'",
                              str(_fcr.atts['lasterror']))
@@ -69,17 +69,23 @@ class TestCommandreader(unittest.TestCase):
         finally:
             if _fcr:
                 _fcr.close()
+
             _cr.close()
 
-    def testclose(self):
-        """"donoting fix"""
-        pass
+    def test0_close(self):
+        """"check for close working"""
+        _cr = CommandReader(TestCommandreader.ui)
+        if (_cr.atts['is_closed']):
+            _cr.open()
+        self.assertFalse(_cr.atts['is_closed'])
+        _cr.close()
+        self.assertTrue(_cr.atts['is_closed'])
 
-    def testget(self):
+    def test3_get(self):
         """testget
 
         """
-        _cr = commandreader.CommandReader(TestCommandreader.ui)
+        _cr = CommandReader(TestCommandreader.ui)
         try:
             _cr.open()
             lines = []
@@ -90,17 +96,19 @@ class TestCommandreader(unittest.TestCase):
                     break
                 lines.append(line)
 
-            _cr.close()
+            # should have read all lines from a stream so the stream should automatically
+            # close
+            self.assertTrue(_cr.atts['is_closed'])
             self.assertEqual(7, len(lines))
             lastline = lines[6]
             self.assertFalse(lastline.endswith("\n"))
-
             emptyline = lines[5]
             self.assertEqual("\n", emptyline)
             self.assertEqual("line 4\n", lines[3])
 
         finally:
             _cr.close()
+            self.assertTrue(_cr.atts['is_closed'])
 
 
 if __name__ == '__main__':
