@@ -29,7 +29,7 @@ class GetPorts:
         LOGGER.debug('Created GetPorts')
         self._old_serial = False
         try:
-            _j = serial.__version__
+            serial.__version__
         except AttributeError:
             self._old_serial = True
         if self._old_serial:
@@ -41,15 +41,15 @@ class GetPorts:
         returns a list of serial(?) ports
         """
         LOGGER.debug('entered get')
-        ports = serial.tools.list_ports.comports()
+        _ports = serial.tools.list_ports.comports()
         devs = []
 
         if self._old_serial:
-            devs = [p for p in [port[0] for port in ports]]
+            devs = [_p for _p in [_port[0] for _port in _ports]]
         else:
-            devs = [port.device for port in ports]
+            devs = [_.device for _ in _ports]
 
-        self.devs = [p for p in devs]
+        self.devs = [_p for _p in devs]
         LOGGER.debug('exited get with %s', self.devs)
         return self.devs
 
