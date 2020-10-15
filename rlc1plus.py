@@ -2,11 +2,13 @@
 """ to be done
 """
 import re
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import logging
 import logging.handlers
 import controllerspecific
 
 LOGGER = logging.getLogger(__name__)
+
 
 def _fmt_cmd(_arg):
     cmd = "".join(_arg)
@@ -18,6 +20,7 @@ def _fmt_proc(_mx):
         return {}
     return _mx.groupdict()
 
+
 def _fmt_proc_one(_mx):
     if not _mx:
         return{}
@@ -27,9 +30,9 @@ def _fmt_proc_one(_mx):
     result['cmds'] = lst
     return result
 
+
 class Device(controllerspecific.ControllerSpecific):
     """ to be done """
-
 
     rename_pat = re.compile(
         r"Command number\s+(\d\d\d)\s+is\s+named\s+([0-9a-z]+)\..*",
@@ -40,8 +43,8 @@ class Device(controllerspecific.ControllerSpecific):
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     N054Fmt_pat = re.compile(
-        r"MACRO\s+(\d{3,3})\s+contains\s+(\d{1,})\s+" + \
-        r"commands:(.*)this.*(\d{1,3}).*full\nOK\nOK\n",
+        r"MACRO\s+(\d{3,3})\s+contains\s+(\d{1,})\s+"
+        + r"commands:(.*)this.*(\d{1,3}).*full\nOK\nOK\n",
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     N011Fmt_pat = re.compile(
@@ -52,14 +55,14 @@ class Device(controllerspecific.ControllerSpecific):
 
     def __init__(self):
         super().__init__()
-        print(">>>>>>>>>>>>THIS NEEDS TO BE TESTED it is all "+\
+        print(">>>>>>>>>>>>THIS NEEDS TO BE TESTED it is all " +
               "wrong re formatting and possibly commands>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         self.commandsR = range(0, 215)
         self.userMacrosR = range(141, 210)  # goes from 141 to 210
         self.systemMacrosR = range(200, 500)
         _sm = self.systemMacrosR
-        self.safe2reset_name = [i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
-
+        self.safe2reset_name = [
+            i for i in self.commandsR if i < _sm.start or i >= _sm.stop]
 
         __N029pat = re.compile(
             r'This\s+is\s+(?P<A>\w+),\s*(?P<m>\d\d)-(?P<d>\d\d)-(?P<Y>\d{4,4})\s*\nOK\n',
@@ -69,7 +72,7 @@ class Device(controllerspecific.ControllerSpecific):
             r'The\s+time\s+is\s+(?P<I>\d{1,2}):(?P<M>\d\d)\s*(?P<p>[ap].m.)\nOK\n',
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
-        self.newcmd_dict.update( # these are all wrong and will need to be changed
+        self.newcmd_dict.update(  # these are all wrong and will need to be changed
             {
                 'rpcmdn': ('027', ),
                 'rcn': ('028', Device.N011Fmt_pat, _fmt_proc, None, ),
@@ -83,11 +86,10 @@ class Device(controllerspecific.ControllerSpecific):
                 'notcmd': [(14, 19), (33, 33), (89, 89), (97, 99), (117, 118),
                            (153, 154), (168, 168), (193, 194), ],
                 'prompt': 'DTMF>',
-                }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
-            )
+            }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
+        )
 
-
-    def __fmtN054(self, _str):  #fmt macro contents
+    def __fmtN054(self, _str):  # fmt macro contents
         """__fmtN054(s)
 
         runs a regex on string s. If unsuccessful, return an empty dict.
@@ -103,7 +105,7 @@ class Device(controllerspecific.ControllerSpecific):
                       "numins": _mx.group(2),
                       "cmds": lst,
                       "full": _mx.group(4),
-                     }
+                      }
             return result
         return {}
 
@@ -120,7 +122,7 @@ class Device(controllerspecific.ControllerSpecific):
             result = {'cmdno': _mx.group(1),
                       'name': _mx.group(2),
                       'digs': _mx.group(3),
-                     }
+                      }
             return result
         return {}
 
@@ -139,8 +141,9 @@ class Device(controllerspecific.ControllerSpecific):
         _d = self.__fmtN054(_str)
 
         if _d:
-            if  _d.get("numins") != "0":
-                _jj = ["Macro ", _d.get("macro"), " contains ", _d.get("numins"), " commands\n", ]
+            if _d.get("numins") != "0":
+                _jj = ["Macro ", _d.get("macro"), " contains ", _d.get(
+                    "numins"), " commands\n", ]
                 for _l in _d.get("cmds"):
                     _jj.append(_l.strip())
                     _jj.append('\n')

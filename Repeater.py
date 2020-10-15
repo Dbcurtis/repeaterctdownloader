@@ -2,6 +2,7 @@
 """ To Be Done """
 import sys
 import os
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import logging
 import logging.handlers
 import userinput
@@ -16,6 +17,7 @@ LOGGER = logging.getLogger(__name__)
 
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/repeater'
+
 
 def _send_specified_file(_ui):
     """_send_specified_file()
@@ -36,7 +38,7 @@ def _send_specified_file(_ui):
         while 1:
             line = _cr.get()
             if line == "":
-                break  #exit when file read
+                break  # exit when file read
             _c.sendcmd(line, echoit=_DEBUGGING)
     finally:
         _c.close()
@@ -78,6 +80,7 @@ def _cmdloop(_c):
             print("Exiting command input mode...")
             break
         _c.sendcmd(cmd, echoit=_DEBUGGING)
+
 
 def send_users_cmds(_ui):
     """sendUsersCmds()
@@ -149,10 +152,10 @@ def main():
             return True
 
         cmddisptch = {
-            'q':_nodop,
-            'm':send_users_cmds,
-            'u':do_utility_cmds,
-            'f':send_file,
+            'q': _nodop,
+            'm': send_users_cmds,
+            'u': do_utility_cmds,
+            'f': send_file,
         }
 
         _loop_ctl = True
@@ -165,6 +168,7 @@ def main():
     finally:
         _ui.close()
 
+
 if __name__ == '__main__':
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
@@ -175,7 +179,7 @@ if __name__ == '__main__':
     )
     LF_HANDLER.setLevel(logging.DEBUG)
     LC_HANDLER = logging.StreamHandler()
-    LC_HANDLER.setLevel(logging.DEBUG)  #(logging.ERROR)
+    LC_HANDLER.setLevel(logging.DEBUG)  # (logging.ERROR)
     LF_FORMATTER = logging.Formatter(
         '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
     LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
@@ -186,7 +190,7 @@ if __name__ == '__main__':
     THE_LOGGER.addHandler(LF_HANDLER)
     THE_LOGGER.addHandler(LC_HANDLER)
     THE_LOGGER.info('repeater executed as main')
-    #LOGGER.setLevel(logging.DEBUG)
+    # LOGGER.setLevel(logging.DEBUG)
 
     try:
         main()

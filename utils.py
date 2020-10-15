@@ -3,13 +3,14 @@
 
 import os
 import sys
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import argparse
 import logging
 import logging.handlers
 LOGGER = logging.getLogger(__name__)
 
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
-LOG_FILE = '/utils'
+LOG_FILE: str = '/utils'
 
 IF_N = {True: lambda a: int(a[1:]), False: lambda a: int(a), }
 IF_TUP = {True: lambda a: [a], False: lambda a: a, }
@@ -41,7 +42,7 @@ class Utils:
 
     """
 
-    _cmds = ["cmds: -acr", "-rmn", "-ran", "-rmd", "-cacn", "-q"]
+    _cmds: List[str] = ["cmds: -acr", "-rmn", "-ran", "-rmd", "-cacn", "-q"]
     _parser = argparse.ArgumentParser()
     _parser.add_argument('-rmn', '--recall_macro_names',
                          help='return all macro names',
@@ -62,10 +63,10 @@ class Utils:
                          help='quit the util',
                          action="store_true")
 
-    def __init__(self, _uii, _c, testing=False, showhelp=True):
+    def __init__(self, _uii, _c, testing: bool = False, showhelp: bool = True):
         """__init__(ui,testing=False, showhelp=True)
 
-        ui is the current UserInput
+        uii is the current UserInput
         testing True -> stops commands from being sent to the controller,
         and instead just prints them.
         showhelp True -> prints the help message
@@ -73,15 +74,11 @@ class Utils:
         self._ui = _uii
         self.s_port = _uii.serial_port
         self.cont_info = self.s_port.controller_info
-        self.testing = testing
+        self.testing: bool = testing
         self.c = _c
         self.args = None
         if showhelp:
             Utils._parser.print_help()
-            # try:
-            #self.args = Utils._parser.parse_args(['-h'])
-            # except SystemExit:
-            # pass
 
     def __str__(self):
         return ", ".join(['testing:' + str(self.testing)] + Utils._cmds).rstrip()
@@ -159,20 +156,14 @@ class Utils:
 
             if_px = {True: _aa, False: _rf, }
             result = if_px.get(_px)
-            # if _px:
-            #_g1 = _px.group(1)
-            #_g2 = _px.group(2)
-            #result = _g1 == _g2
-            # else:
-            #result = False
-            #assert result1 == result
             return result
 
         for i in rng:
             cmd = f'{i:03d}'
             if self.testing:
-                print('sending {}{}'.format(
-                    self.cont_info.newcmd_dict.get('rcn')[0], cmd))
+                print(
+                    f'sending {self.cont_info.newcmd_dict.get("rcn")[0]}{cmd}')
+                # .format(self.cont_info.newcmd_dict.get('rcn')[0], cmd))
                 continue
 
             if self.c.sendcmd(
@@ -230,9 +221,9 @@ class Utils:
                 testidx += 1
             else:
                 _ = input(
-                    'specify the command and range of argument '
-                    '(for example, 003 {} {}) cr to exit >'
-                    .format(str(lstcmd - 50), str(lstcmd)))
+                    f'specify the command and range of argument '
+                    '(for example, 003 {str(lstcmd - 50)} {str(lstcmd)}) cr to exit >')
+                # .format(str(lstcmd - 50), str(lstcmd)))
 
             if not _.strip():
                 print("exiting apply_command_to_range module")
@@ -251,7 +242,8 @@ class Utils:
             if len(args) == 4:
                 pram = args[3]
                 if not self.cont_info.newcmd_dict.get('dtmf').match(pram):
-                    print("{} must be only DTMF characters".format(pram))
+                    # .format(pram))
+                    print(f'{pram} must be only DTMF characters')
                     continue
 
             _ = (cmdnum < 0, startend[0] < 0,
@@ -277,10 +269,9 @@ class Utils:
             for _ in startend[2]:
                 if _ in notcmdlst:
                     continue
-                #command = " ".join([cmd, _3D.format(num=_), pram])
                 command = " ".join([cmd, f'{_:03d}', pram])
                 if self.testing:
-                    print('sending {}'.format(command))
+                    print(f'sending {command}')  # .format(command))
                     continue
                 if self.c.sendcmd(command, display=True, log_it=True):
                     sys.stdout.write('.')
@@ -308,7 +299,7 @@ class Utils:
             return
 
         for i in self.cont_info.safe2reset_name:
-            cmd = _3D.format(num=i)
+            #cmd = _3D.format(num=i)
             cmd = f'{i:03d}'
             if self.testing:
                 print('sending {0}{1}{1}'
@@ -334,8 +325,8 @@ class Utils:
 
             tests if the response is a macro deffinition
             """
-
             return not self._ui.controller_type.macro_def_pat.match(_a) is None
+
         valid = isinstance(self.cont_info.newcmd_dict.get('umacro'), tuple)
         if not (self.cont_info.newcmd_dict.get('rmc')[0] or valid):
             print('Command not supported for this controller')
@@ -345,8 +336,9 @@ class Utils:
             #_ = _3D.format(num=i)
             _ = f'{i:03d}'
             if self.testing:
-                print('sending {}{}'.format(
-                    self.cont_info.newcmd_dict.get('rmc')[0], _))
+                print(
+                    'sending {self.cont_info.newcmd_dict.get("rmc")[0]}{_}')
+                # .format(self.cont_info.newcmd_dict.get('rmc')[0], _))
                 continue
             if self.c.sendcmd(self.cont_info.newcmd_dict.get('rmc')[0] + _,
                               display=False,

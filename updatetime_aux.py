@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """This script updates the repeater's time and date"""
 import sys
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import argparse
 import time
 import logging
@@ -11,7 +12,8 @@ import controllerspecific
 
 HOURLIM = 23
 MINLIM = 50
-O_DOW = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'foolsday']
+O_DOW = ['monday', 'tuesday', 'wednesday', 'thursday',
+         'friday', 'saturday', 'sunday', 'foolsday']
 R_DOW = [7, 6, 0, 1, 2, 3, 4, 5, ]
 M_DOW = ['2', '3', '4', '5', '6', '7', '1', ]
 
@@ -50,6 +52,7 @@ def _no_op(ignore):
     # pylint: disable=W0613
     pass
 
+
 CLOSER = {False: lambda a: a.close(), True: lambda a: _no_op(a)}
 
 #cmdl_debug = False
@@ -78,15 +81,16 @@ def _delay(debug=False, testtime=None):
         if os_time.tm_hour < HOURLIM or os_time.tm_min < MINLIM:
             break
 
-        delymin = 60 - os_time.tm_min  #- MINLIM
+        delymin = 60 - os_time.tm_min  # - MINLIM
         LOGGER.debug("debug wait for %s min and 2 seconds", str(delymin))
         if debug:
             msg = 'debug wait for {} min and 2 seconds' .format(delymin)
             break
         else:
 
-            time.sleep(delymin*60+2)
+            time.sleep(delymin * 60 + 2)
     return (time.localtime(time.time()), msg)
+
 
 def check_date(_res, _sdtpl, _os_time):
     """check_date(_res,_sdtpl,_os_time)
@@ -165,12 +169,13 @@ def check_time(_res, _sttpl, _os_time):
         LOGGER.debug("returned %s", cmd)
         return cmd
 
-    #now need to adjust
+    # now need to adjust
 
     arg = (_sttpl[0], _sysI, _sysM, _sysPM)
     cmd = _sttpl[3](arg)
     LOGGER.debug("returned %s", cmd)
     return cmd
+
 
 def proc1(tempargs, _available_ports):
     """tbd"""
@@ -181,6 +186,7 @@ def proc1(tempargs, _available_ports):
     if '-h' in tempargs or '--help' in tempargs:
         _PARSER.print_help()
         raise SystemExit()
+
 
 def proc2(args):
     """tbd"""
@@ -195,6 +201,7 @@ def proc2(args):
     else:
         possible_ctrl = 'dlxii'
     return (possible_port, possible_ctrl, )
+
 
 def process_cmdline(_available_ports, _testcmdline=None):
     """process_cmdline(_available_ports, _testcmdline="")
@@ -213,13 +220,13 @@ def process_cmdline(_available_ports, _testcmdline=None):
         _tcl = _testcmdline
     tempargs = sys.argv[1:] + _tcl
     proc1(tempargs, _available_ports)
-    #if not ('-h' in tempargs or '--help' in tempargs):
-        #if _available_ports.isEmpty():
-            #msg = 'no available communication port: aborting'
-            #raise SystemExit(msg)
-    #if '-h' in tempargs or '--help' in tempargs:
-        #_PARSER.print_help()
-        #raise SystemExit()
+    # if not ('-h' in tempargs or '--help' in tempargs):
+    # if _available_ports.isEmpty():
+    #msg = 'no available communication port: aborting'
+    #raise SystemExit(msg)
+    # if '-h' in tempargs or '--help' in tempargs:
+    # _PARSER.print_help()
+    #raise SystemExit()
 
     if _testcmdline:
         args = _PARSER.parse_args(_testcmdline)
@@ -230,15 +237,15 @@ def process_cmdline(_available_ports, _testcmdline=None):
     possible_port = _aa[0]
     possible_ctrl = _aa[1]
     # if args.logdebug:
-        # LOGGER.setLevel(logging.DEBUG)
+    # LOGGER.setLevel(logging.DEBUG)
     # elif args.loginfo:
-        # LOGGER.setLevel(logging.INFO)
+    # LOGGER.setLevel(logging.INFO)
 
     #possible_port = args.Port
     # if args.Controller:
-        #possible_ctrl = args.Controller
+    #possible_ctrl = args.Controller
     # else:
-        #possible_ctrl = 'dlxii'
+    #possible_ctrl = 'dlxii'
 
     if len(_available_ports) != 1:
         if not args.Port.upper() in _available_ports:

@@ -3,6 +3,7 @@
 
 import os
 import re
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import importlib
 import copy
 import logging
@@ -13,16 +14,16 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/knowncontrollers'
 
-CTRL_DICT_A = {
+CTRL_DICT_A: Dict[str, Tuple[Any, ...]] = {
     'dlx2': (re.compile(r"dlx(ii|2)", re.A | re.I), 'dlxii'),
     'rlclub': (re.compile(r"(rlcclub|club|rlclub)", re.A | re.I), 'club'),
     'rlc1+': (re.compile(r"rlc1(\+|p(lus)?)", re.A | re.I), 'rlc1plus'),
 }
 
-_KNOWN = ', '.join(sorted([a for a, b in CTRL_DICT_A.items()]))
+_KNOWN: str = ', '.join(sorted([a for a, b in CTRL_DICT_A.items()]))
 
 
-def get_controller_ids():
+def get_controller_ids() -> List[str]:
     """KnownControllers.get_controller_ids()
 
     Return the controller ID strings as a list
@@ -33,7 +34,7 @@ def get_controller_ids():
     ])
 
 
-def get_known():
+def get_known() -> str:
     """KnownControllers.get_known()
 
     Returns a string that has recognized names for the known controllers.
@@ -42,7 +43,7 @@ def get_known():
     return _KNOWN
 
 
-def select_controller(_str):
+def select_controller(_str: str):
     """select_controller(str)
 
     Matches _str against controlled class/regex tuples
@@ -69,7 +70,7 @@ class KnownControllers:
     def __init__(self):
         self._jj = copy.copy(CTRL_DICT_A)
 
-    def known_controllers(self):
+    def known_controllers(self) -> Dict[str, Tuple[Any, ...]]:
         """known_controllers()
 
         Returns a dictionary with the controler reference name as key, and for each key

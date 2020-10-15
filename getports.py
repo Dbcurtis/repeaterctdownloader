@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ TO BE DONE """
 import os
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import logging
 import logging.handlers
 import serial

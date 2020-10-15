@@ -8,6 +8,7 @@ Module to send commands to a repeater controller over a serial line.
 
 import sys
 import os
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 from os import path
 import logging
 import logging.handlers
@@ -15,6 +16,7 @@ import re
 from datetime import datetime
 from time import time
 import userinput
+from userinput import UserInput
 
 LOGGER = logging.getLogger(__name__)
 
@@ -76,7 +78,7 @@ class Controller:
     def _returnsame(_a):
         return _a
 
-    def __init__(self, uiIn):  # get the port id and the logging file ids
+    def __init__(self, uiIn: UserInput):  # get the port id and the logging file ids
         """__init__(uiIn)
 
         uiIn is a UserInput object that has defined a file name as input and a
@@ -97,7 +99,7 @@ class Controller:
         self.ui = uiIn
         self.s_port = uiIn.serial_port
         self.cmd = ""
-        self.atts = {}
+        self.atts: Dict[str, Any] = {}
         self.atts['cmd_logfile_name'] = _filename + '.cmdlog.txt'
         self.atts['cmd_errfile_name'] = _filename + '.exelog.txt'
         self.atts['is_files_open'] = False
@@ -122,7 +124,7 @@ class Controller:
     def __repr__(self):
         return f'[Controller: {str(self.s_port.isOpen())}, {str(self.atts["is_files_open"])}, {str(self.atts["isOpen"])}, {str(self.ui)}]'
 
-    def open(self):
+    def open(self) -> bool:
         """open()
 
         opens the controller, the serial port and the logging files
@@ -136,7 +138,7 @@ class Controller:
         if self.s_port.isOpen():
             self.s_port.close()
         self.atts['is_files_open'] = False
-        result = False
+        result: bool = False
         try:
             cmd_log_paths = path.abspath(self.atts['cmd_logfile_name'])
             cmd_err_paths = path.abspath(self.atts['cmd_errfile_name'])
@@ -173,7 +175,7 @@ class Controller:
                 log_it=True,
                 echoit=False,
                 select_it=lambda a: True,
-                format_it=lambda a: (a, {})):
+                format_it=lambda a: (a, {})) -> bool:
         """sendcmd(cmdin, display=TF, log_it=TF, echo_it=TF, select_it=TF, format_it=TF)
 
         Logs the command as provided in the execution log with the results
@@ -202,7 +204,7 @@ class Controller:
         """
         # pylint: disable=R0914
         # pylint: disable=R0913
-        result = True
+        result: bool = True
         cmd = self._cnvtcmd(cmdin)
 
         def _write_logs():
@@ -250,8 +252,8 @@ class Controller:
             self.s_port.timeout = _saved_to
             #rnok = Controller._errPat.search(''.join(inList))
             if Controller._errPat.search(''.join(_in_list)):  # rnok:
-                _in_list.append("******************E R R O R" +
-                                "****************\n" + self.ctrl_prompt)
+                _in_list.append("******************E R R O R"
+                                + "****************\n" + self.ctrl_prompt)
                 result = False
             response = ''.join(_in_list)
         else:

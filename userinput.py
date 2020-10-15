@@ -2,6 +2,7 @@
 """This script prompts for user input for which serial port to use etc."""
 import sys
 import os
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import logging
 import logging.handlers
 import myserial

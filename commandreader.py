@@ -5,9 +5,11 @@
 
 """
 import os
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import logging
 import logging.handlers
 import userinput
+from userinput import UserInput
 
 LOGGER = logging.getLogger(__name__)
 
@@ -49,24 +51,24 @@ class CommandReader:
         except IOError:
             pass
 
-    def __init__(self, _ui):
-        self.atts = {'lasterror': None, "file_in": None,
-                     'file_name': _ui.inputfn, 'line': "", 'is_closed': True, }
+    def __init__(self, _ui: UserInput):
+        self.atts: Dict[str, Any] = {'lasterror': None, "file_in": None,
+                                     'file_name': _ui.inputfn, 'line': "", 'is_closed': True, }
 
-        self.ui = _ui
-        self.loc = -1  # loc is used to keep track of when the read is done
-        self._set_closed_ifd = {
+        self.ui: UserInput = _ui
+        self.loc: int = -1  # loc is used to keep track of when the read is done
+        self._set_closed_ifd: Dict[bool, Any] = {
             True: _donothing,
             False: self._setclosed,
         }
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'[CommandReader closed: {str(self.atts["is_closed"])}, {str(self.ui)}]'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'[CommandReader closed: {str(self.atts["is_closed"])}, { str(self.ui)}]'
 
-    def open(self):
+    def open(self) -> bool:
         """open()
 
         Opens the input file from the UserInput
@@ -75,7 +77,7 @@ class CommandReader:
         If the reader is already open when called, will throw an assertion error
         """
 
-        result = False
+        result: bool = False
         if not self.atts['is_closed']:
             raise AssertionError('Commandreader already open, aborting...')
         #assert(self.closed,'Commandreader already open, aborting...')
@@ -94,7 +96,7 @@ class CommandReader:
 
         return result
 
-    def get(self):
+    def get(self) -> str:
         """get()
 
         Gets the next line from the input file

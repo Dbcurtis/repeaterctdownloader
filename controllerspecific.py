@@ -4,6 +4,7 @@
 import re
 import logging
 import logging.handlers
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,16 +21,16 @@ class ControllerSpecific:
     """
     # pylint: disable=R0902
     # pylint: disable=R0903
-    get_Ctr_type = 'Abstract Controller'
+    get_Ctr_type: str = 'Abstract Controller'
 
     class SerialSpeedinfo:
         """SerialSpeedinfo
 
         """
 
-        def __init__(self, bps, cpsDelay):
-            self.bps = 0
-            self.cpsDelay = 0.0
+        def __init__(self, bps: int, cpsDelay: float):
+            self.bps: int = 0
+            self.cpsDelay: float = 0.0
             self.bps = bps
             self.cpsDelay = cpsDelay
 
@@ -37,9 +38,9 @@ class ControllerSpecific:
             return f'[CPS: {str(int(self.bps / 10))}, {str(self.cpsDelay)}]'
 
         def __repr__(self):
-            return '[CPS: {str(int(self.bps / 10))}, {str(self.cpsDelay)}]'
+            return f'[CPS: {str(int(self.bps / 10))}, {str(self.cpsDelay)}]'
 
-    def fmtRCM(self, _str):
+    def fmtRCM(self, _str: str) -> Tuple[str, Dict[str, Any]]:
         """fmtRCM(_str)
 
         Formats the response from the Recall Command Name command if such exists
@@ -49,7 +50,7 @@ class ControllerSpecific:
         """
         return (_str, {})
 
-    def fmtRMC(self, _str):
+    def fmtRMC(self, _str: str) -> Tuple[str, Dict[str, Any]]:
         """fmtRMC(_str)
 
         Receives _str as a string and extracts the macro number, the number of instructions
@@ -69,34 +70,35 @@ class ControllerSpecific:
         _ = self.systemMacrosR
         self.safe2reset_name = [
             i for i in self.commandsR if i < _.start or i > _.stop]
-        self.cps_data = [
+        self.cps_data: List[SerialSpeedinfo] = [
             self.SerialSpeedinfo(9600, 0.2),
             self.SerialSpeedinfo(19200, 0.1),
             self.SerialSpeedinfo(4800, 0.4),
             self.SerialSpeedinfo(2400, 0.8),
             self.SerialSpeedinfo(1200, 1.6),
-            self.SerialSpeedinfo(600, 3),
-            self.SerialSpeedinfo(300, 6)
+            self.SerialSpeedinfo(600, 3.0),
+            self.SerialSpeedinfo(300, 6.0)
         ]
 
         # newcmd_dict is a dict that assocates commands, reply patterns, and reply formatters
-        self.newcmd_dict = {'rpcmdn': (None, None, None, ),
-                            'rcn': (None, None, None, ),
-                            'rmc': (None, None, None, ),
-                            'gdate': (None, None, None, ),
-                            'gtime': (None, None, None, ),
-                            'sdate': (None, None, None, ),
-                            'stime': (None, None, None, ),
-                            'smacro': None,
-                            'umacro': None,
-                            'lstcmd': None,
-                            'notcmd': None,
-                            'ecn': None,  # execute command by number
-                            'dtmf': re.compile(
-                                r'^[0-9ABCD#*]+$',
-                                re.IGNORECASE),
-                            'prompt': '\n',
-                            }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
+        self.newcmd_dict: Dict[str, Any] = {
+            'rpcmdn': (None, None, None, ),
+            'rcn': (None, None, None, ),
+            'rmc': (None, None, None, ),
+            'gdate': (None, None, None, ),
+            'gtime': (None, None, None, ),
+            'sdate': (None, None, None, ),
+            'stime': (None, None, None, ),
+            'smacro': None,
+            'umacro': None,
+            'lstcmd': None,
+            'notcmd': None,
+            'ecn': None,  # execute command by number
+            'dtmf': re.compile(
+                r'^[0-9ABCD#*]+$',
+                re.IGNORECASE),
+            'prompt': '\n',
+        }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
 
         for ssi in self.cps_data:
             ssi.cpsDelay = round(0.1 + (1100.0 / ssi.bps), 3)
