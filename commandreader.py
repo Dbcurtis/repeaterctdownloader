@@ -5,10 +5,11 @@
 
 """
 import os
-from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+from typing import Any, Dict
 import logging
 import logging.handlers
-import userinput
+#import userinput
 from userinput import UserInput
 
 LOGGER = logging.getLogger(__name__)
@@ -156,7 +157,7 @@ def __main():
     _THE_LOGGER.addHandler(_LC_HANDLER)
     _THE_LOGGER.info('commandreader executed as main')
     # LOGGER.setLevel(logging.DEBUG)
-    _ui = userinput.UserInput()
+    _ui: UserInput = UserInput()
     _ui.request()
     _ui.open(detect_br=False)
     _cr = CommandReader(_ui)

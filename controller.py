@@ -8,7 +8,8 @@ Module to send commands to a repeater controller over a serial line.
 
 import sys
 import os
-from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+from typing import Any, Tuple, List, Dict
 from os import path
 import logging
 import logging.handlers
@@ -27,8 +28,8 @@ def STRING_2_BYTE(a): return bytearray([ord(s) for s in a])
 def BYTE_2_STRING(a): return "".join([chr(i) for i in a if i != 13])
 
 
-def _remove_comment(_cmdline):
-    _sans_comment = _cmdline.split('\n', 1)  # remove trailing new line
+def _remove_comment(_cmdline: str) -> str:
+    _sans_comment: str = _cmdline.split('\n', 1)  # remove trailing new line
     _sans_comment = _sans_comment[0].split(';', 1)  # remove trailing comment
     return _sans_comment[0].split()
 
@@ -56,15 +57,14 @@ class Controller:
 
     The controller replys are sent to stdout as well as to the logging files
 
-
     c=Controller(ui)
     c.open()
     c.sendcmd("009 ;get the matrix")
     c.close()
     """
 
-    _errPat = re.compile(r".*error:.*", re.I | re.DOTALL)
-    _fnPat = re.compile(r'(.+)\.txt$', re.I)
+    _errPat: re.Pattern = re.compile(r".*error:.*", re.I | re.DOTALL)
+    _fnPat: re.Pattern = re.compile(r'(.+)\.txt$', re.I)
     #Is_Result_Error = lambda a: Controller._errPat.search(a)
 
     _introMsg = """
@@ -72,7 +72,7 @@ class Controller:
 ; File: {}, Created on: {} UTC
 ;-----------------
 """
-    _timeFmt = '%Y%m%d, %H:%M:%S'
+    _timeFmt: str = '%Y%m%d, %H:%M:%S'
 
     @staticmethod
     def _returnsame(_a):
@@ -87,18 +87,18 @@ class Controller:
         If the uiIn.inputfn is blank, then the default file name of 'test.txt' is used
         """
 
-        _in_file_name = uiIn.inputfn.strip()
+        _in_file_name: str = uiIn.inputfn.strip()
         if not _in_file_name:
             _in_file_name = 'test.txt'
 
         _ = Controller._fnPat.search(_in_file_name)
-        _filename = _ and _.group(1)
+        _filename: bool = _ and _.group(1)
         if not _filename:
             print("Filename must end in txt, using 'test.txt'")
             _filename = 'test.txt'
-        self.ui = uiIn
+        self.ui: UserInput = uiIn
         self.s_port = uiIn.serial_port
-        self.cmd = ""
+        self.cmd: str = ""
         self.atts: Dict[str, Any] = {}
         self.atts['cmd_logfile_name'] = _filename + '.cmdlog.txt'
         self.atts['cmd_errfile_name'] = _filename + '.exelog.txt'
@@ -118,10 +118,10 @@ class Controller:
             False: Controller._returnsame,
         }
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'[Controller: {str(self.atts["is_files_open"])}, {str(self.atts["isOpen"])}, {str(self.ui)}]'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'[Controller: {str(self.s_port.isOpen())}, {str(self.atts["is_files_open"])}, {str(self.atts["isOpen"])}, {str(self.ui)}]'
 
     def open(self) -> bool:
@@ -213,7 +213,7 @@ class Controller:
             # write to execution log file
             self.atts['cmd_err_file'].write(cmd + "\n")
 
-        _if_log = {
+        _if_log: Dict[bool, Callable] = {
             True: _write_logs,
             False: _none,
         }
@@ -239,7 +239,7 @@ class Controller:
             self.s_port.timeout = 0.2
             self.s_port.write(STRING_2_BYTE(newcmd))
             _in_list = []
-            _cnt = 100
+            _cnt: int = 100
             while _cnt > 0:  # keep reading input until the controller
                 # prompt (i.e. DTMF>) is seen.
                 # Remember the timeout changes with baud rate
@@ -252,8 +252,8 @@ class Controller:
             self.s_port.timeout = _saved_to
             #rnok = Controller._errPat.search(''.join(inList))
             if Controller._errPat.search(''.join(_in_list)):  # rnok:
-                _in_list.append("******************E R R O R"
-                                + "****************\n" + self.ctrl_prompt)
+                _in_list.append("******************E R R O R" +
+                                "****************\n" + self.ctrl_prompt)
                 result = False
             response = ''.join(_in_list)
         else:

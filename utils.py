@@ -16,9 +16,9 @@ IF_N = {True: lambda a: int(a[1:]), False: lambda a: int(a), }
 IF_TUP = {True: lambda a: [a], False: lambda a: a, }
 
 
-def _range_2_list(_arg):
+def _range_2_list(_arg: Any) -> List[Any]:
     _tlist = IF_TUP.get(isinstance(_arg, tuple))(_arg)
-    lst = []
+    lst: List[Any] = []
     for _ in _tlist:
         if _[0] == _[1]:
             lst += [_[0]]

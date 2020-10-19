@@ -5,11 +5,11 @@ import os
 from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import logging
 import logging.handlers
-import userinput
+from userinput import UserInput
 import getports
-import commandreader
-import controller
-import utils
+from commandreader import CommandReader
+from controller import Controller
+from utils import Utils
 
 _DEBUGGING = False
 
@@ -19,7 +19,7 @@ LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/repeater'
 
 
-def _send_specified_file(_ui):
+def _send_specified_file(_ui: UserInput):
     """_send_specified_file()
 
     ui is a UserInput
@@ -30,13 +30,13 @@ def _send_specified_file(_ui):
     """
 
     _ui.open()
-    _c = controller.Controller(_ui)
-    _cr = commandreader.CommandReader(_ui)
+    _c: Controller = Controller(_ui)
+    _cr = CommandReader(_ui)
     _cr.open()
     _c.open()
     try:
         while 1:
-            line = _cr.get()
+            line: str = _cr.get()
             if line == "":
                 break  # exit when file read
             _c.sendcmd(line, echoit=_DEBUGGING)
@@ -46,7 +46,7 @@ def _send_specified_file(_ui):
         _ui.close()
 
 
-def send_file(_ui):
+def send_file(_ui: UserInput) -> bool:
     """send_file()
 
     asks for a file name and invokes _send_specified_file
@@ -57,13 +57,14 @@ def send_file(_ui):
             _ui.inputfn = input("file name to send to repeater?>")
             _send_specified_file(_ui)
             return True
+
         except OSError:
-            print("{} not found".format(_ui.inputfn))
+            print(f"{_ui.inputfn} not found")  # .format(_ui.inputfn))
             if input("Abort sendfile Y/N").lower().strip()[0:1] == 'y':
                 return False
 
 
-def _cmdloop(_c):
+def _cmdloop(_c: Controller):
     """_cmdloop(_c)
 
     _c is a controller.
@@ -82,7 +83,7 @@ def _cmdloop(_c):
         _c.sendcmd(cmd, echoit=_DEBUGGING)
 
 
-def send_users_cmds(_ui):
+def send_users_cmds(_ui: UserInput) -> bool:
     """sendUsersCmds()
 
     Opens the ui and controller,
@@ -92,7 +93,7 @@ def send_users_cmds(_ui):
     """
 
     _ui.open()
-    _c = controller.Controller(_ui)
+    _c = Controller(_ui)
     _c.open()
     try:
         _cmdloop(_c)
@@ -102,8 +103,8 @@ def send_users_cmds(_ui):
     return True
 
 
-def do_utility_cmds(_ui):
-    """doUtilityCmds()
+def do_utility_cmds(_ui: UserInput) -> bool:
+    """doUtilityCmds(ui)
 
     Asks for the log file name, opens the ui, and the controller.
     Calls the util processor loop,
@@ -112,10 +113,10 @@ def do_utility_cmds(_ui):
 
     _ui.inputfn = input("input log file name.txt>")
     _ui.open()
-    _c = controller.Controller(_ui)
+    _c = Controller(_ui)
     _c.open()
     try:
-        _utils = utils.Utils(_ui, _c)
+        _utils: Utils = Utils(_ui, _c)
         _utils.process_loop()
     finally:
         _c.close()
@@ -134,19 +135,19 @@ def main():
     """
 
     _available_ports = getports.GetPorts().get()
-    #print("Available serial ports are: {}".format(_available_ports))
+    print(f"Available serial ports are: {_available_ports}")
 
-    _ui = userinput.UserInput()
+    _ui: UserInput = UserInput()
     _ui.request()
     try:
         _ui.open()
         _send_specified_file(_ui)
 
-        def _nodop(ignore):
+        def _nodop(ignore: Any) -> bool:
             # pylint: disable=W0613
             return False
 
-        def _errmsg(ignore):
+        def _errmsg(ignore: Any) -> bool:
             # pylint: disable=W0613
             print("only type one of Q, M, U, or F")
             return True
@@ -158,7 +159,7 @@ def main():
             'f': send_file,
         }
 
-        _loop_ctl = True
+        _loop_ctl: bool = True
         while _loop_ctl:
             _response = input("Type 'Q' to quit\n"
                               "Type 'M' for manual commands\n"

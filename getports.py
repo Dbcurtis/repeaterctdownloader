@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """ TO BE DONE """
 import os
-from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+from typing import List
 import logging
 import logging.handlers
 import serial
@@ -19,39 +20,39 @@ class GetPorts:
     The version of serial is used to determine how list port works.
 
     Usage:
-    devs = getports.GetPorts().get()
+    devs:List[str] = getports.GetPorts().get()
 
     every call to get() refreshes the port tuple.
     Thus, you can take out and insert ports at any time.
     """
 
     def __init__(self):
-        self.devs = []
+        self.devs: List[str] = []
         LOGGER.debug('Created GetPorts')
-        self._old_serial = False
+        self._old_serial: bool = False
+        _aa: str = "outofdate"
         try:
-            serial.__version__
+            _aa = serial.__version__
         except AttributeError:
             self._old_serial = True
-        if self._old_serial:
-            LOGGER.debug('Detected Python 3.4')
+        LOGGER.debug(f'Detected Python serial version {_aa}')
 
-    def get(self):
+    def get(self) -> List[str]:
         """get()
 
         returns a list of serial(?) ports
         """
         LOGGER.debug('entered get')
         _ports = serial.tools.list_ports.comports()
-        devs = []
+        #devs: List[str] = []
 
         if self._old_serial:
-            devs = [_p for _p in [_port[0] for _port in _ports]]
+            self.devs = [_p for _p in [_port[0] for _port in _ports]]
         else:
-            devs = [_.device for _ in _ports]
+            self.devs = [_.device for _ in _ports]
 
-        self.devs = [_p for _p in devs]
-        LOGGER.debug('exited get with %s', self.devs)
+        #self.devs = [_p for _p in devs]
+        LOGGER.debug(f'exited get with {self.devs}')
         return self.devs
 
 

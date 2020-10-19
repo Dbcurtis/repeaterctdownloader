@@ -82,11 +82,11 @@ class UserInput:
             else:
                 assert "illegal testdata type"
 
-    def __str__(self):
+    def __str__(self) -> str:
         # return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
         return f'[UserInput: {self.comm_port}, {self.inputfn}]'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         # return '[UserInput: {}, {}]'.format(self.comm_port, self.inputfn)
         return f'[UserInput: {self.comm_port}, {self.inputfn}]'
 
@@ -119,8 +119,8 @@ class UserInput:
                 print(f'Using serial port: {self.comm_port}')
                 break
 
-        print('Known controlers: \n\t'
-              + '\n\t'.join(knowncontrollers.get_controller_ids()))
+        print('Known controlers: \n\t' +
+              '\n\t'.join(knowncontrollers.get_controller_ids()))
 
         _msg = 'Controler options: ' + str(knowncontrollers.get_known())
         while 1:

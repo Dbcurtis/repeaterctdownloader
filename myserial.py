@@ -18,40 +18,41 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
 
     controller_info is ***?
     """
-    _debugging = False
+    _debugging: bool = False
 
-    _debugreturns = [b'ok\nDTMF>']
-    _dbidx = 0
-    _NO = -1
+    _debugreturns: bytes = [b'ok\nDTMF>']
+    _dbidx: int = 0
+    _NO: int = -1
 
     """Byte_2_String(bs)
 
     Takes a byte array (bs) and returns the corrosponding string
     """
-    def Byte_2_String(bs): return "".join(
+    def Byte_2_String(bs: bytes) -> str: return "".join(
         [chr(int(b)) for b in bs if int(b) != 13])
 
-    def String_2_Byte(st): return bytes([ord(s) for s in st])
+    #def String_2_Byte(st:str) -> bytes: return bytes([ord(s) for s in st])
     """String_2_Byte(st)
 
     Takes a string (st) and returns a corrosponding byte array
     """
-    def String_2_Byte(st): return bytes([ord(s) for s in st])
+    def String_2_Byte(st: str) -> bytes: return bytes([ord(s) for s in st])
 
     def __init__(self, controller_info):
         super(MySerial, self).__init__()
         self.controller_info = controller_info
         self.cont_prompt = self.controller_info.newcmd_dict.get('prompt')
 
-    def __str__(self):
+    def __str__(self) -> str:
         #_aa = super(MySerial, self).__str__()
         return "testing:" + str(MySerial._debugging) + ", " + super(MySerial, self).__str__()
 
-    def dread(self, numchar):
+    def dread(self, numchar: int) -> bytes:
         """dread(numchar)
 
 
         """
+        result: bytes = b''
         if not MySerial._debugging:
             return self.read(numchar)
 
@@ -61,7 +62,7 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
         MySerial._dbidx += 1
         return result
 
-    def sp_ok(self):  # assume the sp is open
+    def sp_ok(self) -> bool:  # assume the sp is open
         """spOK()
 
         Checks to see if an open serial port is communicating with the controller
@@ -89,7 +90,7 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
         _sp.open()
         return ctrlresult.endswith(self.cont_prompt)
 
-    def find_baud_rate(self):
+    def find_baud_rate(self) -> bool:
         """find_baud_rate()
 
         Attempts to communicate to the repeater controller using speeds
@@ -113,7 +114,7 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
         _sp = self
         _ci = self.controller_info
 
-        is_open = _sp.isOpen()
+        is_open: bool = _sp.isOpen()
         if not is_open:
             _sp.open()
 
@@ -135,7 +136,7 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
             _sp.baudrate = cpsd.bps
             _sp.timeout = cpsd.cpsDelay
             cnt = 2
-            print("trying " + str(cpsd.bps) + " baud")
+            print(f"trying {str(cpsd.bps)} baud")
             while cnt > 0:
                 #  print("acnt: "+str(cnt)+", "+str(sp))
                 _sp.open()  # try these settings

@@ -3,7 +3,8 @@
 """ to be done
 """
 import re
-from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+from typing import Any, List, Dict, Tuple
 from controllerspecific import ControllerSpecific
 
 
@@ -19,13 +20,13 @@ class Device(ControllerSpecific):
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     N054Fmt_pat: re.Pattern = re.compile(
-        r"MACRO\s+(?P<macro>\d{3,3})\s+contains\s+(?P<numins>\d{1,})\s+" +
-        r"commands:(?P<cmds>.*)this.*(?P<full>\d{1,3}).*full\nOK\nOK\n",
+        r"MACRO\s+(?P<macro>\d{3,3})\s+contains\s+(?P<numins>\d{1,})\s+"
+        + r"commands:(?P<cmds>.*)this.*(?P<full>\d{1,3}).*full\nOK\nOK\n",
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     N011Fmt_pat: re.Pattern = re.compile(
-        r'Command number\s*(?P<cmdno>\d{3,3})\s*'
-        + r'is named (?P<name>.*?)\.\s+It takes (?P<digs>\d{1,3}) digits of data\.',
+        r'Command number\s*(?P<cmdno>\d{3,3})\s*' +
+        r'is named (?P<name>.*?)\.\s+It takes (?P<digs>\d{1,3}) digits of data\.',
         re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
     _N029_PAT: re.Pattern = re.compile(
@@ -79,7 +80,7 @@ class Device(ControllerSpecific):
         cmd: str = "".join(_arg)
         return cmd
 
-    def __fmt_proc(self, _mx):
+    def __fmt_proc(self, _mx) -> Dict[str, str]:
         if not _mx:
             return {}
         return _mx.groupdict()
@@ -93,7 +94,7 @@ class Device(ControllerSpecific):
         result['cmds'] = lst
         return result
 
-    def __fmt_n054(self, _str: str) -> Dict[str, Any]:  # fmt macro contents
+    def __fmt_n054(self, _str: str) -> Dict[str, str]:  # fmt macro contents
         """__fmtN054(s)
 
         runs a regex on string s. If unsuccessful, return an empty dict.
@@ -102,7 +103,7 @@ class Device(ControllerSpecific):
 
         """
         _mx: re.Pattern = Device.N054Fmt_pat.search(_str)
-        result: Dict[str, Any] = {}
+        result: Dict[str, str] = {}
         if _mx:
             cmds = _mx.group(3).strip()
             lst = [l for l in cmds.split('\n') if l.strip()]
@@ -114,7 +115,7 @@ class Device(ControllerSpecific):
 
         return result
 
-    def __fmt_n011(self, _str) -> Dict[str, Any]:
+    def __fmt_n011(self, _str) -> Dict[str, str]:
         """__fmtN011(s)
 
         Performs a regex, and if successful, returns a dict with keys:
@@ -132,8 +133,8 @@ class Device(ControllerSpecific):
                       }
         return result
 
-    def fmtRMC(self, _str):
-        """fmtRMC(_str)
+    def fmtRMC(self, _str) -> Tuple[str, Dict[str, str]]:
+        """fmtRMC(s)
 
         Receives s as a string and extracts the macro number, the number of instructions
         the commands, and percentage full.
@@ -143,7 +144,7 @@ class Device(ControllerSpecific):
 
         If unable to parse the input s, just returns the input s and empty dict.
         """
-        result = (_str, {})
+        result: Tuple[str, Dict[str, str]] = (_str, {})
         _d = self.__fmt_n054(_str)
 
         if _d:
@@ -163,7 +164,7 @@ class Device(ControllerSpecific):
 
         return result
 
-    def fmtRCM(self, _str):
+    def fmtRCM(self, _str) -> Tuple[str, Dict[str, str]]:
         """fmtRCM(_str)
 
         Formats the response from the Recall Command Name (N011) command
@@ -172,7 +173,7 @@ class Device(ControllerSpecific):
         Returns a tuple with the formatted string and a dictionary for the relevent info
 
         """
-        result = (_str, {})
+        result: Tuple[str, Dict[str, str]] = (_str, {})
         _d = self.__fmt_n011(_str)
         if _d:
             _ll = ['Command number']
