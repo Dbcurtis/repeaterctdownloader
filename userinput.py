@@ -2,11 +2,14 @@
 """This script prompts for user input for which serial port to use etc."""
 import sys
 import os
-from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+from typing import Any, Tuple, Callable, List, Dict
+from collections import namedtuple
 import logging
 import logging.handlers
 import myserial
-import getports
+from getports import GetPorts
+#from controller import Controller
 import knowncontrollers
 
 LOGGER = logging.getLogger(__name__)
@@ -29,10 +32,10 @@ def _inputg(ignore, _a):
     return input(_a)
 
 
-_CLOSE_IFD = {True: lambda a: a.close(),
-              False: _ignore, }
+_CLOSE_IFD: Dict[bool, Any] = {True: lambda a: a.close(),
+                               False: _ignore, }
 
-_USER_INPUT_IFD = {
+_USER_INPUT_IFD: Dict[bool, Any] = {
     True: _pop_test_data,
     False: _inputg, }
 
@@ -63,18 +66,18 @@ class UserInput:
         """
         return _USER_INPUT_IFD.get(isinstance(self._td, list))(self._td, query)
 
-    def __init__(self, ctype=None, testdata=None, testing=False):
+    def __init__(self, ctype: Any = None, testdata: List[str] = None, testing: bool = False):
         """UserInput(ctype,testdata,testing:bool)"""
         self.testing: bool = testing
         self.comm_port: str = ""
         self.inputfn: str = ""
-        self.controller_type = ctype
+        self.controller_type: Any = ctype
         if self.controller_type is None:
             self.serial_port = None
         else:
             self.serial_port = myserial.MySerial(self.controller_type)
 
-        self._td = None
+        self._td: List[str] = None
         if testdata:
             if isinstance(testdata, list):
                 self._td = testdata
@@ -95,35 +98,37 @@ class UserInput:
 
         Request comm port id, repeater controller type, and filename containing controller commands
         """
-        while 1:
-            tups = []
-            available = getports.GetPorts().get()
-            if available and len(available) > 1:
-                # .format(available))
-                print(f'Available comport(s) are: {available}')
-                tups = [(_.strip(), _.strip().lower()) for _ in available]
+        CtrlStrings = namedtuple('CtrlStrings', ['org', 'lc'])
+        while True:
+            #tups: List[Tuple[str, str]] = []
+            tups: List[CtrlStrings] = []
+            available_p: List[str] = GetPorts().get()
+            if available_p and len(available_p) > 1:
+                print(f'Available comport(s) are: {available_p}')
+                tups = [CtrlStrings(org=_.strip(), lc=_.strip().lower())
+                        for _ in available_p]
                 useri = self._inputa("Comm Port for repeater?>").strip()
-            elif available:
-                tups = [(_.strip(), _.strip().lower()) for _ in available]
-                useri = tups[0][1]
+            elif available_p:
+                tups = [CtrlStrings(org=_.strip(), lc=_.strip().lower())
+                        for _ in available_p]
+                useri = tups[0].lc
             else:
                 print('No available ports')
                 self.close()
                 raise Exception(" no available ports")
 
-            hits = [t for t in tups if useri.lower() in t]
+            hits: List[Any] = [t for t in tups if useri.lower() in t]
             if hits:
-                [_port] = hits
-                self.comm_port = _port[0]
-                # .format(self.comm_port))
+                #[_port] = hits
+                self.comm_port = hits[0].org
                 print(f'Using serial port: {self.comm_port}')
                 break
 
-        print('Known controlers: \n\t' +
+        print('Known controllers: \n\t' +
               '\n\t'.join(knowncontrollers.get_controller_ids()))
 
-        _msg = 'Controler options: ' + str(knowncontrollers.get_known())
-        while 1:
+        _msg = f'Controller options: {str(knowncontrollers.get_known())}'
+        while True:
             print(_msg)
             useri = self._inputa("Controller type?>")
             ctrl = knowncontrollers.select_controller(useri)

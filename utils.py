@@ -7,6 +7,9 @@ from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapp
 import argparse
 import logging
 import logging.handlers
+from userinput import UserInput
+from controller import Controller
+
 LOGGER = logging.getLogger(__name__)
 
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
@@ -63,19 +66,20 @@ class Utils:
                          help='quit the util',
                          action="store_true")
 
-    def __init__(self, _uii, _c, testing: bool = False, showhelp: bool = True):
+    def __init__(self, _uii: UserInput, _c: Controller, testing: bool = False, showhelp: bool = True):
         """__init__(ui,testing=False, showhelp=True)
 
         uii is the current UserInput
+        c is the Controller
         testing True -> stops commands from being sent to the controller,
         and instead just prints them.
         showhelp True -> prints the help message
         """
-        self._ui = _uii
+        self._ui: UserInput = _uii
         self.s_port = _uii.serial_port
         self.cont_info = self.s_port.controller_info
         self.testing: bool = testing
-        self.c = _c
+        self.c: Controller = _c
         self.args = None
         if showhelp:
             Utils._parser.print_help()
@@ -88,18 +92,18 @@ class Utils:
 
         Select and execut which UTIL program to run.
         You commands are run in the following order (assuming all are selected):
-        0)-acr
-        1)-ran
-        2)-rmd
-        3)-rmn
-        4)-cacn
+        0)-acr --apply_command_to_range
+        1)-ran --recall_all_names
+        2)-rmd --recall_macro_def
+        3)-rmn  --recall_macro_names
+        4)-cacn --reset_all_comd_names
         5)-quit
 
         This is the primary user access to the utilities
         """
         print('commands- one of: (-h|-acr|-rmn|-ran|-rmd|-cacn|-q)')
 
-        while 1:
+        while True:
             instr = ""
             if self.testing:
                 instr = "   -q -acr -rmn -ran -rmd -cacn"
@@ -136,7 +140,7 @@ class Utils:
         If the cmdid has been renamed, logs the rename and the cmdid
 
         """
-        def _sit(_a):
+        def _sit(_a) -> bool:
             """_sit(a)
 
             checks if the response to the command indicates a rename
@@ -144,7 +148,7 @@ class Utils:
             """
 
             _px = self._ui.controller_type.rename_pat.search(_a)
-            result = False
+            result: bool = False
 
             def _aa(_a):
                 _g1 = _a.group(1)
@@ -320,7 +324,7 @@ class Utils:
         the execution log.
 
         """
-        def _sit(_a):
+        def _sit(_a: str) -> bool:
             """_sit(a)
 
             tests if the response is a macro deffinition
@@ -330,7 +334,7 @@ class Utils:
         valid = isinstance(self.cont_info.newcmd_dict.get('umacro'), tuple)
         if not (self.cont_info.newcmd_dict.get('rmc')[0] or valid):
             print('Command not supported for this controller')
-            return
+            return False
 
         for i in self.cont_info.userMacrosR:
             #_ = _3D.format(num=i)
@@ -346,6 +350,7 @@ class Utils:
                               select_it=lambda a: _sit(a),
                               format_it=lambda a: self.cont_info.fmtRCM(a)):
                 sys.stdout.write('.')
+        return True
 
 
 if __name__ == '__main__':

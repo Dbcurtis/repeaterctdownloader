@@ -6,7 +6,7 @@ from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapp
 import logging
 import logging.handlers
 from userinput import UserInput
-import getports
+from getports import GetPorts
 from commandreader import CommandReader
 from controller import Controller
 from utils import Utils
@@ -113,7 +113,7 @@ def do_utility_cmds(_ui: UserInput) -> bool:
 
     _ui.inputfn = input("input log file name.txt>")
     _ui.open()
-    _c = Controller(_ui)
+    _c: Controller = Controller(_ui)
     _c.open()
     try:
         _utils: Utils = Utils(_ui, _c)
@@ -128,13 +128,13 @@ def main():
     """main()
 
     Identifies the avilable ports, gets user input, sends the specified file (if exists) to
-    the controller.
+    the controller on a port.
 
     Prints the command list and processes the user selected command(s)
 
     """
 
-    _available_ports = getports.GetPorts().get()
+    _available_ports = GetPorts().get()
     print(f"Available serial ports are: {_available_ports}")
 
     _ui: UserInput = UserInput()

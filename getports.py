@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ TO BE DONE """
 import os
-#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+# from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 from typing import List
 import logging
 import logging.handlers
@@ -42,16 +42,17 @@ class GetPorts:
 
         returns a list of serial(?) ports
         """
+
         LOGGER.debug('entered get')
         _ports = serial.tools.list_ports.comports()
-        #devs: List[str] = []
+        self.devs = []
 
         if self._old_serial:
             self.devs = [_p for _p in [_port[0] for _port in _ports]]
         else:
             self.devs = [_.device for _ in _ports]
 
-        #self.devs = [_p for _p in devs]
+        # self.devs = [_p for _p in devs]
         LOGGER.debug(f'exited get with {self.devs}')
         return self.devs
 

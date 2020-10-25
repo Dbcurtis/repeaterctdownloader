@@ -17,7 +17,7 @@ import re
 from datetime import datetime
 from time import time
 import userinput
-from userinput import UserInput
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -75,10 +75,11 @@ class Controller:
     _timeFmt: str = '%Y%m%d, %H:%M:%S'
 
     @staticmethod
-    def _returnsame(_a):
+    def _returnsame(_a: Any) -> Any:
         return _a
 
-    def __init__(self, uiIn: UserInput):  # get the port id and the logging file ids
+    # get the port id and the logging file ids
+    def __init__(self, uiIn: userinput.UserInput):
         """__init__(uiIn)
 
         uiIn is a UserInput object that has defined a file name as input and a
@@ -96,7 +97,7 @@ class Controller:
         if not _filename:
             print("Filename must end in txt, using 'test.txt'")
             _filename = 'test.txt'
-        self.ui: UserInput = uiIn
+        self.ui: userinput.UserInput = uiIn
         self.s_port = uiIn.serial_port
         self.cmd: str = ""
         self.atts: Dict[str, Any] = {}
@@ -166,7 +167,7 @@ class Controller:
 
         return result
 
-    def _cnvtcmd(self, cmdin):
+    def _cnvtcmd(self, cmdin: Any) -> Any:
         return self._byte_string_ifd.get(isinstance(cmdin, bytes))(cmdin)
 
     def sendcmd(self,

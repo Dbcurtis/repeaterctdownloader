@@ -3,7 +3,8 @@
 
 import os
 import re
-from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+from typing import Any, Tuple, List, Dict
 import importlib
 import copy
 import logging
@@ -43,11 +44,11 @@ def get_known() -> str:
     return _KNOWN
 
 
-def select_controller(_str: str):
+def select_controller(_str: str) -> Tuple[str, Any]:
     """select_controller(str)
 
     Matches _str against controlled class/regex tuples
-    If no match, returns None, otherwise returns an object of the specifiec controler class
+    If no match, returns None, otherwise returns a tuple of the found controller and the selected controler class
     """
     _ = _str.strip()
     result = None
@@ -78,7 +79,7 @@ class KnownControllers:
         """
         return copy.copy(self._jj)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return get_known()
 
 

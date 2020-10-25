@@ -1,6 +1,6 @@
 
 ;-------------
-; File: m:\Python\Python3_packages\repeaterControlerDownloader\tests\updatetest.exelog.txt, Created on: 20201018, 11:44:13 UTC
+; File: m:\Python\Python3_packages\repeaterControlerDownloader\tests\updatetest.exelog.txt, Created on: 20201024, 10:49:13 UTC
 ;-----------------
 N029
 DTMF>N029

@@ -119,6 +119,26 @@ class Testutils(unittest.TestCase):
         self.assertEqual(
             'testing:True, cmds: -acr, -rmn, -ran, -rmd, -cacn, -q', str(utili))
 
+        # if showhelp true then something like
+        """
+        usage: run_unittests_xml.py [-h] [-rmn] [-ran] [-rmd] [-cacn] [-acr] [-q]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -rmn, --recall_macro_names
+                        return all macro names
+  -ran, --recall_all_names
+                        return all renamed commands
+  -rmd, --recall_macro_def
+                        return all macro deffinitions
+  -cacn, --reset_all_comd_names
+                        reset all command names
+  -acr, --apply_command_to_range
+                        apply command to aruments in specified range
+  -q, --quit            quit the util
+
+        """
+
     def testrange_2_list(self):
         aa = utils._range_2_list
         jj = aa((0, 0))
