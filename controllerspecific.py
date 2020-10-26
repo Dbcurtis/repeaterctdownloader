@@ -2,9 +2,11 @@
 """  TBD  """
 
 import re
+from collections import namedtuple
 import logging
 import logging.handlers
-from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+from typing import Any, Tuple, List, Dict
 
 LOGGER = logging.getLogger(__name__)
 
@@ -29,15 +31,13 @@ class ControllerSpecific:
         """
 
         def __init__(self, bps: int, cpsDelay: float):
-            self.bps: int = 0
-            self.cpsDelay: float = 0.0
-            self.bps = bps
-            self.cpsDelay = cpsDelay
+            self.bps: int = bps
+            self.cpsDelay: float = cpsDelay
 
-        def __str__(self):
+        def __str__(self) -> str:
             return f'[CPS: {str(int(self.bps / 10))}, {str(self.cpsDelay)}]'
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f'[CPS: {str(int(self.bps / 10))}, {str(self.cpsDelay)}]'
 
     def fmtRCM(self, _str: str) -> Tuple[str, Dict[str, Any]]:
@@ -70,7 +70,7 @@ class ControllerSpecific:
         _ = self.systemMacrosR
         self.safe2reset_name = [
             i for i in self.commandsR if i < _.start or i > _.stop]
-        self.cps_data: List[SerialSpeedinfo] = [
+        self.cps_data = [
             self.SerialSpeedinfo(9600, 0.2),
             self.SerialSpeedinfo(19200, 0.1),
             self.SerialSpeedinfo(4800, 0.4),
@@ -111,5 +111,5 @@ class ControllerSpecific:
             r".*",
             re.MULTILINE | re.IGNORECASE | re.DOTALL)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ControllerSpecific.get_Ctr_type

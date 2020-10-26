@@ -5,6 +5,7 @@ import os
 import re
 #from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 from typing import Any, Tuple, List, Dict
+from collections import namedtuple
 import importlib
 import copy
 import logging
@@ -15,13 +16,18 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/knowncontrollers'
 
-CTRL_DICT_A: Dict[str, Tuple[Any, ...]] = {
-    'dlx2': (re.compile(r"dlx(ii|2)", re.A | re.I), 'dlxii'),
-    'rlclub': (re.compile(r"(rlcclub|club|rlclub)", re.A | re.I), 'club'),
-    'rlc1+': (re.compile(r"rlc1(\+|p(lus)?)", re.A | re.I), 'rlc1plus'),
+CtrlTuple = namedtuple('CtrlTuple', ['pat', 'id'])
+
+_CTRL_DICT_A: Dict[str, Tuple[Any, ...]] = {
+    # 'dlx2': (re.compile(r"dlx(ii|2)", re.A | re.I), 'dlxii'),
+    # 'rlclub': (re.compile(r"(rlcclub|club|rlclub)", re.A | re.I), 'club'),
+    # 'rlc1+': (re.compile(r"rlc1(\+|p(lus)?)", re.A | re.I), 'rlc1plus'),
+    'dlx2': (CtrlTuple(re.compile(r"dlx(ii|2)", re.A | re.I), 'dlxii')),
+    'rlclub': (CtrlTuple(re.compile(r"(rlcclub|club|rlclub)", re.A | re.I), 'club')),
+    'rlc1+': (CtrlTuple(re.compile(r"rlc1(\+|p(lus)?)", re.A | re.I), 'rlc1plus')),
 }
 
-_KNOWN: str = ', '.join(sorted([a for a, b in CTRL_DICT_A.items()]))
+_KNOWN: str = ', '.join(sorted([a for a in _CTRL_DICT_A.keys()]))
 
 
 def get_controller_ids() -> List[str]:
@@ -30,8 +36,8 @@ def get_controller_ids() -> List[str]:
     Return the controller ID strings as a list
     """
     return sorted([
-        c[1] for c in
-        [n for n in CTRL_DICT_A.values()]
+        c.id for c in
+        [n for n in _CTRL_DICT_A.values()]
     ])
 
 
@@ -52,13 +58,10 @@ def select_controller(_str: str) -> Tuple[str, Any]:
     """
     _ = _str.strip()
     result = None
-    for _n in CTRL_DICT_A.values():
-        #_mx = _n[0].match(_)
-        # if _mx:
-        if _n[0].match(_):
-            # result = _n[0]  # get the object corrosponding to the match
-            ctrl = importlib.import_module(_n[1])
-            result = (_n[1], ctrl.Device())
+    for _n in _CTRL_DICT_A.values():
+        if _n.pat.match(_):
+            ctrl = importlib.import_module(_n.id)
+            result = (_n.id, ctrl.Device())
             break
     return result
 
@@ -69,7 +72,7 @@ class KnownControllers:
     # pylint: disable=R0903
 
     def __init__(self):
-        self._jj = copy.copy(CTRL_DICT_A)
+        self._jj = copy.copy(_CTRL_DICT_A)
 
     def known_controllers(self) -> Dict[str, Tuple[Any, ...]]:
         """known_controllers()

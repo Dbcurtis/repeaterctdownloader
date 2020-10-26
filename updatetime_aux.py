@@ -2,6 +2,7 @@
 """This script updates the repeater's time and date"""
 import sys
 from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import argparse
 import time
 import logging
@@ -10,15 +11,15 @@ import userinput
 import knowncontrollers
 import controllerspecific
 
-HOURLIM = 23
-MINLIM = 50
-O_DOW = ['monday', 'tuesday', 'wednesday', 'thursday',
-         'friday', 'saturday', 'sunday', 'foolsday']
-R_DOW = [7, 6, 0, 1, 2, 3, 4, 5, ]
-M_DOW = ['2', '3', '4', '5', '6', '7', '1', ]
+HOURLIM: int = 23
+MINLIM: int = 50
+O_DOW: List[str] = ['monday', 'tuesday', 'wednesday', 'thursday',
+                    'friday', 'saturday', 'sunday', 'foolsday']
+R_DOW: List[int] = [7, 6, 0, 1, 2, 3, 4, 5, ]
+M_DOW: List[str] = ['2', '3', '4', '5', '6', '7', '1', ]
 
-TWO_CHAR = '{num:02d}'
-SET_ATTEMPT_MAX = 15
+TWO_CHAR: str = '{num:02d}'
+SET_ATTEMPT_MAX: int = 15
 
 INST = controllerspecific.INST
 PAT = controllerspecific.PAT
@@ -53,17 +54,18 @@ def _no_op(ignore):
     pass
 
 
-CLOSER = {False: lambda a: a.close(), True: lambda a: _no_op(a)}
+CLOSER: Dict[bool, Any] = {
+    False: lambda a: a.close(), True: lambda a: _no_op(a)}
 
 #cmdl_debug = False
 #verbose = False
 
-LOGGER = logging.getLogger(__name__)
-LOG_DIR = '../logs'
-LOG_FILE = '/updatetime'
+LOGGER: str = logging.getLogger(__name__)
+LOG_DIR: str = '../logs'
+LOG_FILE: str = '/updatetime'
 
 
-def _delay(debug=False, testtime=None):
+def _delay(debug: bool = False, testtime=None) -> Any:
     """_delay()
 
     if the time is >23:50, waits until 2 seconds after the date changes before continuing
@@ -72,7 +74,7 @@ def _delay(debug=False, testtime=None):
     debugging is false the debugging message is None
     """
 
-    while 1:
+    while True:
         msg = None
 
         os_time = time.localtime(time.time())
@@ -92,7 +94,7 @@ def _delay(debug=False, testtime=None):
     return (time.localtime(time.time()), msg)
 
 
-def check_date(_res, _sdtpl, _os_time):
+def check_date(_res: Dict[str, Any], _sdtpl, _os_time):
     """check_date(_res,_sdtpl,_os_time)
 
     _res is the dict set by gdtpl[2] that has keys A, m, d, Y
@@ -112,9 +114,11 @@ def check_date(_res, _sdtpl, _os_time):
     _d = _res['d']
     _Y = _res['Y']
 
-    _oY = str(_os_time.tm_year)
-    _om = TWO_CHAR.format(num=_os_time.tm_mon)
-    _od = TWO_CHAR.format(num=_os_time.tm_mday)
+    _oY: str = str(_os_time.tm_year)
+    # f'{_os_time.tm_mon:02d}'
+    _om: str = TWO_CHAR.format(num=_os_time.tm_mon)
+    # f'{_os_time.tm_mday:02d}'
+    _od: str = TWO_CHAR.format(num=_os_time.tm_mday)
     _owd = _os_time.tm_wday
     textdow = O_DOW[_owd]
     #aa = M_DOW[_owd]
@@ -125,7 +129,7 @@ def check_date(_res, _sdtpl, _os_time):
     return cmd
 
 
-def check_time(_res, _sttpl, _os_time):
+def check_time(_res: Dict[str, Any], _sttpl, _os_time) -> str:
     """check_time(_res,_sttpl,_os_time)
 
     _res is the dict set by gttpl[2] that has keys I, M, p
@@ -159,8 +163,9 @@ def check_time(_res, _sttpl, _os_time):
 
     _H = time.strftime("%H", time.gmtime(_seconds))
     _sysI = time.strftime("%I", _os_time)
+    # f'{_os_time.tm_hour:02d}'
     _sysH = TWO_CHAR.format(num=_os_time.tm_hour)
-    _sysM = TWO_CHAR.format(num=_os_time.tm_min)
+    _sysM = TWO_CHAR.format(num=_os_time.tm_min)  # f'{_os_time.tm_min:02d}'
     _sysPM = '0'
     if int(_sysH) > 11:
         _sysPM = '1'
@@ -203,7 +208,7 @@ def proc2(args):
     return (possible_port, possible_ctrl, )
 
 
-def process_cmdline(_available_ports, _testcmdline=None):
+def process_cmdline(_available_ports: List[str], _testcmdline: List[str] = None) -> Tuple[Any, Any, Any]:
     """process_cmdline(_available_ports, _testcmdline="")
 
     _available_ports is a list? of port names

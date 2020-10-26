@@ -324,7 +324,7 @@ DTMF"""
 
     def testdoit(self):
         msclass = myserial.MySerial
-        devs = getports.GetPorts().get()
+        devs: List[str] = getports.GetPorts().get()
         port = 'COM3'
         if devs:
             port = devs[0]

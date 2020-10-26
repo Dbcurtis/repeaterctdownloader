@@ -17,17 +17,6 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/commandreader'
 
-# _LF_HANDLER = logging.handlers.RotatingFileHandler(
-#''.join([LOG_DIR, LOG_FILE, ]),
-# maxBytes=10000,
-# backupCount=5,
-# )
-#_LC_HANDLER = logging.StreamHandler()
-# _LF_FORMATTER = logging.Formatter(
-# '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
-
-#_LC_FORMATTER = logging.Formatter('%(name)s: %(levelname)s - %(message)s')
-
 
 def _donothing():
     pass
@@ -163,7 +152,7 @@ def __main():
     _cr = CommandReader(_ui)
     try:
         _cr.open()
-        while 1:
+        while True:
             _line = _cr.get()
             if not _line:
                 break

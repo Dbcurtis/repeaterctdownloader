@@ -2,6 +2,7 @@
 """This script updates the repeater's time and date"""
 import sys
 import os
+#from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 import time
 import datetime
@@ -34,7 +35,7 @@ def help_processing(_available_ports, tempargs):
         raise SystemExit()
 
 
-def process_cmdline(_available_ports, _testcmdline=None):
+def process_cmdline(_available_ports: List[str], _testcmdline=None):
     """process_cmdline(_available_ports, _testcmdline="")
 
     _available_ports is a list? of port names
@@ -46,6 +47,7 @@ def process_cmdline(_available_ports, _testcmdline=None):
     processes the command line arguments
     returns a tuple of (ui, verbose, cmdl_debug) if arguments are ok, Otherwise raises an exception
     """
+    msg: str = ''
     _tcl = []
     if _testcmdline:
         _tcl = _testcmdline
@@ -62,7 +64,7 @@ def process_cmdline(_available_ports, _testcmdline=None):
     elif args.loginfo:
         LOGGER.setLevel(logging.INFO)
 
-    possible_port = args.Port
+    possible_port: str = args.Port
     if args.Controller:
         possible_ctrl = args.Controller
     else:
@@ -71,24 +73,24 @@ def process_cmdline(_available_ports, _testcmdline=None):
     if len(_available_ports) != 1:
         if not args.Port.upper() in _available_ports:
             msg = f'Port {args.Port} not available: available ports are: {_available_ports}, aborting'
-            #   .format(args.Port, _available_ports)
+
             raise Exception(msg)
     else:
         possible_port = _available_ports[0]
 
-    ctrl = knowncontrollers.select_controller(possible_ctrl)
+    ctrl: Tuple[str, Any] = knowncontrollers.select_controller(possible_ctrl)
     if not ctrl:
         msg = f'Controller {args.Controller} not available: available controlers are: {knowncontrollers.get_controller_ids()}, aborting'
-        # .format(args.Controller, knowncontrollers.get_controller_ids())
+
         raise Exception(msg)
 
-    verbose = args.verbose
+    verbose: bool = args.verbose
     cmdl_debug = args.cldebug
     _ui = userinput.UserInput(ctrl[1])
     _ui.comm_port = possible_port
     if verbose:
         msg = f'[verbose] ctrl:{ctrl}, port:{_ui.comm_port}, dbg:{cmdl_debug}, verbose: True'
-        # .format(ctrl, _ui.comm_port, cmdl_debug)
+
     return (_ui, verbose, cmdl_debug)
 
 
@@ -104,18 +106,16 @@ class Stuff:
         self._ct = None
         _delay()
 
-    def _helper1(self, cmd, msg):
+    def _helper1(self, cmd: str, msg: str):
 
         if not self.cmdl_debug:
             if cmd and not self._ct.sendcmd(cmd, display=self.verbose or self.cmdl_debug):
-                # .format(msg))
                 raise ValueError(f'retry {msg} command send error')
         else:
-            # .format(msg, cmd))
             print(f'debugging, would have set {msg} with {cmd}')
 
 # -----------------------------
-    def settime(self, _the_time, debug_time):
+    def settime(self, _the_time, debug_time) -> str:
         """settime()
 
         checks to see if the times are different,
@@ -172,7 +172,7 @@ class Stuff:
 
         return cmd
 
-    def doit(self, debug_time=None):
+    def doit(self, debug_time=None) -> Tuple[Any, ...]:
         """doit(_debug_time=)
 
         does all the work
@@ -183,8 +183,9 @@ class Stuff:
         """
 
         # cmdl_debug = self.cmdl_debug
-        result = ()
-        _the_time = {False: debug_time, True: time.localtime(time.time()), }
+        result: Tuple[Any, ...] = ()
+        _the_time: Dict[bool, Any] = {
+            False: debug_time, True: time.localtime(time.time()), }
         try:
             _ui = self._ui
             _ui.open()
@@ -223,7 +224,8 @@ class Stuff:
             noneed = cntdown == SET_ATTEMPT_MAX - 1
             result = (cntdown, succ, noneed)
             if self.verbose:
-                ifa = {True: 'Controller date-time was current', }
+                ifa: Dict[bool, str] = {
+                    True: 'Controller date-time was current', }
                 ifa[False] = f'Controller time sucessfully set: {succ}'
                 print(
                     ' '.join([str(datetime.datetime.now()), ifa.get(noneed), ]))

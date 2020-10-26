@@ -136,13 +136,13 @@ class Device(ControllerSpecific):
     def fmtRMC(self, _str) -> Tuple[str, Dict[str, str]]:
         """fmtRMC(s)
 
-        Receives s as a string and extracts the macro number, the number of instructions
+        Receives _str as a string and extracts the macro number, the number of instructions
         the commands, and percentage full.
 
-        Recreates s from the extracted info and returns the recreated s, as well as the
+        Recreates _str from the extracted info and returns the recreated _str, as well as the
         dict of the relevent info.  The dict keys are: "macro", "numins", "cmds", and "full"
 
-        If unable to parse the input s, just returns the input s and empty dict.
+        If unable to parse the input _str, just returns the input _str and empty dict.
         """
         result: Tuple[str, Dict[str, str]] = (_str, {})
         _d = self.__fmt_n054(_str)
@@ -157,7 +157,6 @@ class Device(ControllerSpecific):
 
                 _jj.append("This macro is ")
                 _jj.append(_d.get("full") + " percent full")
-                #ss = "".join(_jj)
                 result = ("".join(_jj), _d)
         else:
             result = (_str, _d)
