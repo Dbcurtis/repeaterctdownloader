@@ -1,0 +1,25 @@
+2020-10-25 12:12:37,774 - root - <module> - INFO - getports executed as main
+2020-10-25 12:12:37,775 - __main__ - __init__ - DEBUG - Created GetPorts
+2020-10-25 12:12:37,775 - __main__ - __init__ - DEBUG - Detected Python serial version 3.4
+2020-10-25 12:12:37,776 - __main__ - get - DEBUG - entered get
+2020-10-25 12:12:38,017 - __main__ - get - DEBUG - exited get with ['COM4', 'COM104', 'COM3']
+2020-10-25 12:15:06,768 - root - <module> - INFO - getports executed as main
+2020-10-25 12:15:06,768 - __main__ - __init__ - DEBUG - Created GetPorts
+2020-10-25 12:15:06,770 - __main__ - __init__ - DEBUG - Detected Python serial version 3.4
+2020-10-25 12:15:06,770 - __main__ - get - DEBUG - entered get
+2020-10-25 12:15:07,005 - __main__ - get - DEBUG - exited get with ['COM4', 'COM104', 'COM3']
+2020-10-25 12:15:54,260 - root - <module> - INFO - getports executed as main
+2020-10-25 12:15:54,260 - __main__ - __init__ - DEBUG - Created GetPorts
+2020-10-25 12:15:54,261 - __main__ - __init__ - DEBUG - Detected Python serial version 3.4
+2020-10-25 12:15:54,262 - __main__ - get - DEBUG - entered get
+2020-10-25 12:15:54,344 - __main__ - get - DEBUG - exited get with ['COM4', 'COM104']
+2020-10-25 15:56:02,158 - root - <module> - INFO - getports executed as main
+2020-10-25 15:56:02,158 - __main__ - __init__ - DEBUG - Created GetPorts
+2020-10-25 15:56:02,158 - __main__ - __init__ - DEBUG - Detected Python serial version 3.4
+2020-10-25 15:56:02,158 - __main__ - get - DEBUG - entered get
+2020-10-25 15:56:02,387 - __main__ - get - DEBUG - exited get with ['COM4', 'COM104', 'COM3']
+2020-10-25 15:56:20,922 - root - <module> - INFO - getports executed as main
+2020-10-25 15:56:20,922 - __main__ - __init__ - DEBUG - Created GetPorts
+2020-10-25 15:56:20,922 - __main__ - __init__ - DEBUG - Detected Python serial version 3.4
+2020-10-25 15:56:20,922 - __main__ - get - DEBUG - entered get
+2020-10-25 15:56:21,145 - __main__ - get - DEBUG - exited get with ['COM4', 'COM104', 'COM3']
