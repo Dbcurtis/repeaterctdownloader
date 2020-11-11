@@ -9,7 +9,7 @@ Module to send commands to a repeater controller over a serial line.
 import sys
 import os
 #from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
-from typing import Any, Tuple, List, Dict
+from typing import Any, Tuple, List, Dict, Callable
 from os import path
 import logging
 import logging.handlers

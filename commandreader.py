@@ -5,11 +5,15 @@
 
 """
 import os
+import errno
 #from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
 from typing import Any, Dict
 import logging
 import logging.handlers
 #import userinput
+from pathlib import Path
+from glob import iglob
+
 from userinput import UserInput
 
 LOGGER = logging.getLogger(__name__)
@@ -42,8 +46,11 @@ class CommandReader:
             pass
 
     def __init__(self, _ui: UserInput):
+        cwd: Path = Path(os.getcwd())
         self.atts: Dict[str, Any] = {'lasterror': None, "file_in": None,
-                                     'file_name': _ui.inputfn, 'line': "", 'is_closed': True, }
+                                     'file_name': _ui.inputfn, 'line': "",
+                                     'file_path': cwd,
+                                     'is_closed': True, }
 
         self.ui: UserInput = _ui
         self.loc: int = -1  # loc is used to keep track of when the read is done
@@ -66,14 +73,26 @@ class CommandReader:
 
         If the reader is already open when called, will throw an assertion error
         """
+        def _find_file(fn: str) -> Path:
+            _r: str = ''
+            for _r in iglob(f'{Path(os.getcwd())}/**/{fn}', recursive=True):
+                break
+
+            _pth = Path(fn)
+            if _r:
+                _pth = Path(_r)
+
+            return _pth
 
         result: bool = False
         if not self.atts['is_closed']:
             raise AssertionError('Commandreader already open, aborting...')
         #assert(self.closed,'Commandreader already open, aborting...')
+
         try:
+            self.atts['file_path'] = _find_file(self.atts.get('file_name'))
             self.atts['file_in'] = open(
-                self.atts['file_name'], "r")  # assuming file exists and is readable
+                self.atts['file_path'], "r")  # assuming file exists and is readable
             self.atts['is_closed'] = False
             self.atts['lasterror'] = None
             result = True

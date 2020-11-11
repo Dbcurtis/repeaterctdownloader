@@ -12,6 +12,21 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/myserial'
 
+"""Byte_2_String(bs)
+    Takes a byte array (bs) and returns the corrosponding string
+    """
+def Byte_2_String(bs: bytes) -> str: return "".join(
+    [chr(int(b)) for b in bs if int(b) != 13])
+
+
+#def String_2_Byte(st:str) -> bytes: return bytes([ord(s) for s in st])
+"""String_2_Byte(st)
+    Takes a string (st) and returns a corrosponding byte array
+    """
+
+
+def String_2_Byte(st: str) -> bytes: return bytes([ord(s) for s in st])
+
 
 class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
     """MySerial(controller_info)
@@ -24,21 +39,12 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
     _dbidx: int = 0
     _NO: int = -1
 
-    """Byte_2_String(bs)
-
-    Takes a byte array (bs) and returns the corrosponding string
-    """
-    def Byte_2_String(bs: bytes) -> str: return "".join(
-        [chr(int(b)) for b in bs if int(b) != 13])
-
-    #def String_2_Byte(st:str) -> bytes: return bytes([ord(s) for s in st])
-    """String_2_Byte(st)
-
-    Takes a string (st) and returns a corrosponding byte array
-    """
-    def String_2_Byte(st: str) -> bytes: return bytes([ord(s) for s in st])
-
     def __init__(self, controller_info):
+        """MySerial(controller_info)
+
+        Args:
+            controller_info (Controller): [the contorller for which the serial communication is with]
+        """
         super(MySerial, self).__init__()
         self.controller_info = controller_info
         self.cont_prompt = self.controller_info.newcmd_dict.get('prompt')
@@ -48,9 +54,9 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
         return "testing:" + str(MySerial._debugging) + ", " + super(MySerial, self).__str__()
 
     def dread(self, numchar: int) -> bytes:
-        """dread(numchar)
+        """dread(numchar:int)
 
-
+        returns a byte array
         """
         result: bytes = b''
         if not MySerial._debugging:
@@ -80,11 +86,11 @@ class MySerial(serial.Serial):  # pylint: disable=too-many-ancestors
         _sp.timeout = 0.25 + (110.0 / _sp.baudrate)
         _sp.open()
         _sp.dread(9999)
-        _sp.write(MySerial.String_2_Byte('\r'))
+        _sp.write(String_2_Byte('\r'))
         # will generate some response
         # ending in DTMF> if the cps rate is correct (for controllers like the dlxii)
 
-        ctrlresult = MySerial.Byte_2_String(_sp.dread(9999))
+        ctrlresult = Byte_2_String(_sp.dread(9999))
         _sp.close()
         _sp.timeout = _to
         _sp.open()

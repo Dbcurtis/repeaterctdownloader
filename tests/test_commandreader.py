@@ -75,7 +75,7 @@ class TestCommandreader(unittest.TestCase):
             _fcr = CommandReader(fakeui)
             self.assertFalse(_fcr.open())
             self.assertEqual("[Errno 2] No such file or directory: 'totaljunk.txt'",
-                             str(_fcr.atts['lasterror']))
+                                str(_fcr.atts['lasterror']))
             self.assertTrue(_fcr.atts['is_closed'])
         finally:
             if _fcr:
