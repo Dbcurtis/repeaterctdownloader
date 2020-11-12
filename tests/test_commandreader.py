@@ -5,7 +5,7 @@ Test file for commandreader
 from __future__ import print_function
 import sys
 import unittest
-
+import context
 from commandreader import CommandReader
 import userinput
 import knowncontrollers
