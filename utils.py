@@ -11,7 +11,6 @@ from userinput import UserInput
 from controller import Controller
 
 LOGGER = logging.getLogger(__name__)
-
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE: str = '/utils'
 
@@ -20,6 +19,14 @@ IF_TUP = {True: lambda a: [a], False: lambda a: a, }
 
 
 def _range_2_list(_arg: Any) -> List[Any]:
+    """[_range2_list(arg)]
+
+    Args:
+        _arg (Any): [description]
+
+    Returns:
+        List[Any]: [description]
+    """
     _tlist = IF_TUP.get(isinstance(_arg, tuple))(_arg)
     lst: List[Any] = []
     for _ in _tlist:
@@ -84,14 +91,17 @@ class Utils:
         if showhelp:
             Utils._parser.print_help()
 
-    def __str__(self):
+    def __str__(self) -> str:
+        return ", ".join(['testing:' + str(self.testing)] + Utils._cmds).rstrip()
+
+    def __repr__(self) -> str:
         return ", ".join(['testing:' + str(self.testing)] + Utils._cmds).rstrip()
 
     def process_loop(self):
         """ProcessLoop()
 
         Select and execut which UTIL program to run.
-        You commands are run in the following order (assuming all are selected):
+        Your commands are run in the following order (assuming all are selected):
         0)-acr --apply_command_to_range
         1)-ran --recall_all_names
         2)-rmd --recall_macro_def
@@ -101,7 +111,15 @@ class Utils:
 
         This is the primary user access to the utilities
         """
-        print('commands- one of: (-h|-acr|-rmn|-ran|-rmd|-cacn|-q)')
+        print('commands- one of: (-h|-acr|-rmn|-ran|-rmd|-cacn|-q)\n \
+            Select and execut which UTIL program to run.\n \
+            Your commands are run in the following order (assuming all are selected):\n \
+                0)-acr --apply_command_to_range\n \
+                1)-ran --recall_all_names\n \
+                2)-rmd --recall_macro_def\n \
+                3)-rmn  --recall_macro_names\n \
+                4)-cacn --reset_all_comd_names\n \
+                5)-quit')
 
         while True:
             instr = ""
@@ -318,7 +336,7 @@ class Utils:
         """recallMacroDeffinitions()
 
         Scans the user macros to get the macro deffinitions.  If the deffinition has
-         0 commands, the entry is not logged
+        0 commands, the entry is not logged
         to the execution log.  Thus, you get a list of all the macros that are
         defined and what those deffinitions are in
         the execution log.
