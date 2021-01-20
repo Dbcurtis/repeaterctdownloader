@@ -4,7 +4,8 @@ Test file for getports
 """
 from __future__ import print_function
 import unittest
-#import context
+ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(ppath)
 import getports
 
 class TestGetPorts(unittest.TestCase):

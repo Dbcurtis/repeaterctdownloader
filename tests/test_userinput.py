@@ -4,16 +4,16 @@ Test file for userinput
 """
 
 from __future__ import print_function
-import getports
-import userinput
-import myserial
-import dlxii
 import sys
 import unittest
 import serial
 ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(ppath)
 #import context
+import getports
+import userinput
+import myserial
+import dlxii
 
 
 def eprint(*args, **kwargs):
