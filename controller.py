@@ -24,6 +24,7 @@ LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
 LOG_FILE = '/controller'
 
+
 def STRING_2_BYTE(a): return bytearray([ord(s) for s in a])
 def BYTE_2_STRING(a): return "".join([chr(i) for i in a if i != 13])
 

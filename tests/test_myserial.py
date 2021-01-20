@@ -3,13 +3,15 @@
 Test file for MySerial
 """
 from __future__ import print_function
+import dlxii
+import myserial
+import serial
+import getports
 
 import sys
 import unittest
-import getports
-import serial
-import myserial
-import dlxii
+ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(ppath)
 
 #from serial.tools import list_ports
 
@@ -77,8 +79,9 @@ class TestMySerial(unittest.TestCase):
         sp.open()
         msclass = myserial.MySerial
         msclass._dbidx = 0
-        msclass._debugreturns = [b'preread ignored', b'kjljjglkjerrl',
-                                 b'preread ignored', b'9600 succeed DTMF>']
+        msclass._debugreturns = [
+            b'preread ignored', b'kjljjglkjerrl',
+            b'preread ignored', b'9600 succeed DTMF>']
         self.assertFalse(sp.sp_ok())
         self.assertTrue(sp.sp_ok())
         sp.close()
@@ -101,8 +104,9 @@ class TestMySerial(unittest.TestCase):
 
         # test 1) findBaudRate open, 9600
         msclass._dbidx = 0
-        msclass._debugreturns = [b'preread ignored',
-                                 b'9600 open default succeed DTMF>']
+        msclass._debugreturns = [
+            b'preread ignored',
+            b'9600 open default succeed DTMF>']
 
         sp.port = TestMySerial.sdevice
         sp.baudrate = 9600
@@ -115,8 +119,9 @@ class TestMySerial(unittest.TestCase):
         # test 2) findBaudRate close, 9600
         sp.close()
         msclass._dbidx = 0
-        msclass._debugreturns = [b'preread ignored',
-                                 b'9600 close default succeed DTMF>']
+        msclass._debugreturns = [
+            b'preread ignored',
+            b'9600 close default succeed DTMF>']
         self.assertTrue(sp.find_baud_rate())
         self.assertEqual(9600, sp.baudrate)
         self.assertFalse(sp.isOpen())

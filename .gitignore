@@ -1,9 +1,21 @@
 #compiled python modules.
 *.pyc
+*.wpr
+*.wpu
+
+#cache
+__pycache__/
+
+#Logs
+Logs/
+
+#Not the python virtual environment
+.lvenv/
 
 #Setuptools distribution folder
 / dist /
 
+*.in
 #python egg metadata, regnerrated from source files by setuptools.
 /*.egg - info
 /*.egg

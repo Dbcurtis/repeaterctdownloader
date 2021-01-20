@@ -6,6 +6,9 @@ from __future__ import print_function
 import sys
 import unittest
 #import context
+ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(ppath)
+
 import serial
 import myserial
 import userinput
@@ -150,8 +153,10 @@ optional arguments:
         jj = aa([(0, 2), (5, 5), (10, 12)])
         self.assertEqual([0, 1, 2, 5, 10, 11, 12], jj)
         jj = aa([(0, 2), (1, 11), (10, 12)])
-        self.assertEqual([0, 1, 2, 1, 2, 3, 4, 5, 6, 7,
-                          8, 9, 10, 11, 10, 11, 12], jj)
+        self.assertEqual(
+            [0, 1, 2, 1, 2, 3, 4, 5, 6, 7,
+             8, 9, 10, 11, 10, 11, 12], jj
+        )
         jj = set(jj)
         self.assertEqual(set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), jj)
 

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """ TBD """
 
+from controller import Controller
+from userinput import UserInput
+import logging.handlers
+import logging
+import argparse
 import os
 import sys
-from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, Mapping, List, Dict, Set, Deque, Iterable
-import argparse
-import logging
-import logging.handlers
-from userinput import UserInput
-from controller import Controller
+from typing import Any, Union, Tuple, Callable, TypeVar, Generic, Sequence, \
+    Mapping, List, Dict, Set, Deque, Iterable
 
 LOGGER = logging.getLogger(__name__)
 LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/logs'
@@ -54,24 +55,30 @@ class Utils:
 
     _cmds: List[str] = ["cmds: -acr", "-rmn", "-ran", "-rmd", "-cacn", "-q"]
     _parser = argparse.ArgumentParser()
-    _parser.add_argument('-rmn', '--recall_macro_names',
-                         help='return all macro names',
-                         action="store_true")
-    _parser.add_argument('-ran', '--recall_all_names',
-                         help='return all renamed commands',
-                         action="store_true")
-    _parser.add_argument('-rmd', '--recall_macro_def',
-                         help='return all macro deffinitions',
-                         action="store_true")
-    _parser.add_argument('-cacn', '--reset_all_comd_names',
-                         help='reset all command names',
-                         action="store_true")
-    _parser.add_argument('-acr', '--apply_command_to_range',
-                         help='apply command to aruments in specified range',
-                         action="store_true")
-    _parser.add_argument('-q', '--quit',
-                         help='quit the util',
-                         action="store_true")
+    _parser.add_argument(
+        '-rmn', '--recall_macro_names',
+        help='return all macro names',
+        action="store_true")
+    _parser.add_argument(
+        '-ran', '--recall_all_names',
+        help='return all renamed commands',
+        action="store_true")
+    _parser.add_argument(
+        '-rmd', '--recall_macro_def',
+        help='return all macro deffinitions',
+        action="store_true")
+    _parser.add_argument(
+        '-cacn', '--reset_all_comd_names',
+        help='reset all command names',
+        action="store_true")
+    _parser.add_argument(
+        '-acr', '--apply_command_to_range',
+        help='apply command to aruments in specified range',
+        action="store_true")
+    _parser.add_argument(
+        '-q', '--quit',
+        help='quit the util',
+        action="store_true")
 
     def __init__(self, _uii: UserInput, _c: Controller, testing: bool = False, showhelp: bool = True):
         """__init__(ui,testing=False, showhelp=True)
@@ -268,11 +275,13 @@ class Utils:
                     print(f'{pram} must be only DTMF characters')
                     continue
 
-            _ = (cmdnum < 0, startend[0] < 0,
-                 startend[1] < 0,
-                 cmdnum > lstcmd,
-                 startend[0] > startend[1],
-                 startend[1] > lstcmd)
+            _ = (
+                cmdnum < 0, startend[0] < 0,
+                startend[1] < 0,
+                cmdnum > lstcmd,
+                startend[0] > startend[1],
+                startend[1] > lstcmd
+            )
             tst = False
             for _t in _:
                 if _t:
@@ -362,11 +371,13 @@ class Utils:
                     'sending {self.cont_info.newcmd_dict.get("rmc")[0]}{_}')
                 # .format(self.cont_info.newcmd_dict.get('rmc')[0], _))
                 continue
-            if self.c.sendcmd(self.cont_info.newcmd_dict.get('rmc')[0] + _,
-                              display=False,
-                              log_it=True,
-                              select_it=lambda a: _sit(a),
-                              format_it=lambda a: self.cont_info.fmtRCM(a)):
+            if self.c.sendcmd(
+                self.cont_info.newcmd_dict.get('rmc')[0] + _,
+                display=False,
+                log_it=True,
+                select_it=lambda a: _sit(a),
+                format_it=lambda a: self.cont_info.fmtRCM(a)
+            ):
                 sys.stdout.write('.')
         return True
 
