@@ -6,7 +6,6 @@ from __future__ import print_function
 import unittest
 import dlxii
 
-
 class TestControllerspecific(unittest.TestCase):
     """test"""
 

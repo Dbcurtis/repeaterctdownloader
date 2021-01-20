@@ -3,15 +3,16 @@
 Test file for MySerial
 """
 from __future__ import print_function
+import sys
+import unittest
+ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(ppath)
+
 import dlxii
 import myserial
 import serial
 import getports
 
-import sys
-import unittest
-ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(ppath)
 
 #from serial.tools import list_ports
 
