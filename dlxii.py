@@ -155,7 +155,7 @@ class Device(controllerspecific.ControllerSpecific):
              }  # cmd name:(cmd,replypat,replyfmt, cmdformat)
         )
 
-        # the following three should be deprecated <<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>
+        # TODO the following three should be deprecated <<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>
         self.commandsR = range(0, self.newcmd_dict.get('lstcmd') + 1)
         self.userMacrosR = range(self.newcmd_dict.get('umacro')[0],
                                  self.newcmd_dict.get('umacro')[1] + 1)  # goes from 500 to 999

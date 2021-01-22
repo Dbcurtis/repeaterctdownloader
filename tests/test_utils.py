@@ -4,6 +4,7 @@ Test file for utils
 """
 from __future__ import print_function
 import sys
+import os
 import unittest
 #import context
 ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

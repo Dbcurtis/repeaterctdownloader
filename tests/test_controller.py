@@ -6,7 +6,12 @@ from __future__ import print_function
 import os
 import sys
 import time
+import sys
+import os
 import unittest
+#import context
+ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(ppath)
 #import context
 import userinput
 import controller
@@ -88,9 +93,11 @@ class TestController(unittest.TestCase):
         mySPortclass._debugging = False
 
     def test_0inst(self):
+        from sys import platform as _platform
         mySPortclass = myserial.MySerial
         c = controller.Controller(TestController.ui)
         #sss = str(c)
+        #platform.system()
         sexp = '[Controller: False, False, [UserInput: COM4, testcontroller.txt]]'
         rexp = '[Controller: False, False, False, [UserInput: COM4, testcontroller.txt]]'
         self.assertEquals(sexp, str(c))
