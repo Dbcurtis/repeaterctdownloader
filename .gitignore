@@ -13,6 +13,9 @@ logs/
 #Not the python virtual environment
 .lvenv/
 
+#not the log files in tests
+tests/*.*log.txt
+
 #Setuptools distribution folder
 / dist /
 

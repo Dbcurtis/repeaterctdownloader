@@ -5,6 +5,7 @@ Test file for userinput
 
 from __future__ import print_function
 import sys
+import os
 import unittest
 import serial
 ppath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
