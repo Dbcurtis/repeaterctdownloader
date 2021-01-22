@@ -96,10 +96,27 @@ class TestController(unittest.TestCase):
         from sys import platform as _platform
         mySPortclass = myserial.MySerial
         c = controller.Controller(TestController.ui)
-        #sss = str(c)
-        #platform.system()
-        sexp = '[Controller: False, False, [UserInput: COM4, testcontroller.txt]]'
-        rexp = '[Controller: False, False, False, [UserInput: COM4, testcontroller.txt]]'
+        # sss = str(c)
+        # print('\nLOOK HERE>>>>>>>>>>\n')
+        # print(sss)
+        # sss = repr(c)
+        # print(sss)
+        sexp:str = 'not set'
+        rexp:str = 'not set'
+        import platform
+        sysis:str =platform.system()
+        if sysis == 'Linux':
+            sexp = '[Controller: False, False, [UserInput: /dev/ttyUSB0, testcontroller.txt]]'
+            rexp = '[Controller: False, False, False, [UserInput: /dev/ttyUSB0, testcontroller.txt]]'
+        elif sysis == 'Windows':
+            sexp = '[Controller: False, False, [UserInput: COM4, testcontroller.txt]]'
+            rexp = '[Controller: False, False, False, [UserInput: COM4, testcontroller.txt]]'
+            
+        elif sysis == 'Darwin':
+            self.fail('unsupported system type')
+        else:
+            self.fail('unknown system type')
+        
         self.assertEquals(sexp, str(c))
         self.assertEquals(rexp, repr(c))
 
